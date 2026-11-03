@@ -98,8 +98,8 @@ jobs:
           user: ${{ secrets.NUGET_USER }}
 
       # Pushes the symbol packages along with them. A version that is already on NuGet is skipped, so a run can be repeated.
-      #- name: Push to NuGet
-      #  run: dotnet nuget push "artifacts/*.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      - name: Push to NuGet
+        run: dotnet nuget push "artifacts/*.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       # Last, so that a run that failed before can be repeated: until the tag exists, the version counts as new.
       - name: Tag the release
