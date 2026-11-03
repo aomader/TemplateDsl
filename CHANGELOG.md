@@ -5,6 +5,8 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
 
 ## [Unreleased]
 
+## [0.1.0-preview.1] - 2026-11-04
+
 ### Added
 
 - `TemplateDsl`: templates written as plain C#, compiled by a source generator into render methods that write
@@ -14,4 +16,5 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
 - `TemplateDsl.AspNetCore`: `ToResult()` to return a template from a minimal API endpoint or a controller action.
 - Diagnostics TDSL001 to TDSL008, documented in `docs/diagnostics`.
 
-[Unreleased]: https://github.com/aomader/TemplateDsl/commits/main
+[Unreleased]: https://github.com/aomader/TemplateDsl/compare/0.1.0-preview.1...HEAD
+[0.1.0-preview.1]: https://github.com/aomader/TemplateDsl/releases/tag/0.1.0-preview.1
