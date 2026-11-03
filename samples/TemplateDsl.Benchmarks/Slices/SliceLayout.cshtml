@@ -1,0 +1,20 @@
+@inherits RazorLayoutSlice<SliceLayoutModel>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>@Model.Title</title>
+    <meta name="description" content="@Model.Description">
+    @await RenderSectionAsync("head")
+</head>
+<body>
+    <header class="top">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+    </header>
+    <main class="content">
+        @await RenderBodyAsync()
+    </main>
+    <footer>Static footer</footer>
+</body>
+</html>

@@ -1,0 +1,5 @@
+# LF in the repository and in every checkout, also on Windows: the generated files are compared byte for byte, and
+# tests compare output with strings from the sources.
+* text=auto eol=lf
+
+*.png binary

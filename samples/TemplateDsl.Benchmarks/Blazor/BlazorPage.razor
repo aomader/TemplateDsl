@@ -1,0 +1,20 @@
+@* No whitespace between siblings: Blazor would render it, and the output must match TemplateDsl's. *@
+<html><body><div id="user-@UserName" class="@(IsAdmin ? "page admin" : "page")"><div class="header">Hello @UserName@if (Unread > 0)
+{
+    <div class="unread">@Unread unread</div>
+}
+else
+{
+    @("No new messages")
+}</div><div class="nav"><div class="nav-item">Home</div><div class="nav-item">Projects</div><div class="nav-item">Settings</div>@if (IsAdmin)
+{
+    <div class="nav-item">Admin</div>
+}</div><div class="cards"><BlazorCard Title="Inbox" Summary="@($"Messages for {UserName}")" Count="Unread" /><BlazorCard Title="Tasks" Summary="Things to do" Count="3" /><BlazorCard Title="Files" Summary="Recent documents" Count="0" /><BlazorCard Title="Teams" Summary="People you work with" Count="7" /></div><div class="footer">Static footer text</div></div></body></html>
+
+@code {
+    [Parameter, EditorRequired] public string UserName { get; set; } = "";
+
+    [Parameter] public bool IsAdmin { get; set; }
+
+    [Parameter] public int Unread { get; set; }
+}

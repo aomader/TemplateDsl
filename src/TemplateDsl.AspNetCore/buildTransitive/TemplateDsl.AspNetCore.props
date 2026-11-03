@@ -1,0 +1,12 @@
+<Project>
+
+  <!--
+    Everything in this namespace is what endpoints and actions use: ToResult and the result types. Types that most
+    projects don't need would go into a namespace of their own, so that this import stays small. A project can remove
+    it with <Using Remove="TemplateDsl.AspNetCore" />.
+  -->
+  <ItemGroup>
+    <Using Include="TemplateDsl.AspNetCore" />
+  </ItemGroup>
+
+</Project>

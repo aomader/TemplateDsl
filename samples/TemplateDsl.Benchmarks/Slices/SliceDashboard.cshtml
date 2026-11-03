@@ -1,0 +1,32 @@
+@inherits RazorSlice<Dashboard>
+@implements IUsesLayout<SliceLayout, SliceLayoutModel>
+
+<h1>Hello @Model.UserName</h1>
+
+@if (Model.IsAdmin)
+{
+    <p class="admin">You are an administrator</p>
+}
+
+<table>
+    <tbody>
+        @foreach (var row in Model.Rows)
+        {
+            @await RenderPartialAsync(SliceRow.Create(row))
+        }
+    </tbody>
+</table>
+
+@functions {
+    public SliceLayoutModel LayoutModel => new(Model.Title, $"Everything about {Model.UserName}");
+
+    protected override Task ExecuteSectionAsync(string name)
+    {
+        if (name == "head")
+        {
+            <link rel="stylesheet" href="/dashboard.css">
+        }
+
+        return Task.CompletedTask;
+    }
+}

@@ -1,0 +1,26 @@
+@page "/razor"
+@model RazorDashboardModel
+@{
+    ViewData["Title"] = Model.Data.Title;
+    ViewData["Description"] = $"Everything about {Model.Data.UserName}";
+}
+
+@section Head {
+    <link rel="stylesheet" href="/dashboard.css">
+}
+
+<h1>Hello @Model.Data.UserName</h1>
+
+@if (Model.Data.IsAdmin)
+{
+    <p class="admin">You are an administrator</p>
+}
+
+<table>
+    <tbody>
+        @foreach (var row in Model.Data.Rows)
+        {
+            <partial name="_BenchRow" model="row" />
+        }
+    </tbody>
+</table>

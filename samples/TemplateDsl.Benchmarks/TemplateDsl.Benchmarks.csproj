@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Benchmarks</RootNamespace>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <!-- The Razor Pages of the layout benchmark are not slices. -->
+    <EnableDefaultRazorSlices>false</EnableDefaultRazorSlices>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="TemplateDsl" />
+    <Using Include="TemplateDsl.Html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.2" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="10.0.0" />
+    <PackageReference Include="RazorSlices" Version="0.12.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <RazorSlice Include="Slices\**\*.cshtml" Exclude="Slices\**\_ViewImports.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\TemplateDsl.Html\TemplateDsl.Html.csproj" />
+    <ProjectReference Include="..\..\src\TemplateDsl.Generators\TemplateDsl.Generators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+</Project>

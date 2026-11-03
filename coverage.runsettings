@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Code coverage of the packages, for `dotnet test -settings coverage.runsettings`. Only the four assemblies under src/
+  are measured, not the samples or the tests. Members that only exist for Build, which is compiled and never runs,
+  are marked with [ExcludeFromCodeCoverage]. tools/CheckCoverage.cs reads the result and fails below 100%.
+-->
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="Code Coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <CodeCoverage>
+            <ModulePaths>
+              <Include>
+                <ModulePath>.*[\\/]TemplateDsl\.dll$</ModulePath>
+                <ModulePath>.*[\\/]TemplateDsl\.Html\.dll$</ModulePath>
+                <ModulePath>.*[\\/]TemplateDsl\.AspNetCore\.dll$</ModulePath>
+                <ModulePath>.*[\\/]TemplateDsl\.Generators\.dll$</ModulePath>
+              </Include>
+            </ModulePaths>
+            <Attributes>
+              <Exclude>
+                <Attribute>^System\.Diagnostics\.CodeAnalysis\.ExcludeFromCodeCoverageAttribute$</Attribute>
+              </Exclude>
+            </Attributes>
+          </CodeCoverage>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

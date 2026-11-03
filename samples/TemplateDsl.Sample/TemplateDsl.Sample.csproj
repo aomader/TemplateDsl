@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>SampleApp</RootNamespace>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Written by the compiler to look at, and part of the compilation already. -->
+    <Compile Remove="Generated/**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="TemplateDsl" />
+    <Using Include="TemplateDsl.Html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\TemplateDsl.Html\TemplateDsl.Html.csproj" />
+    <ProjectReference Include="..\TemplateDsl.FormatSamples\TemplateDsl.FormatSamples.csproj" />
+    <ProjectReference Include="..\..\src\TemplateDsl.Generators\TemplateDsl.Generators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+</Project>

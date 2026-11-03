@@ -1,0 +1,8 @@
+<Project>
+
+  <!-- The render methods are extension methods, so calling them needs this namespace. -->
+  <ItemGroup>
+    <Using Include="TemplateDsl" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,6 @@
+@inherits RazorSlice<SliceCardModel>
+@* No whitespace between siblings: the output must match TemplateDsl's. *@
+<div id="card-@Model.Title" class="@(Model.Count > 0 ? "card active" : "card")"><div class="card-title">@Model.Title</div><div class="card-body">@Model.Summary<div class="count">@Model.Count items</div></div><div class="card-actions">@await RenderPartialAsync(SliceButton.Create(new("Open")))@await RenderPartialAsync(SliceButton.Create(new("Share", Primary: false)))@if (Model.Count > 0)
+{
+    @await RenderPartialAsync(SliceButton.Create(new("Clear", Primary: false)))
+}</div></div>

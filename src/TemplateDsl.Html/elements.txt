@@ -1,0 +1,167 @@
+# The HTML elements and their attributes. tools/GenerateHtmlElements.cs turns this into C#.
+#
+#   name: attribute attribute?      "?" marks a boolean attribute, which has no value
+#   name: attribute~                "~" marks text for people to read: strings, or numbers and dates in the current culture
+#   name: attribute:any             takes strings, or numbers and dates in the invariant culture. Others take only strings
+#   name: attribute:int             takes only that type, also :double and an enum such as :InputType. :bool writes the word true or false
+#   name: attribute:number          takes any number. :number|text takes strings too, and :date, :month, :time, :datetime those
+#   name.variant!: attribute        a variant with a fixed type attribute, such as input.email, which becomes H.InputEmail
+#   name!: attribute                "!" marks a void element, which has no closing tag or children
+#
+# Attributes on the "global" line go on every element. Event handlers such as onclick are left
+# out on purpose: running a dynamic value as code should never be one parameter away.
+
+global: id:any class style title~ lang dir role slot nonce tabindex:int accesskey contenteditable:bool draggable:bool spellcheck:bool translate popover hidden? inert? autofocus?
+
+# Document
+html: xmlns
+head:
+title:
+base!: href target
+link!: href rel as media type sizes crossorigin integrity hreflang referrerpolicy disabled?
+meta!: name content:any charset http-equiv
+style: media
+body:
+
+# Sections
+article:
+section:
+nav:
+aside:
+h1:
+h2:
+h3:
+h4:
+h5:
+h6:
+hgroup:
+header:
+footer:
+address:
+main:
+search:
+
+# Grouping
+p:
+hr!:
+pre:
+blockquote: cite
+ol: start:int type reversed?
+ul:
+menu:
+li: value:int
+dl:
+dt:
+dd:
+figure:
+figcaption:
+div:
+
+# Text
+a: href target rel download hreflang type ping referrerpolicy
+em:
+strong:
+small:
+s:
+cite:
+q: cite
+dfn:
+abbr:
+ruby:
+rt:
+rp:
+data: value:any
+time: datetime:any
+code:
+var:
+samp:
+kbd:
+sub:
+sup:
+i:
+b:
+u:
+mark:
+bdi:
+bdo:
+span:
+br!:
+wbr!:
+ins: cite datetime:any
+del: cite datetime:any
+
+# Embedded content
+picture:
+source!: src srcset sizes media type width:int height:int
+img!: src alt~ srcset sizes width:int height:int loading decoding crossorigin referrerpolicy usemap ismap?
+iframe: src srcdoc name sandbox allow width:int height:int loading referrerpolicy
+embed!: src type width:int height:int
+object: data type name form width:int height:int usemap
+video: src poster width:int height:int preload crossorigin controls? autoplay? loop? muted? playsinline?
+audio: src preload crossorigin controls? autoplay? loop? muted?
+track!: src kind srclang label~ default?
+map: name
+area!: href alt~ coords shape target rel download ping referrerpolicy
+
+# Tables
+table:
+caption:
+colgroup: span:int
+col!: span:int
+tbody:
+thead:
+tfoot:
+tr:
+td: colspan:int rowspan:int headers
+th: colspan:int rowspan:int headers scope abbr~
+
+# Forms
+form: action method enctype name target rel autocomplete accept-charset novalidate?
+label: for
+input!: type:InputType name:any value:any placeholder~ form list min:any max:any step:any pattern size:int maxlength:int minlength:int src alt~ width:int height:int accept autocomplete dirname inputmode formaction formenctype formmethod formtarget checked? disabled? multiple? readonly? required? formnovalidate?
+# The variants of input take only what their type allows: H.InputEmail, H.InputNumber and so on.
+input.text!: name:any form value placeholder~ dirname autocomplete list maxlength:int minlength:int pattern size:int disabled? readonly? required?
+input.search!: name:any form value placeholder~ dirname autocomplete list maxlength:int minlength:int pattern size:int disabled? readonly? required?
+input.url!: name:any form value placeholder~ autocomplete list maxlength:int minlength:int pattern size:int disabled? readonly? required?
+input.tel!: name:any form value placeholder~ autocomplete list maxlength:int minlength:int pattern size:int disabled? readonly? required?
+input.email!: name:any form value placeholder~ autocomplete list maxlength:int minlength:int pattern size:int disabled? readonly? required? multiple?
+input.password!: name:any form value placeholder~ autocomplete maxlength:int minlength:int pattern size:int disabled? readonly? required?
+input.number!: name:any form value:number min:number max:number step:number|text placeholder~ autocomplete list disabled? readonly? required?
+input.range!: name:any form value:number min:number max:number step:number|text autocomplete list disabled?
+input.date!: name:any form value:date min:date max:date step:number|text autocomplete list disabled? readonly? required?
+input.month!: name:any form value:month min:month max:month step:number|text autocomplete list disabled? readonly? required?
+input.week!: name:any form value min max step:number|text autocomplete list disabled? readonly? required?
+input.time!: name:any form value:time min:time max:time step:number|text autocomplete list disabled? readonly? required?
+input.datetime-local!: name:any form value:datetime min:datetime max:datetime step:number|text autocomplete list disabled? readonly? required?
+input.color!: name:any form value autocomplete list disabled?
+input.checkbox!: name:any form value:any checked? disabled? required?
+input.radio!: name:any form value:any checked? disabled? required?
+input.file!: name:any form accept disabled? multiple? required?
+input.hidden!: name:any form value:any autocomplete disabled?
+input.submit!: name:any form value~ formaction formenctype formmethod formtarget popovertarget popovertargetaction disabled? formnovalidate?
+input.image!: name:any form alt~ src width:int height:int formaction formenctype formmethod formtarget popovertarget popovertargetaction disabled? formnovalidate?
+input.reset!: name:any form value~ popovertarget popovertargetaction disabled?
+input.button!: name:any form value~ popovertarget popovertargetaction disabled?
+button: type name:any value:any form popovertarget popovertargetaction formaction formenctype formmethod formtarget disabled? formnovalidate?
+select: name:any form size:int autocomplete disabled? multiple? required?
+datalist:
+optgroup: label~ disabled?
+option: value:any label~ disabled? selected?
+textarea: name:any form placeholder~ rows:int cols:int maxlength:int minlength:int wrap autocomplete dirname disabled? readonly? required?
+output: for form name
+progress: value:double max:double
+meter: value:double min:double max:double low:double high:double optimum:double
+fieldset: name form disabled?
+legend:
+
+# Interactive
+details: name open?
+summary:
+dialog: open?
+
+# Scripting
+script: src type crossorigin integrity referrerpolicy async? defer? nomodule?
+noscript:
+template:
+canvas: width:int height:int
+slot: name

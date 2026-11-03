@@ -1,0 +1,17 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <!-- The packages: every analyzer, and documentation for all of their public API, which ships as IntelliSense. -->
+  <PropertyGroup>
+    <AnalysisLevel>latest-all</AnalysisLevel>
+    <NoWarn>$(NoWarn.Replace(';CS1591', ''))</NoWarn>
+  </PropertyGroup>
+
+  <!--
+    On CI, paths in the symbols that don't depend on the machine that built them, as /_/src/... . Only for the packages:
+    the tools and tests find the repository through [CallerFilePath], which this would change too.
+  -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+</Project>

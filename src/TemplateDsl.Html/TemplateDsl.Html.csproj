@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+    <Description>The HTML format for TemplateDsl: write HTML templates as plain C#, rendered as streaming UTF-8.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Written by the compiler to look at, and part of the compilation already. -->
+    <Compile Remove="Generated/**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- PrivateAssets="none": the generator in that package must reach consumers of this one too. -->
+    <ProjectReference Include="..\TemplateDsl\TemplateDsl.csproj" PrivateAssets="none" />
+
+    <!-- Generates the code of the format and the elements in this project. -->
+    <ProjectReference Include="..\TemplateDsl.Generators\TemplateDsl.Generators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"
+                      PrivateAssets="all" />
+
+    <None Include="..\..\README.md" Pack="true" PackagePath="/" Visible="false" />
+  </ItemGroup>
+
+</Project>

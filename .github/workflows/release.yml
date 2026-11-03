@@ -1,0 +1,108 @@
+# Publishes the packages to NuGet when the version on main has no Git tag yet. The version is the one in
+# Directory.Build.props: a merge that changes it, such as to 0.1.0-preview.2, releases it, and merges that keep a
+# released version publish nothing. A version whose release failed is released by the next merge, such as the one that
+# fixes the failure. The release notes are checked in the pull request already, see .github/workflows/ci.yml. After
+# publishing, the workflow tags the commit with the version.
+name: Release
+
+on:
+  push:
+    branches: [main]
+  # The same by hand, as to try a failed release again without merging anything.
+  workflow_dispatch:
+
+permissions: {}
+
+# One run at a time, and a running one is never cancelled, so that no push to NuGet stops halfway. With queue: max,
+# every run waits for its turn instead of replacing a waiting one, in the order in which they started waiting.
+concurrency:
+  group: release
+  cancel-in-progress: false
+  queue: max
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  version:
+    name: Find out whether the version is released
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      is-new: ${{ steps.version.outputs.is-new }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # The tags, to know which versions are released already.
+          fetch-depth: 0
+
+      - name: Compare the version with the tags
+        id: version
+        run: |
+          version="$(bash .github/scripts/version.sh HEAD)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+          if [ "$version" = 0.0.0 ]; then
+            echo "0.0.0 is the version before the first release, which is never published."
+            echo "is-new=false" >> "$GITHUB_OUTPUT"
+          elif git rev-parse --quiet --verify "refs/tags/$version" > /dev/null; then
+            echo "$version is released already."
+            echo "is-new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "$version has no tag yet, so it is released now."
+            echo "is-new=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  release:
+    name: Publish ${{ needs.version.outputs.version }}
+    needs: version
+    if: needs.version.outputs.is-new == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      # To push the tag of the release.
+      contents: write
+      # For NuGet's trusted publishing.
+      id-token: write
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+
+    steps:
+      # The commit of this push, not the latest one of main, which can have later changes.
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Pack
+        run: |
+          for project in TemplateDsl TemplateDsl.Html TemplateDsl.AspNetCore; do
+            dotnet pack "src/$project" -c Release -o artifacts
+          done
+
+      - name: Upload the packages
+        uses: actions/upload-artifact@v7
+        with:
+          name: packages
+          path: artifacts/
+
+      - name: Log in to NuGet
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      # Pushes the symbol packages along with them. A version that is already on NuGet is skipped, so a run can be repeated.
+      #- name: Push to NuGet
+      #  run: dotnet nuget push "artifacts/*.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      # Last, so that a run that failed before can be repeated: until the tag exists, the version counts as new.
+      - name: Tag the release
+        run: |
+          git tag "$VERSION" "$GITHUB_SHA"
+          git push origin "refs/tags/$VERSION"

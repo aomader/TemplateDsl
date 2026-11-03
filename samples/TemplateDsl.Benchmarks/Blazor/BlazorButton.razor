@@ -1,0 +1,7 @@
+<div class="@(Primary ? "btn btn-primary" : "btn btn-secondary")">@Label</div>
+
+@code {
+    [Parameter, EditorRequired] public string Label { get; set; } = "";
+
+    [Parameter] public bool Primary { get; set; } = true;
+}
