@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>FormatSamples</RootNamespace>
+    
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Written by the compiler to look at, and part of the compilation already. -->
+    <Compile Remove="Generated/**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Only the core: these formats have nothing to do with HTML. -->
+    <ProjectReference Include="..\..\src\TemplateDsl\TemplateDsl.csproj" />
+    <ProjectReference Include="..\..\src\TemplateDsl.Generators\TemplateDsl.Generators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+</Project>

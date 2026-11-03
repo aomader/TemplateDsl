@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+# A new push to a pull request cancels the run for the previous one.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build:
+    name: Build and test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      # Warnings are errors, so this also runs every analyzer.
+      - name: Build
+        run: dotnet build TemplateDsl.slnx
+
+      - name: Check that the HTML elements are generated from elements.txt
+        run: dotnet run tools/GenerateHtmlElements.cs --check
+
+      - name: Test
+        if: runner.os != 'Linux'
+        run: dotnet test TemplateDsl.slnx --no-build
+
+      # The coverage is the same everywhere, so it is measured once.
+      - name: Test with coverage
+        if: runner.os == 'Linux'
+        run: dotnet test TemplateDsl.slnx --no-build --settings coverage.runsettings --results-directory TestResults/coverage
+
+      - name: Check that every line is covered
+        if: runner.os == 'Linux'
+        run: dotnet run tools/CheckCoverage.cs TestResults/coverage --branches
+
+      - name: Upload the coverage report
+        if: always() && runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage
+          path: TestResults/coverage/**/*.cobertura.xml
+          if-no-files-found: ignore
+
+  packages:
+    name: Package smoke test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      # Packs the real packages and builds projects that consume them like a user would.
+      - name: Pack and consume the packages
+        run: bash tests/PackageSmokeTest/run.sh
+
+  release-notes:
+    name: Release notes
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # The target branch, to compare the version with.
+          fetch-depth: 0
+
+      # Merging a new version releases it, see release.yml, so its notes have to be part of the same pull request.
+      - name: Check the release notes if the version changes
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          version="$(bash .github/scripts/version.sh HEAD)"
+
+          if [ "$version" = 0.0.0 ]; then
+            echo "0.0.0 is the version before the first release, which is never published, so there are no release notes to check."
+          elif [ "$(bash .github/scripts/version.sh "$BASE")" = "$version" ]; then
+            echo "The version stays $version, so there are no release notes to check."
+          else
+            echo "This pull request sets the version to $version, which merging it releases."
+            bash .github/scripts/check-release-notes.sh "$version"
+          fi

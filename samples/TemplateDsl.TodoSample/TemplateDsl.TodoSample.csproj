@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>TodoSample</RootNamespace>
+    
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Written by the compiler to look at, and part of the compilation already. -->
+    <Compile Remove="Generated/**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="TemplateDsl" />
+    <Using Include="TemplateDsl.Html" />
+    <Using Include="TemplateDsl.AspNetCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\TemplateDsl.Html\TemplateDsl.Html.csproj" />
+    <ProjectReference Include="..\..\src\TemplateDsl.AspNetCore\TemplateDsl.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\src\TemplateDsl.Generators\TemplateDsl.Generators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+</Project>

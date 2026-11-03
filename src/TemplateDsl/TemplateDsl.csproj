@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+    <Description>Write templates for any nested text format as plain C#, compiled by a source generator into fast, streaming render methods.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Build the generator first, but do not expose it as a regular assembly reference. -->
+    <ProjectReference Include="..\TemplateDsl.Generators\TemplateDsl.Generators.csproj"
+                      ReferenceOutputAssembly="false"
+                      PrivateAssets="all" />
+
+    <!-- Consumers of the package get the generator automatically. -->
+    <None Include="..\TemplateDsl.Generators\bin\$(Configuration)\netstandard2.0\TemplateDsl.Generators.dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/cs"
+          Visible="false" />
+
+    <None Include="..\..\README.md" Pack="true" PackagePath="/" Visible="false" />
+
+    <InternalsVisibleTo Include="TemplateDsl.Tests" />
+
+    <!-- Imports the namespace of the render methods in projects using the package. -->
+    <None Include="buildTransitive\TemplateDsl.props" Pack="true" PackagePath="buildTransitive/" />
+  </ItemGroup>
+
+</Project>

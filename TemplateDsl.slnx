@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TemplateDsl/TemplateDsl.csproj" />
+    <Project Path="src/TemplateDsl.Generators/TemplateDsl.Generators.csproj" />
+    <Project Path="src/TemplateDsl.Html/TemplateDsl.Html.csproj" />
+    <Project Path="src/TemplateDsl.AspNetCore/TemplateDsl.AspNetCore.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/TemplateDsl.FormatSamples/TemplateDsl.FormatSamples.csproj" />
+    <Project Path="samples/TemplateDsl.Sample/TemplateDsl.Sample.csproj" />
+    <Project Path="samples/TemplateDsl.WebSample/TemplateDsl.WebSample.csproj" />
+    <Project Path="samples/TemplateDsl.TodoSample/TemplateDsl.TodoSample.csproj" />
+    <Project Path="samples/TemplateDsl.Benchmarks/TemplateDsl.Benchmarks.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TemplateDsl.Tests/TemplateDsl.Tests.csproj" />
+  </Folder>
+</Solution>

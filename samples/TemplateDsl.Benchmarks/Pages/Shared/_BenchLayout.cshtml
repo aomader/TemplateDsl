@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>@ViewData["Title"]</title>
+    <meta name="description" content="@ViewData["Description"]">
+    @await RenderSectionAsync("Head", required: false)
+</head>
+<body>
+    <header class="top">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+    </header>
+    <main class="content">
+        @RenderBody()
+    </main>
+    <footer>Static footer</footer>
+</body>
+</html>

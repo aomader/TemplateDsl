@@ -1,0 +1,13 @@
+@* No whitespace between siblings: Blazor would render it, and the output must match TemplateDsl's. *@
+<div id="card-@Title" class="@(Count > 0 ? "card active" : "card")"><div class="card-title">@Title</div><div class="card-body">@Summary<div class="count">@Count items</div></div><div class="card-actions"><BlazorButton Label="Open" /><BlazorButton Label="Share" Primary="false" />@if (Count > 0)
+{
+    <BlazorButton Label="Clear" Primary="false" />
+}</div></div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = "";
+
+    [Parameter, EditorRequired] public string Summary { get; set; } = "";
+
+    [Parameter] public int Count { get; set; }
+}
