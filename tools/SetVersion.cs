@@ -43,6 +43,11 @@ if (current is null)
     return Fail("Directory.Build.props has no <Version>.");
 }
 
+if (!Patterns.SemVer().IsMatch(current))
+{
+    return Fail($"The <Version> in Directory.Build.props, '{current}', isn't a version, such as 0.1.0-preview.2 or 0.1.0.");
+}
+
 if (!Patterns.SemVer().IsMatch(version))
 {
     return Fail($"'{version}' isn't a version, such as 0.1.0-preview.2 or 0.1.0.");
@@ -159,8 +164,12 @@ static partial class Patterns
     [GeneratedRegex(@"<Version>([^<]*)</Version>")]
     public static partial Regex Version();
 
-    /// <summary>Semantic Versioning 2.0 without build metadata, which NuGet ignores.</summary>
-    [GeneratedRegex(@"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$")]
+    /// <summary>
+    /// Semantic Versioning 2.0 without build metadata, which NuGet ignores. Numbers are ASCII digits without leading
+    /// zeros, also in the pre-release, whose other identifiers have a letter or a dash. \z, as $ also matches before a
+    /// final newline.
+    /// </summary>
+    [GeneratedRegex(@"\A(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?\z")]
     public static partial Regex SemVer();
 
     [GeneratedRegex(@"^## \[Unreleased\][^\n]*\n(?<changes>.*?)(?=^## \[|^\[Unreleased\]:|\z)", RegexOptions.Multiline | RegexOptions.Singleline)]
@@ -179,6 +188,8 @@ static partial class Patterns
 /// <summary>The order of versions by Semantic Versioning: numbers first, and a pre-release before its release.</summary>
 static class SemVer
 {
+    // Versions are checked against Patterns.SemVer first, so numbers are ASCII digits without leading zeros, and a
+    // longer one is larger. Comparing them as text that way needs no parsing, so no number is too large.
     public static int Compare(string left, string right)
     {
         var (leftCore, leftPre) = Split(left);
@@ -186,7 +197,7 @@ static class SemVer
 
         for (var i = 0; i < 3; i++)
         {
-            var order = leftCore[i].CompareTo(rightCore[i]);
+            var order = CompareNumbers(leftCore[i], rightCore[i]);
             if (order != 0)
             {
                 return order;
@@ -210,20 +221,24 @@ static class SemVer
         return leftPre.Length.CompareTo(rightPre.Length);
     }
 
-    private static (long[] Core, string[] PreRelease) Split(string version)
+    private static (string[] Core, string[] PreRelease) Split(string version)
     {
         var dash = version.IndexOf('-', StringComparison.Ordinal);
-        var core = (dash < 0 ? version : version[..dash]).Split('.').Select(part => long.Parse(part, CultureInfo.InvariantCulture)).ToArray();
-        return (core, dash < 0 ? [] : version[(dash + 1)..].Split('.'));
+        return ((dash < 0 ? version : version[..dash]).Split('.'), dash < 0 ? [] : version[(dash + 1)..].Split('.'));
     }
 
-    // Numbers compare as numbers and before words, which compare as text.
+    // Numbers compare as numbers and before words, which compare as text. A word can look like a negative number, such as -1.
     private static int CompareIdentifier(string left, string right) =>
-        (long.TryParse(left, CultureInfo.InvariantCulture, out var leftNumber), long.TryParse(right, CultureInfo.InvariantCulture, out var rightNumber)) switch
+        (IsNumber(left), IsNumber(right)) switch
         {
-            (true, true) => leftNumber.CompareTo(rightNumber),
+            (true, true) => CompareNumbers(left, right),
             (true, false) => -1,
             (false, true) => 1,
             _ => string.CompareOrdinal(left, right),
         };
+
+    private static bool IsNumber(string identifier) => identifier.All(char.IsAsciiDigit);
+
+    private static int CompareNumbers(string left, string right) =>
+        left.Length != right.Length ? left.Length.CompareTo(right.Length) : string.CompareOrdinal(left, right);
 }
