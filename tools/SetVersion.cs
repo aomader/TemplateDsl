@@ -57,10 +57,14 @@ if (!Patterns.SemVer().IsMatch(version))
     return Fail($"'{version}' isn't a version, such as 0.1.0-preview.2 or 0.1.0.");
 }
 
-// NuGet stores major, minor and patch as Int32, so dotnet pack can't make packages of larger versions.
-if (!NuGetVersion.TryParseStrict(version, out var packageVersion))
+// The SDK makes the AssemblyVersion and FileVersion of the assemblies from major, minor and patch, whose parts the
+// compiler takes up to 65534 (CS7034). That is less than NuGet's Int32, which TryParseStrict checks.
+const int MaxVersionPart = 65534;
+
+if (!NuGetVersion.TryParseStrict(version, out var packageVersion)
+    || packageVersion.Major > MaxVersionPart || packageVersion.Minor > MaxVersionPart || packageVersion.Patch > MaxVersionPart)
 {
-    return Fail($"'{version}' isn't a version NuGet takes. Its major, minor and patch numbers go up to {int.MaxValue}.");
+    return Fail($"'{version}' can't be built. Its major, minor and patch numbers go up to {MaxVersionPart}, as they become the assembly version.");
 }
 
 if (version == "0.0.0")
