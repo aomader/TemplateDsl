@@ -78,9 +78,11 @@ dotnet add package TemplateDsl.Html --prerelease
 dotnet add package TemplateDsl.AspNetCore --prerelease
 ```
 
-2. Write a template as a `sealed partial` class that derives from `HtmlTemplate` or `AsyncHtmlTemplate`, and implement its `Build` or `BuildAsync` method. Use the static class `H` to write elements, attributes and children, no explicit `using` needed.
+2. Write a template as a `sealed partial` class that derives from `HtmlTemplate` or `AsyncHtmlTemplate`, and implement its `Build` or `BuildAsync` method. Use the static class `H` from the `TemplateDsl.Html` namespace to write elements, attributes and children.
 
 ```csharp
+using TemplateDsl.Html;
+
 public sealed partial class TodoList(IEnumerable<Todo> todos) : HtmlTemplate
 {
     public override IEnumerable<HtmlElement> Build() =>
