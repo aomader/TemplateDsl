@@ -1,6 +1,9 @@
 // Only run, never published, so it needs no native AOT compiler, whose package NuGet's audit may flag.
 #:property PublishAot=false
 
+// NuGet's own parsing and order of versions, which differ from Semantic Versioning in places.
+#:package NuGet.Versioning@7.9.0
+
 // Prepares a release: sets the version of the packages and updates everything that goes with it.
 //
 //   dotnet run tools/SetVersion.cs 0.1.0-preview.2
@@ -12,14 +15,15 @@
 //   section of AnalyzerReleases.Shipped.md. A preview leaves them unshipped, because those release headers only take
 //   plain version numbers.
 //
-// It checks everything first and changes nothing if a check fails: the version is valid, higher than the current one,
-// not tagged yet, and "Unreleased" lists what changed. Merging the result to main releases the version, see
-// .github/workflows/release.yml.
+// It checks everything first and changes nothing if a check fails: the version is valid by Semantic Versioning and for
+// NuGet, higher than the current one by both, "Unreleased" lists what changed, and origin has no tag of it yet. Merging the result
+// to main releases the version, see .github/workflows/release.yml.
 
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using NuGet.Versioning;
 
 const string Repository = "https://github.com/aomader/TemplateDsl";
 
@@ -43,7 +47,7 @@ if (current is null)
     return Fail("Directory.Build.props has no <Version>.");
 }
 
-if (!Patterns.SemVer().IsMatch(current))
+if (!Patterns.SemVer().IsMatch(current) || !NuGetVersion.TryParseStrict(current, out var currentPackageVersion))
 {
     return Fail($"The <Version> in Directory.Build.props, '{current}', isn't a version, such as 0.1.0-preview.2 or 0.1.0.");
 }
@@ -51,6 +55,12 @@ if (!Patterns.SemVer().IsMatch(current))
 if (!Patterns.SemVer().IsMatch(version))
 {
     return Fail($"'{version}' isn't a version, such as 0.1.0-preview.2 or 0.1.0.");
+}
+
+// NuGet stores major, minor and patch as Int32, so dotnet pack can't make packages of larger versions.
+if (!NuGetVersion.TryParseStrict(version, out var packageVersion))
+{
+    return Fail($"'{version}' isn't a version NuGet takes. Its major, minor and patch numbers go up to {int.MaxValue}.");
 }
 
 if (version == "0.0.0")
@@ -63,9 +73,11 @@ if (SemVer.Compare(version, current) <= 0)
     return Fail($"'{version}' isn't higher than the current version, {current}.");
 }
 
-if (IsTagged(version))
+// NuGet ignores case in pre-releases, and compares numbers too large for it as text. A version that isn't higher for
+// NuGet can be the same package version, which the release workflow skips as a duplicate, yet still tags.
+if (VersionComparer.Default.Compare(packageVersion, currentPackageVersion) <= 0)
 {
-    return Fail($"'{version}' is tagged already, so it is released.");
+    return Fail($"'{version}' is higher than {current} by Semantic Versioning, but not for NuGet, which ignores case in pre-releases and compares large numbers in them as text.");
 }
 
 var unreleased = Patterns.Unreleased().Match(changelog);
@@ -75,9 +87,29 @@ if (!unreleased.Success)
     return Fail("CHANGELOG.md has no '## [Unreleased]' section.");
 }
 
-if (string.IsNullOrWhiteSpace(unreleased.Groups["changes"].Value))
+// Headings such as "### Added" alone aren't changes, an entry is a list item with text.
+if (!Patterns.ChangelogEntry().IsMatch(unreleased.Groups["changes"].Value))
 {
-    return Fail("'## [Unreleased]' in CHANGELOG.md lists no changes. Add what this version changes first.");
+    return Fail("'## [Unreleased]' in CHANGELOG.md lists no changes. Add what this version changes first, as items such as '- Added ...'.");
+}
+
+// The release workflow tags each version it releases and pushes the tag to origin. Local tags can be missing or out
+// of date, as in a shallow clone, so origin decides. With --exit-code, 2 means no such tag, anything else but 0 failed.
+var tag = Git("ls-remote", "--exit-code", "--tags", "origin", $"refs/tags/{version}");
+
+if (tag is null)
+{
+    return Fail("Git isn't available, so it can't be checked whether the version is released already.");
+}
+
+if (tag.Value.ExitCode == 0)
+{
+    return Fail($"'{version}' is tagged on origin already, so it is released.");
+}
+
+if (tag.Value.ExitCode != 2)
+{
+    return Fail($"Couldn't check whether '{version}' is tagged on origin already, git ls-remote failed: {tag.Value.Error}");
 }
 
 var date = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
@@ -134,19 +166,26 @@ bool ShipRules(string newVersion)
     return true;
 }
 
-bool IsTagged(string tag)
+// Runs git in the repository, or returns null if git isn't installed.
+(int ExitCode, string Error)? Git(params string[] arguments)
 {
     try
     {
-        using var git = Process.Start(new ProcessStartInfo("git", ["-C", root, "tag", "--list", tag]) { RedirectStandardOutput = true })!;
-        var output = git.StandardOutput.ReadToEnd();
+        using var git = Process.Start(new ProcessStartInfo("git", ["-C", root, .. arguments])
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+        })!;
+
+        // Both at once, so that neither fills up and blocks git.
+        var error = git.StandardError.ReadToEndAsync();
+        git.StandardOutput.ReadToEnd();
         git.WaitForExit();
-        return output.Trim() == tag;
+        return (git.ExitCode, error.Result.Trim());
     }
     catch (System.ComponentModel.Win32Exception)
     {
-        Console.WriteLine("Git isn't available, so it isn't checked whether the version is tagged already.");
-        return false;
+        return null;
     }
 }
 
@@ -174,6 +213,9 @@ static partial class Patterns
 
     [GeneratedRegex(@"^## \[Unreleased\][^\n]*\n(?<changes>.*?)(?=^## \[|^\[Unreleased\]:|\z)", RegexOptions.Multiline | RegexOptions.Singleline)]
     public static partial Regex Unreleased();
+
+    [GeneratedRegex(@"^[ \t]*[-*+][ \t]+\S", RegexOptions.Multiline)]
+    public static partial Regex ChangelogEntry();
 
     [GeneratedRegex(@"^## \[Unreleased\][^\n]*", RegexOptions.Multiline)]
     public static partial Regex UnreleasedHeading();
