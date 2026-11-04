@@ -70,13 +70,17 @@ The version of all packages is `Version` in `Directory.Build.props`, and they ar
 [release workflow](.github/workflows/release.yml) publishes the version on `main` when it has no Git tag yet, and then
 tags the commit with it. Merges that keep a released version publish nothing. A release, also of a preview, is one pull request:
 
-1. Set `Version` to the new version, such as `0.1.0-preview.2` or `0.1.0`. Until the first release, it is `0.0.0`,
-   which is never published.
-2. In `CHANGELOG.md`, turn "Unreleased" into that version and the date, as `## [0.1.0-preview.2] - 2026-11-20`, and
-   start a new "Unreleased" above it.
-3. For a stable version only, such as `0.1.0`: move the rules of `AnalyzerReleases.Unshipped.md` into a
-   `## Release 0.1.0` section of `AnalyzerReleases.Shipped.md`. A preview leaves them unshipped, because those release
-   headers only take plain version numbers, and its diagnostics ship with the stable version that follows.
+Run the release tool with the new version, in a branch for that pull request:
+
+```sh
+dotnet run tools/SetVersion.cs 0.1.0-preview.2
+```
+
+It sets `Version`, turns "Unreleased" in `CHANGELOG.md` into the version and today's date under a new, empty
+"Unreleased", and updates the links at its end. For a stable version only, such as `0.1.0`, it also moves the rules of
+`AnalyzerReleases.Unshipped.md` into a `## Release 0.1.0` section of `AnalyzerReleases.Shipped.md`. A preview leaves them
+unshipped, because those release headers only take plain version numbers. It changes nothing if the version isn't
+higher than the current one, is tagged already, or if "Unreleased" lists no changes.
 
 CI checks these notes in every pull request that changes the version, so a new version can only be merged with them.
 The release workflow relies on those CI checks. If a release fails, the next merge releases the version, such
