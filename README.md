@@ -1,96 +1,130 @@
-![](https://raw.githubusercontent.com/aomader/TemplateDsl/main/assets/icon.png)
-# TemplateDsl
+<h1>
+<img src="https://raw.githubusercontent.com/aomader/TemplateDsl/main/assets/icon.png" alt="" width="24" height="24">
+TemplateDsl
+</h1>
 
-TemplateDsl lets you write (HTML) templates as plain C# classes for which its source generator adds efficient render methods that write UTF-8 straight to a stream. It checks everything at compile time due to its [embedded DSL](https://en.wikipedia.org/wiki/Domain-specific_language) builders, so typos, wrong values and missing context fail the build, and nothing is parsed or looked up at runtime. Templates are composed like any other code, stream when they are async, and come with ASP.NET Core support.
+[![NuGet version](https://img.shields.io/nuget/v/TemplateDsl?label=NuGet)](https://www.nuget.org/packages/TemplateDsl/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+
+
+TemplateDsl lets you write **HTML templates** as **plain C# classes**. A **source generator** compiles them into **render methods** that write **UTF-8 straight to the response**, so typos, wrong values and missing context **fail the build instead of a request**.
+
+- **Type-safe.** Typos, wrong attribute values and a missing context are compile errors, not runtime surprises.
+- **Fast.** Templates write UTF-8 straight to the output, with almost no allocations.
+- **Streaming.** Async templates send their output while they render.
+- **Composable.** Templates are classes you nest, pass around and reuse like any other code.
+- **Explicit, with little boilerplate.** Data comes through constructors, and logic is plain C#.
+- **Safe by default.** Everything is escaped unless you say so.
+
+## Sneak peek
 
 ```csharp
-public sealed record PageContext(string UserName);   // what the whole page shares
-
-public sealed partial class TodoItem(Todo todo) : HtmlTemplate
+// A simple component
+public sealed partial class OrderRow(Order order) : HtmlTemplate
 {
     public override IEnumerable<HtmlElement> Build() =>
     [
-        H.Li.Class(todo.Done ? "done" : null) [
-            H.InputCheckbox.Checked(todo.Done),
-            todo.Title
+        H.Tr.Class(order.IsLate ? "late" : null) [
+            H.Td [ order.Id ],
+            H.Td [ order.Product ],
+            H.Td [ H.Time.DateTime(order.Due) [ order.Due ] ]
         ]
     ];
 }
 
-public sealed partial class TodoList(IReadOnlyList<Todo> todos) : HtmlTemplate<PageContext>
+// An async page that streams a list of orders, with a context for the current user
+public sealed partial class OrdersPage(IAsyncEnumerable<Order> orders) : AsyncHtmlTemplate<PageContext>
 {
-    public override IEnumerable<HtmlElement> Build(PageContext context) =>
-    [
-        H.H1 [ $"{context.UserName}'s todos" ],
-        H.Ul [ H.Each(todos, todo => new TodoItem(todo)) ]
-    ];
+    public override async Task<IEnumerable<HtmlElement>> BuildAsync(PageContext context, CancellationToken ct)
+    {
+        var title = $"Orders of {context.UserName}";
+        
+        return [
+            H.Raw("<!DOCTYPE html>"),
+            H.Html [
+                H.Head [ H.Title [ title ] ],
+                H.Body [
+                    H.H1 [ title ],
+                    H.Table [ await H.EachAsync(orders, order => new OrderRow(order)) ]
+                ]
+            ]
+        ];
+    }
 }
 
-builder.Services.AddScoped(services => new PageContext("Ann"));   // per request, such as the signed-in user
+// A context that is passed to the page and its nested templates
+public sealed record PageContext(string UserName);
 
-app.MapGet("/", (TodoStore store, [FromServices] PageContext context) =>
-    new TodoList(store.All()).ToResult(context));
+services.AddScoped<PageContext>(sp =>
+    new PageContext(sp.GetRequiredService<IUserService>().GetCurrentUserName()));
+
+// Return the page from a minimal API endpoint, with the context injected from the services
+app.MapGet("/orders", (OrderStore store, [FromServices] PageContext context) =>
+    new OrdersPage(store.StreamAll()).ToResult(context));
 ```
-
-A template gets its own data through its constructor. What the whole page shares, such as the user, is its context,
-which nested templates can ask for too, without passing it on. `TodoItem` needs none. With two todos, one of them
-done, the page is:
-
-```html
-<h1>Ann's todos</h1><ul><li class="done"><input type="checkbox" checked>Write &lt;docs&gt;</li><li><input type="checkbox">Ship</li></ul>
-```
-
-## Why?
-
-- **Mistakes fail the build, not a request.** Elements and attributes are typed methods: a misspelled one doesn't
-  compile, `.ColSpan(2)` takes an `int`, and `H.InputCheckbox.Min(3)` is an error because a checkbox has no `min`.
-  A template that needs a context can't be rendered without one, and output is escaped unless you ask for `H.Raw`.
-- **It's just C#.** Autocomplete lists the elements after `H.` and the attributes of each. Templates are classes
-  that get their data through constructors, so refactoring and find-references work as everywhere else. There is
-  no separate file type, view lookup or registration.
-- **Fast, with very few allocations.** The generated methods write UTF-8 without building a tree or intermediate
-  strings. Rendering a page to a stream allocates under 1 KB, and async templates stream as they render.
-  See [how it compares to Razor](#performance-compared-to-razor).
-- **Readable and explicit.** Pages are made of small components, layouts are chosen from outside, and the logic in
-  a template is plain `if`, `switch` and loops. Loading data stays in endpoints and services.
-
-TemplateDsl renders on the server. Client-side interactivity is not a goal, but it works well with htmx, as the
-[todo sample](https://github.com/aomader/TemplateDsl/tree/main/samples/TemplateDsl.TodoSample) shows.
 
 ## Getting started
 
-```sh
-dotnet add package TemplateDsl.Html --prerelease          # HTML templates; brings TemplateDsl and its generator along
-dotnet add package TemplateDsl.AspNetCore --prerelease    # to return templates from endpoints and controllers
+> [!WARNING]
+> The packages are in **preview**. The API may change until 1.0, and a minor version can break the API.
+
+1. [Install](#installation) the [NuGet package(s)](https://www.nuget.org/profiles/aomader) into your .NET 10+ project:
+
+```shell
+# The core package for HTML-based templates.
+dotnet add package TemplateDsl.Html --prerelease
+
+# Optional: convenience methods for serving templates from ASP.NET Core endpoints and controllers.
+dotnet add package TemplateDsl.AspNetCore --prerelease
 ```
 
-It needs .NET 10. All versions are previews so far, which `--prerelease` installs. Until 1.0, the API can still change
-between minor versions. Each breaking change is listed in the
-[changelog](https://github.com/aomader/TemplateDsl/blob/main/CHANGELOG.md), with how to migrate.
-
-A template is a `sealed partial` class deriving from `HtmlTemplate`, or from `HtmlTemplate<TContext>` if it needs a
-context, whose `Build` method returns its output. Render it to a string, write it to a response, or return it from an
-endpoint:
+2. Write a template as a `sealed partial` class that derives from `HtmlTemplate` or `AsyncHtmlTemplate`, and implement its `Build` or `BuildAsync` method. Use the static class `H` from the `TemplateDsl.Html` namespace to write elements, attributes and children.
 
 ```csharp
-var html = new TodoList(todos).RenderToString(pageContext);
-await new TodoList(todos).RenderToAsync(httpContext.Response.BodyWriter, pageContext, httpContext.RequestAborted);
-app.MapGet("/", (TodoStore store, [FromServices] PageContext context) => new TodoList(store.All()).ToResult(context));
+using TemplateDsl.Html;
+
+public sealed partial class TodoList(IEnumerable<Todo> todos) : HtmlTemplate
+{
+    public override IEnumerable<HtmlElement> Build() =>
+    [
+        H.Ul [
+            H.Each(todos, todo => H.Li [ todo.Text ])
+        ]
+    ];
+}
 ```
 
-The render methods are extension methods in the `TemplateDsl` namespace, and `ToResult` is in
-`TemplateDsl.AspNetCore`. The NuGet packages import both automatically. With project references instead of the
-packages, add the `using`s yourself.
+3. Render it to a string or stream.
 
-The packages:
+```csharp
+// Render to a string.
+var html = new TodoList(todos).RenderToString();
 
-- **`TemplateDsl`**: the core and the source generator, for any nested text format.
-- **`TemplateDsl.Html`**: the HTML format.
-- **`TemplateDsl.AspNetCore`**: templates as results of minimal API endpoints and controller actions.
+// Render to a stream asynchronously.
+await new TodoList(todos).RenderToAsync(httpContext.Response.BodyWriter, httpContext.RequestAborted);
+```
 
-The packages are released together with one version, so use the same version for all of them.
+4. Or return it directly from a minimal API endpoint or a controller action.
 
-## Templates and elements
+```csharp
+app.MapGet("/", (TodoStore store) =>
+    // Returns a `TemplateResult` that renders the template and writes its output to the response.
+    new TodoList(store.All()).ToResult());
+```
+
+## Installation
+
+The following packages are published to NuGet and may be installed with, e.g., `dotnet add package <package-name> --prerelease`.
+
+| Package             | Description                                                                     | Version |
+|---------------------|---------------------------------------------------------------------------------|---------|
+| `TemplateDsl`       | The core package for templates, with the base classes and the source generator. | [![NuGet version](https://img.shields.io/nuget/v/TemplateDsl?label=NuGet)](https://www.nuget.org/packages/TemplateDsl/) |
+| `TemplateDsl.Html` | Brings the HTML elements and attributes to the template DSL.                                                                | [![NuGet version](https://img.shields.io/nuget/v/TemplateDsl.Html?label=NuGet)](https://www.nuget.org/packages/TemplateDsl.Html/) |
+| `TemplateDsl.AspNetCore` | Adds convenience methods for returning templates from ASP.NET Core endpoints and controllers. | [![NuGet version](https://img.shields.io/nuget/v/TemplateDsl.AspNetCore?label=NuGet)](https://www.nuget.org/packages/TemplateDsl.AspNetCore/) |
+
+## Features
+
+### Templates and elements
 
 Elements live in the static class `H`, so autocomplete lists them after `H.` and they never clash with the
 lowercase parameters of a template. Attributes are chained in the order they should appear, and children go in
@@ -106,14 +140,13 @@ H.Div.Id("main").Class("card") [
 All standard HTML elements are available. Like all C# methods, their names are PascalCase, so they never clash with
 keywords: `H.Object`, `.Class(...)` and `.For(...)`. Attributes of several words are cased like their DOM property, as in
 `.TabIndex(...)`, `.ReadOnly()` and `.ColSpan(...)`. Elements like `H.Br` and `H.Img.Src(url)` have no children, and the
-doctype is written with `H.Raw("<!DOCTYPE html>")`. The elements are generated from
-`src/TemplateDsl.Html/elements.txt` by `dotnet run tools/GenerateHtmlElements.cs`.
+doctype is written with `H.Raw("<!DOCTYPE html>")`.
 
 Nodes and children brackets can only be used inside `Build`, so that everything is checked and compiled. Templates
 must be `sealed partial` classes, or abstract classes without a `Build` method. What the generator can't compile is a
 build error with its own ID, each explained in [docs/diagnostics](https://github.com/aomader/TemplateDsl/blob/main/docs/diagnostics/README.md).
 
-## Attributes and values
+### Attributes and values
 
 Boolean attributes work with or without a value, as in `.Hidden()` and `.Hidden(isHidden)`. A null value leaves an
 attribute out. Attributes without their own method use `.Attr`, whose name must be a constant while the value can be
@@ -162,10 +195,9 @@ H.Div.Style($"width:{ratio}%").Attr("data-price", price) [   // width:1.5%, data
   request, with `UseRequestLocalization` for example. Otherwise, people get the culture of the server.
 - **For programs:** every other attribute. These use the invariant culture, and dates are written as ISO 8601.
 
-A string is never reformatted, so `.Value(price.ToString("C"))` and `string.Create(culture, $"...")` are the way to
-choose yourself.
+A string is never reformatted, so `.Value(price.ToString("C"))` and `string.Create(culture, $"...")` are the way to go for a specific culture.
 
-## Logic in Build
+### Logic in Build
 
 `Build` is ordinary C#. It can use local variables, statements like `i++` or `list.Add(x)`, `if`, `switch`, `foreach`,
 `for`, `while`, ternaries and `switch` expressions, in which each branch is output:
@@ -187,7 +219,7 @@ Lists are written with `H.Each(items, item => ...)`, and async sequences with `a
 Nodes can only be part of the output. A variable or a statement can't hold one, so `var title = H.H1;` is an error, and
 a template or a method returning a string is what to use instead.
 
-## Components and layouts
+### Components and layouts
 
 Every template is a node, so templates are nested like elements. A template that derives from
 `HtmlTemplateWithChildren` takes children in brackets and places them with `Children`:
@@ -250,7 +282,7 @@ public sealed partial class MainLayout(Page page) : HtmlTemplate
 HtmlTemplate view = user.IsAdmin ? new AdminLayout(page) : new MainLayout(page);
 ```
 
-## Context
+### Context
 
 Some things are needed all over a page, such as translations, asset URLs or the current user. Passing them through
 every constructor is noise, so a template can ask for a context instead. It arrives as a parameter of `Build`, and
@@ -294,7 +326,7 @@ The same exists for the other base classes: `HtmlTemplateWithChildren<TContext>`
 `AsyncHtmlTemplateWithChildren<TContext>`, whose method is `BuildAsync(TContext context, CancellationToken ct)`. The
 context is for what stays the same during a render. A component's own data still goes in its constructor.
 
-## Async and streaming
+### Async and streaming
 
 A sync template renders in one go: `RenderToAsync` holds all of its output in memory, then sends it. That suits normal
 pages. An async template streams: output is sent as it is rendered, a slow client slows down rendering, and a client
@@ -321,7 +353,7 @@ If the client goes away or the token fires, `RenderToAsync` stops with an `Opera
 normally means everything was sent. ASP.NET Core handles that exception for an aborted request, so endpoints don't need
 to catch it. The [web sample](https://github.com/aomader/TemplateDsl/tree/main/samples/TemplateDsl.WebSample) sends each list entry as soon as it exists.
 
-## ASP.NET Core
+### ASP.NET Core
 
 With the `TemplateDsl.AspNetCore` package, an endpoint returns a template with `ToResult()`. The handler gets its
 services and route values as parameters, as usual, and passes them to the constructor, so the compiler checks them:
@@ -350,7 +382,7 @@ app.MapGet("/feed.xml", (Feed feed) => new FeedTemplate(feed).ToResult());   // 
   automatically. A project that doesn't want that removes it with `<Using Remove="TemplateDsl.AspNetCore" />`, and adds
   the `using` where it needs it.
 
-## Security
+### Security
 
 Every value is escaped, in text and in attributes, numbers and dates included. Only `H.Raw(...)` writes text as it is,
 so never pass it untrusted input. Escaping keeps a value inside the text or attribute it's in, but some places
@@ -370,34 +402,27 @@ isn't.
 
 To report a vulnerability, see [SECURITY.md](https://github.com/aomader/TemplateDsl/blob/main/SECURITY.md).
 
-## Performance compared to Razor
+## Performance
 
-Razor mixes C# into markup, and TemplateDsl writes markup as C#. That makes templates ordinary classes: their
-parameters are constructor parameters, a misspelled attribute or a missing context is a compile error, and refactoring,
-find-references and autocomplete work as in any other code. Razor fits better for an app that already uses it, for tag
-helpers and view components, or when the markup is edited by people who don't write C#.
+The [TemplateDsl.Benchmarks](https://github.com/aomader/TemplateDsl/tree/main/samples/TemplateDsl.Benchmarks) sample compares TemplateDsl against Razor Pages and Blazer (where it makes sense), as well as [Razor Slices](https://github.com/DamianEdwards/RazorSlices).
 
-Rendering speed is close to Razor Slices, which also compiles to plain render methods, and well ahead of Razor Pages
-and Blazor's `HtmlRenderer`. All outputs are checked to be the same bytes before measuring:
+Measured with BenchmarkDotNet on .NET SDK 10.0.103 on an AMD Ryzen 7 3700X under Windows 11, the results are favorable to TemplateDsl in both speed and memory usage in all (artificial) test cases:
 
-| Benchmark | TemplateDsl | Razor Slices | Razor Pages | Blazor |
-|-----------|------------:|-------------:|------------:|-------:|
-| Button to string | 123 ns, 144 B | 160 ns, 328 B | | 1,988 ns, 3,792 B |
-| Page to string | 1.70 µs, 3.7 KB | 2.78 µs, 6.7 KB | | 19.1 µs, 21.4 KB |
-| Page to stream | 1.87 µs, 0.9 KB | 5.28 µs, 3.9 KB | | 19.2 µs, 18.8 KB |
-| Whole request with a layout | 79 µs, 11.6 KB | 92 µs, 16.4 KB | 189 µs, 79.0 KB | |
+| Benchmark | TemplateDsl | Razor Slices | Blazor | Razor Pages |
+|-----------|------------:|-------------:|-------:|------------:|
+| Button to string | 123 ns, 144 B | 160 ns, 328 B | 1,988 ns, 3,792 B | |
+| Page to string | 1.70 µs, 3.7 KB | 2.78 µs, 6.7 KB | 19.1 µs, 21.4 KB | |
+| Page to stream | 1.87 µs, 0.9 KB | 5.28 µs, 3.9 KB | 19.2 µs, 18.8 KB | |
+| Whole request with a layout | 79 µs, 11.6 KB | 92 µs, 16.4 KB | | 189 µs, 79.0 KB |
 
-Measured with BenchmarkDotNet on .NET 10 on an AMD Ryzen 7 3700X under Linux. The request benchmark runs in an
-in-process test server and varies by about 15%, so there TemplateDsl and Razor Slices are roughly even. To run them
-yourself: `dotnet run -c Release --project samples/TemplateDsl.Benchmarks -- --filter '*'`.
+To run them yourself, execute `dotnet run -c Release --project samples/TemplateDsl.Benchmarks -- --filter '*'`.
 
 ## Samples
 
 - [`samples/TemplateDsl.TodoSample`](https://github.com/aomader/TemplateDsl/tree/main/samples/TemplateDsl.TodoSample): a classic todo list with ASP.NET Core minimal
-  APIs and htmx 4, built from small components. Every action swaps the app in place without a page reload, and
+  APIs and [htmx 4](https://four.htmx.org/), built from small components. Every action swaps the app in place without a page reload, and
   editing a todo inline swaps only its row.
 - [`samples/TemplateDsl.WebSample`](https://github.com/aomader/TemplateDsl/tree/main/samples/TemplateDsl.WebSample): streaming with layouts and async components.
-  Start it with `dotnet run --project samples/TemplateDsl.WebSample` and open the printed address.
 - [`samples/TemplateDsl.FormatSamples`](https://github.com/aomader/TemplateDsl/tree/main/samples/TemplateDsl.FormatSamples): complete RSS and JSON formats.
 
 ## Other formats
