@@ -16,7 +16,7 @@ tests/PackageSmokeTest/run.sh            # packs the packages and uses them like
 
 The smoke test catches what project references hide, such as a generator that doesn't reach consumers of a package.
 
-The [CI workflow](.github/workflows/ci.yml) runs all of this for every pull request, on Linux and Windows.
+The [CI workflow](.github/workflows/ci.yml) builds, tests, and checks generated HTML on Linux and Windows for every pull request; the package smoke test runs on Linux only.
 
 ## Coverage
 
@@ -79,6 +79,6 @@ tags the commit with it. Merges that keep a released version publish nothing. A 
    headers only take plain version numbers, and its diagnostics ship with the stable version that follows.
 
 CI checks these notes in every pull request that changes the version, so a new version can only be merged with them.
-The release workflow checks them again before publishing. If a release fails, the next merge releases the version, such
+The release workflow relies on those CI checks. If a release fails, the next merge releases the version, such
 as the one that fixes the failure, with everything merged until then. To try again without merging, start the workflow
 by hand.
