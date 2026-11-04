@@ -1,76 +1,116 @@
-![](https://raw.githubusercontent.com/aomader/TemplateDsl/main/assets/icon.png)
-# TemplateDsl
+<h1>
+<img src="https://raw.githubusercontent.com/aomader/TemplateDsl/main/assets/icon.png" alt="" width="32" height="32">
+TemplateDsl
+</h1>
 
-TemplateDsl lets you write (HTML) templates as plain C# classes for which its source generator adds efficient render methods that write UTF-8 straight to a stream. It checks everything at compile time due to its [embedded DSL](https://en.wikipedia.org/wiki/Domain-specific_language) builders, so typos, wrong values and missing context fail the build, and nothing is parsed or looked up at runtime. Templates are composed like any other code, stream when they are async, and come with ASP.NET Core support.
+[![NuGet version](https://img.shields.io/nuget/v/TemplateDsl?label=NuGet)](https://www.nuget.org/packages/TemplateDsl/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+
+
+TemplateDsl lets you write **HTML templates** as **plain C# classes**. A **source generator** compiles them into **render methods** that write **UTF-8 straight to the response**, so typos, wrong values and missing context **fail the build instead of a request**.
+
+- **Type-safe.** Typos, wrong attribute values and a missing context are compile errors, not runtime surprises.
+- **Fast.** Templates write UTF-8 straight to the output, with almost no allocations.
+- **Streaming.** Async templates send their output while they render.
+- **Composable.** Templates are classes you nest, pass around and reuse like any other code.
+- **Explicit, with little boilerplate.** Data comes through constructors, and logic is plain C#.
+- **Safe by default.** Everything is escaped unless you say so.
+
+## Sneak peek
 
 ```csharp
-public sealed record PageContext(string UserName);   // what the whole page shares
-
-public sealed partial class TodoItem(Todo todo) : HtmlTemplate
+// A simple component
+public sealed partial class OrderRow(Order order) : HtmlTemplate
 {
     public override IEnumerable<HtmlElement> Build() =>
     [
-        H.Li.Class(todo.Done ? "done" : null) [
-            H.InputCheckbox.Checked(todo.Done),
-            todo.Title
+        H.Tr.Class(order.IsLate ? "late" : null) [
+            H.Td [ order.Id ],
+            H.Td [ order.Product ],
+            H.Td [ H.Time.DateTime(order.Due) [ order.Due ] ]
         ]
     ];
 }
 
-public sealed partial class TodoList(IReadOnlyList<Todo> todos) : HtmlTemplate<PageContext>
+// An async page that streams a list of orders, with a context for the current user
+public sealed partial class OrdersPage(IAsyncEnumerable<Order> orders) : AsyncHtmlTemplate<PageContext>
 {
-    public override IEnumerable<HtmlElement> Build(PageContext context) =>
-    [
-        H.H1 [ $"{context.UserName}'s todos" ],
-        H.Ul [ H.Each(todos, todo => new TodoItem(todo)) ]
-    ];
+    public override async Task<IEnumerable<HtmlElement>> BuildAsync(PageContext context, CancellationToken ct)
+    {
+        var title = $"Orders of {context.UserName}";
+        
+        return [
+            H.Raw("<!DOCTYPE html>"),
+            H.Html [
+                H.Head [ H.Title [ title ] ],
+                H.Body [
+                    H.H1 [ title ],
+                    H.Table [ await H.EachAsync(orders, order => new OrderRow(order)) ]
+                ]
+            ]
+        ];
+    }
 }
 
-builder.Services.AddScoped(services => new PageContext("Ann"));   // per request, such as the signed-in user
+// A context that is passed to the page and its nested templates
+public sealed record PageContext(string UserName);
 
-app.MapGet("/", (TodoStore store, [FromServices] PageContext context) =>
-    new TodoList(store.All()).ToResult(context));
+services.AddScoped<PageContext>(sp =>
+    new PageContext(sp.GetRequiredService<IUserService>().GetCurrentUserName()));
+
+// Return the page from a minimal API endpoint, with the context injected from the services
+app.MapGet("/orders", (OrderStore store, [FromServices] PageContext context) =>
+    new OrdersPage(store.StreamAll()).ToResult(context));
 ```
-
-A template gets its own data through its constructor. What the whole page shares, such as the user, is its context,
-which nested templates can ask for too, without passing it on. `TodoItem` needs none. With two todos, one of them
-done, the page is:
-
-```html
-<h1>Ann's todos</h1><ul><li class="done"><input type="checkbox" checked>Write &lt;docs&gt;</li><li><input type="checkbox">Ship</li></ul>
-```
-
-## Why?
-
-- **Mistakes fail the build, not a request.** Elements and attributes are typed methods: a misspelled one doesn't
-  compile, `.ColSpan(2)` takes an `int`, and `H.InputCheckbox.Min(3)` is an error because a checkbox has no `min`.
-  A template that needs a context can't be rendered without one, and output is escaped unless you ask for `H.Raw`.
-- **It's just C#.** Autocomplete lists the elements after `H.` and the attributes of each. Templates are classes
-  that get their data through constructors, so refactoring and find-references work as everywhere else. There is
-  no separate file type, view lookup or registration.
-- **Fast, with very few allocations.** The generated methods write UTF-8 without building a tree or intermediate
-  strings. Rendering a page to a stream allocates under 1 KB, and async templates stream as they render.
-  See [how it compares to Razor](#performance-compared-to-razor).
-- **Readable and explicit.** Pages are made of small components, layouts are chosen from outside, and the logic in
-  a template is plain `if`, `switch` and loops. Loading data stays in endpoints and services.
-
-TemplateDsl renders on the server. Client-side interactivity is not a goal, but it works well with htmx, as the
-[todo sample](https://github.com/aomader/TemplateDsl/tree/main/samples/TemplateDsl.TodoSample) shows.
 
 ## Getting started
 
-```sh
-dotnet add package TemplateDsl.Html --prerelease          # HTML templates; brings TemplateDsl and its generator along
-dotnet add package TemplateDsl.AspNetCore --prerelease    # to return templates from endpoints and controllers
+> [!WARNING]
+> The packages are in **preview**. The API may change until 1.0, and a minor version can break the API.
+
+1. Install the [NuGet package(s)]() into your .NET 10+ project:
+
+```shell
+# The core package for HTML-based templates.
+> dotnet add package TemplateDsl.Html --prerelease
+
+# Optional: convenience methods for serving templates from ASP.NET Core endpoints and controllers.
+> dotnet add package TemplateDsl.AspNetCore --prerelease
 ```
 
-It needs .NET 10. All versions are previews so far, which `--prerelease` installs. Until 1.0, the API can still change
-between minor versions. Each breaking change is listed in the
-[changelog](https://github.com/aomader/TemplateDsl/blob/main/CHANGELOG.md), with how to migrate.
+2. Write a template as a `sealed partial` class that derives from `HtmlTemplate` or `AsyncHtmlTemplate`, and implement its `Build` or `BuildAsync` method. Use the static class `H` to write elements, attributes and children, no explicit `using` needed.
 
-A template is a `sealed partial` class deriving from `HtmlTemplate`, or from `HtmlTemplate<TContext>` if it needs a
-context, whose `Build` method returns its output. Render it to a string, write it to a response, or return it from an
-endpoint:
+```
+public sealed partial class TodoList(IEnumerable<Todo> todos) : HtmlTemplate
+{
+    public override IEnumerable<HtmlElement> Build() =>
+    [
+        H.Ul [
+            H.Each(todos, todo => H.Li [ todo.Text ])
+        ]
+    ];
+}
+```
+
+3. Render it to a string or stream.
+
+```csharp
+// Render to a string.
+var html = new TodoList(todos).RenderToString();
+
+// Render to a stream asynchronously.
+await new TodoList(todos).RenderToAsync(httpContext.Response.BodyWriter, httpContext.RequestAborted);
+```
+
+4. Or return it directly from a minimal API endpoint or a controller action.
+
+```csharp
+app.MapGet("/", (TodoStore store) =>
+    // Returns a `TemplateResult` that streams the output of the template to the response.
+    new TodoList(store.All()).ToResult());
+```
+
+5. In ASP.NET Core, return it from an endpoint or controller action.
 
 ```csharp
 var html = new TodoList(todos).RenderToString(pageContext);
