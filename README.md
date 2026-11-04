@@ -68,7 +68,7 @@ app.MapGet("/orders", (OrderStore store, [FromServices] PageContext context) =>
 > [!WARNING]
 > The packages are in **preview**. The API may change until 1.0, and a minor version can break the API.
 
-1. [Install](#installation) the [NuGet package(s)]() into your .NET 10+ project:
+1. [Install](#installation) the [NuGet package(s)](https://www.nuget.org/profiles/aomader) into your .NET 10+ project:
 
 ```shell
 # The core package for HTML-based templates.
@@ -108,7 +108,7 @@ await new TodoList(todos).RenderToAsync(httpContext.Response.BodyWriter, httpCon
 
 ```csharp
 app.MapGet("/", (TodoStore store) =>
-    // Returns a `TemplateResult` that streams the output of the template to the response.
+    // Returns a `TemplateResult` that renders the template and writes its output to the response.
     new TodoList(store.All()).ToResult());
 ```
 
