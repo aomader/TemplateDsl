@@ -8,7 +8,7 @@
       The version of all packages, which are always released together. Merging a change of it to main publishes it,
       see .github/workflows/release.yml. 0.0.0 means that nothing is released yet: it is never published.
     -->
-    <Version>0.1.0-preview.1</Version>
+    <Version>0.1.0-preview.2</Version>
   </PropertyGroup>
 
   <!--

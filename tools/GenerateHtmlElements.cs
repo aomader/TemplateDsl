@@ -1,3 +1,6 @@
+// Only run, never published, so it needs no native AOT compiler, whose package NuGet's audit may flag.
+#:property PublishAot=false
+
 // Generates the HTML elements and the static class H from src/TemplateDsl.Html/elements.txt.
 //
 //   dotnet run tools/GenerateHtmlElements.cs           writes the files

@@ -1,3 +1,6 @@
+// Only run, never published, so it needs no native AOT compiler, whose package NuGet's audit may flag.
+#:property PublishAot=false
+
 // Checks the code coverage of the packages and lists every line that no test runs.
 //
 //   dotnet test TemplateDsl.slnx --settings coverage.runsettings --results-directory TestResults/coverage
