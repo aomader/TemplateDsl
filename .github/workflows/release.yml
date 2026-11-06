@@ -2,7 +2,8 @@
 # Directory.Build.props: a merge that changes it, such as to 0.1.0-preview.2, releases it, and merges that keep a
 # released version publish nothing. A version whose release failed is released by the next merge, such as the one that
 # fixes the failure. The release notes are checked in the pull request already, see .github/workflows/ci.yml. After
-# publishing, the workflow tags the commit with the version.
+# publishing, the workflow creates a GitHub release with the notes of the version from CHANGELOG.md and the packages,
+# which tags the commit with the version.
 name: Release
 
 on:
@@ -64,7 +65,7 @@ jobs:
     if: needs.version.outputs.is-new == 'true'
     runs-on: ubuntu-latest
     permissions:
-      # To push the tag of the release.
+      # To create the GitHub release and its tag.
       contents: write
       # For NuGet's trusted publishing.
       id-token: write
@@ -101,8 +102,22 @@ jobs:
       - name: Push to NuGet
         run: dotnet nuget push "artifacts/*.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
-      # Last, so that a run that failed before can be repeated: until the tag exists, the version counts as new.
-      - name: Tag the release
+      # Last, so that a run that failed before can be repeated: until the tag exists, the version counts as new. Creating
+      # the release creates its tag on this commit, so there is never a tag without a release. A version with a
+      # pre-release label, such as 0.1.0-preview.2, is marked as a pre-release.
+      - name: Create the GitHub release and its tag
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          git tag "$VERSION" "$GITHUB_SHA"
-          git push origin "refs/tags/$VERSION"
+          bash .github/scripts/release-notes.sh "$VERSION" > release-notes.md
+
+          prerelease=()
+          if [[ "$VERSION" == *-* ]]; then
+            prerelease=(--prerelease)
+          fi
+
+          gh release create "$VERSION" artifacts/*.nupkg artifacts/*.snupkg \
+            --target "$GITHUB_SHA" \
+            --title "$VERSION" \
+            --notes-file release-notes.md \
+            "${prerelease[@]}"
