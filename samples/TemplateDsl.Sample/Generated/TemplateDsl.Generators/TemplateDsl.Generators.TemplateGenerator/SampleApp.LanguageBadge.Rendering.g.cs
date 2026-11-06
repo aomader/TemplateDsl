@@ -22,6 +22,9 @@ partial class LanguageBadge
     public static implicit operator global::TemplateDsl.Html.HtmlElement?(LanguageBadge? template) => throw global::TemplateDsl.TemplateBuild.NotExecutable();
 
     [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    string? global::TemplateDsl.IAsyncTemplateContent<global::TemplateDsl.Html.HtmlElement, global::SampleApp.IHasLanguage>.__ContentType => "text/html; charset=utf-8";
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
     void global::TemplateDsl.ITemplateContent<global::TemplateDsl.Html.HtmlElement, global::SampleApp.IHasLanguage>.__RenderContent(global::System.Buffers.IBufferWriter<byte> writer, global::SampleApp.IHasLanguage context) => RenderTo(writer, context);
 
     [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]

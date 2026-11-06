@@ -180,6 +180,13 @@ internal static class FormatReader
     public static bool IsTags(ITypeSymbol type) =>
         type.GetAttributes().Any(attribute => IsAttribute(attribute, "TemplateTagsAttribute"));
 
+    /// <summary>The HTTP Content-Type the format declares, or null.</summary>
+    public static string? ReadContentType(ITypeSymbol format) =>
+        format.GetAttributes()
+            .FirstOrDefault(attribute => IsAttribute(attribute, "TemplateFormatAttribute")) is { } attribute
+            ? GetNamed(attribute, "ContentType")
+            : null;
+
     public static bool FormatsValues(ITypeSymbol format) =>
         format.GetAttributes()
             .Where(attribute => IsAttribute(attribute, "TemplateFormatAttribute"))

@@ -42,6 +42,9 @@ public sealed partial class GatedPage(Task<string> rest) : IAsyncHtmlTemplate
     ];
 }
 
+/// <summary>Renderable, but not content of any format, so it has no content type of its own.</summary>
+public sealed class BareRenderable : ITemplateRenderable, ITemplateRenderable<TestContext>;
+
 public class TemplateResultTests : IAsyncLifetime
 {
     private readonly TaskCompletionSource<string> _gate = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -192,5 +195,12 @@ public class TemplateResultTests : IAsyncLifetime
 
         Assert.Equal(202, ((IStatusCodeHttpResult)result).StatusCode);
         Assert.Equal("application/rss+xml; charset=utf-8", ((IContentTypeHttpResult)result).ContentType);
+    }
+
+    [Fact]
+    public void A_renderable_that_is_no_content_is_sent_as_plain_text()
+    {
+        Assert.Equal("text/plain; charset=utf-8", ((IContentTypeHttpResult)new BareRenderable().ToResult()).ContentType);
+        Assert.Equal("text/plain; charset=utf-8", ((IContentTypeHttpResult)new BareRenderable().ToResult(new TestContext("Hi", "x"))).ContentType);
     }
 }

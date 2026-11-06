@@ -157,6 +157,7 @@ public sealed class TemplateGenerator : IIncrementalGenerator
             symbol.IsAbstract && buildMethod is null ? GetAbstractBuild(isAsync, formatType, contextTypeName) : null,
             // A template that is a node already needs none, and C# doesn't allow one to a base class.
             HasConversion: !isDerived && !isAsync && !FormatReader.BaseTypes(symbol).Any(baseType => SymbolEqualityComparer.Default.Equals(baseType, format)),
+            FormatReader.ReadContentType(format),
             new EquatableArray<DiagnosticInfo>(diagnostics.ToArray()));
     }
 
@@ -773,6 +774,12 @@ public sealed class TemplateGenerator : IIncrementalGenerator
         var context = template.ContextType ?? "object";
         var argument = template.ContextType is null ? "" : ", context";
         var asyncContent = $"{ValueTask} global::TemplateDsl.IAsyncTemplateContent<{template.FormatType}, {context}>.__RenderContentAsync({PipeWriter} writer, {context} context, {Token} cancellationToken)";
+
+        // For a web response, without reflection, which trimming and native AOT may not keep.
+        if (template.ContentType is { } contentType)
+        {
+            source.Append($"\n    {Hidden}\n    string? global::TemplateDsl.IAsyncTemplateContent<{template.FormatType}, {context}>.__ContentType => {SymbolDisplay.FormatLiteral(contentType, quote: true)};\n");
+        }
 
         if (template.IsAsync)
         {

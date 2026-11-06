@@ -15,6 +15,7 @@ TemplateDsl lets you write **HTML templates** as **plain C# classes**. A **sourc
 - **Composable.** Templates are classes you nest, pass around and reuse like any other code.
 - **Explicit, with little boilerplate.** Data comes through constructors, and logic is plain C#.
 - **Safe by default.** Everything is escaped unless you say so.
+- **Trimming and native AOT.** Everything is generated at build time, with no reflection.
 
 ## Sneak peek
 
