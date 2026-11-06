@@ -10,16 +10,31 @@ namespace SampleApp;
 partial class BlogFeed
 {
     /// <summary>Writes this template as UTF-8 to <paramref name="__writer"/>, without flushing.</summary>
-    public override void RenderTo(global::System.Buffers.IBufferWriter<byte> __writer)
+    public void RenderTo(global::System.Buffers.IBufferWriter<byte> __writer)
     {
         global::System.Buffers.BuffersExtensions.Write(__writer, "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\"><channel><title>"u8);
         global::FormatSamples.RssNode.__WriteEscaped_text((string?)(blogTitle), __writer);
         global::System.Buffers.BuffersExtensions.Write(__writer, "</title>"u8);
         foreach (var post in posts)
         {
-            (new FeedItem(post))?.RenderTo(__writer);
+            if ((new FeedItem(post)) is { } __t0) __t0.RenderTo(__writer);
         }
         global::System.Buffers.BuffersExtensions.Write(__writer, "</channel></rss>"u8);
     }
 
+
+    /// <summary>Lets this template be a node in Build.</summary>
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    [return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(template))]
+    public static implicit operator global::FormatSamples.RssNode?(BlogFeed? template) => throw global::TemplateDsl.TemplateBuild.NotExecutable();
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    void global::TemplateDsl.ITemplateContent<global::FormatSamples.RssNode, object>.__RenderContent(global::System.Buffers.IBufferWriter<byte> writer, object context) => RenderTo(writer);
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    global::System.Threading.Tasks.ValueTask global::TemplateDsl.IAsyncTemplateContent<global::FormatSamples.RssNode, object>.__RenderContentAsync(global::System.IO.Pipelines.PipeWriter writer, object context, global::System.Threading.CancellationToken cancellationToken)
+    {
+        RenderTo(writer);
+        return global::TemplateDsl.TemplateStreaming.FlushIfNeededAsync(writer, cancellationToken);
+    }
 }

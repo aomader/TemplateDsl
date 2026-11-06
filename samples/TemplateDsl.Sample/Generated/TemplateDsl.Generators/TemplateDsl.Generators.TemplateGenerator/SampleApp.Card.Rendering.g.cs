@@ -4,39 +4,54 @@
 
 namespace SampleApp;
 
-partial class Card
+partial class Card : global::TemplateDsl.ISyncChildrenRenderer<object>
 {
     [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public override void __RenderWithChildren(global::System.Buffers.IBufferWriter<byte> __writer, global::System.Action? __content)
+    public void __RenderWithChildren<__TChildren>(global::System.Buffers.IBufferWriter<byte> __writer, object __context, __TChildren __children) where __TChildren : global::TemplateDsl.IChildrenWriter
     {
         global::System.Buffers.BuffersExtensions.Write(__writer, "<div class=\"card\"><div class=\"card-title\">"u8);
         global::TemplateDsl.Html.HtmlElement.__WriteEscaped_text((string?)(title), __writer);
         global::System.Buffers.BuffersExtensions.Write(__writer, "</div><div class=\"card-body\">"u8);
-        __content?.Invoke();
+        __children.__Write(__writer);
         global::System.Buffers.BuffersExtensions.Write(__writer, "</div></div>"u8);
     }
 
     [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public override async global::System.Threading.Tasks.ValueTask __RenderWithChildrenAsync(global::System.IO.Pipelines.PipeWriter __writer, global::System.Threading.CancellationToken __ct, global::System.Func<global::System.Threading.Tasks.ValueTask>? __content)
+    public async global::System.Threading.Tasks.ValueTask __RenderWithChildrenAsync<__TChildren>(global::System.IO.Pipelines.PipeWriter __writer, object __context, __TChildren __children, global::System.Threading.CancellationToken __ct) where __TChildren : global::TemplateDsl.IAsyncChildrenWriter
     {
         global::System.Buffers.BuffersExtensions.Write(__writer, "<div class=\"card\"><div class=\"card-title\">"u8);
         global::TemplateDsl.Html.HtmlElement.__WriteEscaped_text((string?)(title), __writer);
         global::System.Buffers.BuffersExtensions.Write(__writer, "</div><div class=\"card-body\">"u8);
-        if (__content is not null) await __content().ConfigureAwait(false);
+        await __children.__WriteAsync(__writer, __ct).ConfigureAwait(false);
         global::System.Buffers.BuffersExtensions.Write(__writer, "</div></div>"u8);
         await global::TemplateDsl.TemplateStreaming.FlushIfNeededAsync(__writer, __ct).ConfigureAwait(false);
     }
 
 
     /// <summary>Writes this template as UTF-8 to <paramref name="writer"/>, without flushing.</summary>
-    public override void RenderTo(global::System.Buffers.IBufferWriter<byte> writer)
+    public void RenderTo(global::System.Buffers.IBufferWriter<byte> writer)
     {
-        __RenderWithChildren(writer, null);
+        __RenderWithChildren(writer, null!, default(global::TemplateDsl.NoChildren));
+    }
+
+    /// <summary>Lets this template be a node in Build.</summary>
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    [return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(template))]
+    public static implicit operator global::TemplateDsl.Html.HtmlElement?(Card? template) => throw global::TemplateDsl.TemplateBuild.NotExecutable();
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    void global::TemplateDsl.ITemplateContent<global::TemplateDsl.Html.HtmlElement, object>.__RenderContent(global::System.Buffers.IBufferWriter<byte> writer, object context) => RenderTo(writer);
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    global::System.Threading.Tasks.ValueTask global::TemplateDsl.IAsyncTemplateContent<global::TemplateDsl.Html.HtmlElement, object>.__RenderContentAsync(global::System.IO.Pipelines.PipeWriter writer, object context, global::System.Threading.CancellationToken cancellationToken)
+    {
+        RenderTo(writer);
+        return global::TemplateDsl.TemplateStreaming.FlushIfNeededAsync(writer, cancellationToken);
     }
 
     /// <summary>The children given to this template. Place this in Build where they should go.</summary>
     private global::TemplateDsl.Html.HtmlElement Children => throw global::TemplateDsl.TemplateBuild.NotExecutable();
 
     /// <summary>The children of this template, in the Build method of another one.</summary>
-    public Card this[params global::TemplateDsl.Html.HtmlElement?[] children] => throw global::TemplateDsl.TemplateBuild.NotExecutable();
+    public Card this[params global::TemplateDsl.TemplateChildren<global::TemplateDsl.Html.HtmlElement> children] => throw global::TemplateDsl.TemplateBuild.NotExecutable();
 }

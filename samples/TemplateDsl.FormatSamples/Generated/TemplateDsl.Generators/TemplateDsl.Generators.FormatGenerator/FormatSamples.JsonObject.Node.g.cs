@@ -7,5 +7,5 @@ partial class JsonObject
 {
     /// <summary>The children of this node in Build.</summary>
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public global::FormatSamples.JsonNode this[params global::FormatSamples.JsonNode?[] children] => throw global::TemplateDsl.TemplateBuild.NotExecutable();
+    public global::FormatSamples.JsonNode this[params global::TemplateDsl.TemplateChildren<global::FormatSamples.JsonNode> children] => throw global::TemplateDsl.TemplateBuild.NotExecutable();
 }

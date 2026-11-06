@@ -11,31 +11,31 @@ public enum BadgeKind
     Secondary,
 }
 
-public sealed partial class RecordBadge(string label) : HtmlTemplate
+public sealed partial class RecordBadge(string label) : IHtmlTemplate
 {
     public BadgeKind Kind { get; init; } = BadgeKind.Primary;
 
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Class(Kind == BadgeKind.Primary ? "primary" : "secondary")[label]
     ];
 }
 
-public sealed partial class ClassBadge(string label) : HtmlTemplate
+public sealed partial class ClassBadge(string label) : IHtmlTemplate
 {
     public BadgeKind Kind { get; init; } = BadgeKind.Primary;
 
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Class(Kind == BadgeKind.Primary ? "primary" : "secondary")[label]
     ];
 }
 
-public sealed partial class HelperBadge(string label) : HtmlTemplate
+public sealed partial class HelperBadge(string label) : IHtmlTemplate
 {
     private string Decorated => $"*{label}*";
 
-    public override IEnumerable<HtmlElement> Build() => [H.Div.Id(this.Decorated)[Shout()]];
+    public IEnumerable<HtmlElement> Build() => [H.Div.Id(this.Decorated)[Shout()]];
 
     private string Shout() => label.ToUpperInvariant();
 }
@@ -126,7 +126,7 @@ public class TemplateRenderingTests
     [Fact]
     public async Task Stream_stays_open_and_is_written_through_the_interface()
     {
-        ITemplateRenderable view = new RecordBadge("Hello");
+        IAsyncHtmlContent view = new RecordBadge("Hello");
         using var stream = new MemoryStream();
 
         await view.RenderToAsync(stream);
@@ -136,9 +136,9 @@ public class TemplateRenderingTests
     }
 }
 
-public sealed partial class TemplateWithRenderParameterNames(string writer, string context) : HtmlTemplate
+public sealed partial class TemplateWithRenderParameterNames(string writer, string context) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.P [ writer ], H.P [ context ]];
+    public IEnumerable<HtmlElement> Build() => [H.P [ writer ], H.P [ context ]];
 }
 
 public class ParameterNameTests

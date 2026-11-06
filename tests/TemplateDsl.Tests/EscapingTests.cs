@@ -5,11 +5,11 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class EscapedEverywhere(string value, string? optional, int number, bool flag) : HtmlTemplate
+public sealed partial class EscapedEverywhere(string value, string? optional, int number, bool flag) : IHtmlTemplate
 {
     private string Helper() => value + "<helper>";
 
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         value,
         H.Text(value),
@@ -26,16 +26,16 @@ public sealed partial class EscapedEverywhere(string value, string? optional, in
     ];
 }
 
-public sealed partial class RawTemplate(string trusted, string untrusted) : HtmlTemplate
+public sealed partial class RawTemplate(string trusted, string untrusted) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Raw("<b>const & raw</b>"),
         H.Div[H.Raw(trusted), untrusted, H.Raw($"<i>{trusted}</i>"), H.Raw(null)]
     ];
 }
 
-public sealed partial class AsyncEscaped(string value) : AsyncHtmlTemplate
+public sealed partial class AsyncEscaped(string value) : IAsyncHtmlTemplate
 {
     private static async IAsyncEnumerable<string> Stream(string value, [EnumeratorCancellation] CancellationToken ct = default)
     {
@@ -43,7 +43,7 @@ public sealed partial class AsyncEscaped(string value) : AsyncHtmlTemplate
         yield return value;
     }
 
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
         await Task.FromResult(value),
         H.Div.Id(await Task.FromResult(value))[$"{await Task.FromResult(value)}"],
@@ -52,9 +52,9 @@ public sealed partial class AsyncEscaped(string value) : AsyncHtmlTemplate
 }
 
 /// <summary>A number type whose text has characters that need escaping: Complex is written as &lt;1; 2&gt;.</summary>
-public sealed partial class AnyNumberAttributes(Complex number) : HtmlTemplate
+public sealed partial class AnyNumberAttributes(Complex number) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.InputNumber.Min(number).Max(number).Value(number),
         H.InputRange.Value(number)
@@ -84,17 +84,16 @@ public static partial class Euro
     public static EuroParagraph P => new();
 }
 
-[TemplateBase]
-public abstract partial class EuroTemplate : EuroNode, ITemplate<EuroNode>;
+public interface IEuroTemplate : ITemplate<EuroNode>;
 
-public sealed partial class EuroPrice(decimal price) : EuroTemplate
+public sealed partial class EuroPrice(decimal price) : IEuroTemplate
 {
-    public override IEnumerable<EuroNode> Build() => [Euro.P [ $"{price:0.00 €}" ], Euro.P [ price ]];
+    public IEnumerable<EuroNode> Build() => [Euro.P [ $"{price:0.00 €}" ], Euro.P [ price ]];
 }
 
-public sealed partial class EuroCode(Bracketed code) : EuroTemplate
+public sealed partial class EuroCode(Bracketed code) : IEuroTemplate
 {
-    public override IEnumerable<EuroNode> Build() => [Euro.P.Code(code) [ "x" ]];
+    public IEnumerable<EuroNode> Build() => [Euro.P.Code(code) [ "x" ]];
 }
 
 /// <summary>A value that formats itself only as characters, not as UTF-8, with characters that need escaping.</summary>
@@ -106,9 +105,9 @@ public readonly struct Bracketed(int value) : ISpanFormattable
         destination.TryWrite($"<{value}&>", out charsWritten);
 }
 
-public sealed partial class BracketedText(Bracketed value) : HtmlTemplate
+public sealed partial class BracketedText(Bracketed value) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.P.Id(value) [ $"{value}" ]];
+    public IEnumerable<HtmlElement> Build() => [H.P.Id(value) [ $"{value}" ]];
 }
 
 public class EscapingTests

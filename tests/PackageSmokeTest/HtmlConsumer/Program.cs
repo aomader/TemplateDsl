@@ -4,14 +4,14 @@ Console.Write(new Page("you", ["one", "two"]).RenderToString());
 Console.Write(await new AsyncPage().RenderToStringAsync());
 Console.Write(new ContextParent().RenderToString("ctx"));
 
-public sealed partial class Item(string label) : HtmlTemplate
+public sealed partial class Item(string label) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Div[label]];
+    public IEnumerable<HtmlElement> Build() => [H.Div[label]];
 }
 
-public sealed partial class Page(string name, string[] items) : HtmlTemplate
+public sealed partial class Page(string name, string[] items) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Class("card")
         [
@@ -21,22 +21,22 @@ public sealed partial class Page(string name, string[] items) : HtmlTemplate
     ];
 }
 
-public sealed partial class SlowPart : AsyncHtmlTemplate
+public sealed partial class SlowPart : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) => [H.P [ await Task.FromResult("slow") ]];
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) => [H.P [ await Task.FromResult("slow") ]];
 }
 
-public sealed partial class AsyncPage : AsyncHtmlTemplate
+public sealed partial class AsyncPage : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) => [H.Div [ await new SlowPart() ]];
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) => [H.Div [ await new SlowPart() ]];
 }
 
-public sealed partial class ContextChild : HtmlTemplate<string>
+public sealed partial class ContextChild : IHtmlTemplate<string>
 {
-    public override IEnumerable<HtmlElement> Build(string context) => [H.I[context]];
+    public IEnumerable<HtmlElement> Build(string context) => [H.I[context]];
 }
 
-public sealed partial class ContextParent : HtmlTemplate<string>
+public sealed partial class ContextParent : IHtmlTemplate<string>
 {
-    public override IEnumerable<HtmlElement> Build(string context) => [new ContextChild()];
+    public IEnumerable<HtmlElement> Build(string context) => [new ContextChild()];
 }

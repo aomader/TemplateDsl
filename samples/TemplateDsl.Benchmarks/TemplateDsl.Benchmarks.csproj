@@ -8,10 +8,18 @@
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
     <!-- The Razor Pages of the layout benchmark are not slices. -->
     <EnableDefaultRazorSlices>false</EnableDefaultRazorSlices>
+
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Written by the compiler to look at, and part of the compilation already. -->
+    <Compile Remove="Generated/**" />
   </ItemGroup>
 
   <ItemGroup>

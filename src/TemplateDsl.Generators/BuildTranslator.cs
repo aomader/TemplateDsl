@@ -39,6 +39,7 @@ internal sealed class BuildTranslator(
     private readonly List<Segment> _segments = [];
     private readonly List<DiagnosticInfo> _diagnostics = [];
     private SemanticModel _semanticModel = null!;
+    private IMethodSymbol? _buildMethod;
 
     public IReadOnlyList<DiagnosticInfo> Diagnostics => _diagnostics;
 
@@ -46,6 +47,7 @@ internal sealed class BuildTranslator(
     public Segment[] Translate(MethodDeclarationSyntax method)
     {
         _semanticModel = compilation.GetSemanticModel(method.SyntaxTree);
+        _buildMethod = _semanticModel.GetDeclaredSymbol(method, cancellationToken);
 
         if (method.ExpressionBody is { } arrow)
         {
@@ -350,25 +352,33 @@ internal sealed class BuildTranslator(
 
         FlushIfAwaits(template);
 
+        var templateType = _semanticModel.GetTypeInfo(template, cancellationToken).Type!;
+        var isContent = IsContent(templateType);
+        var typeParameter = isContent && templateType is ITypeParameterSymbol parameter ? parameter.Name : null;
+
+        // Content renders in one go if it is sync content, and as part of the stream otherwise, which only an async parent can await.
+        var isSyncChild = isContent ? FormatReader.Implements(templateType, FormatReader.ContextContent) : !IsStreaming(template);
+
         if (_separator is null || template is BaseObjectCreationExpressionSyntax)
         {
             WriteSeparator();
-            Add(new Segment(SegmentKind.Template, template.ToString(), PassContext: passContext, IsSyncChild: !IsStreaming(template)));
+            Add(new Segment(SegmentKind.Template, template.ToString(), PassContext: passContext, IsSyncChild: isSyncChild, IsContent: isContent, TypeParameter: typeParameter));
             return;
         }
 
         var variable = $"__child{_nextVariable++}";
 
         Add(SegmentKind.Statement, $"var {variable} = {template};");
-        Add(SegmentKind.BlockStart, $"if ({variable} is not null)");
+        // { } rather than not null, which a struct can't be compared with.
+        Add(SegmentKind.BlockStart, $"if ({variable} is {{ }})");
         WriteSeparator();
-        Add(new Segment(SegmentKind.Template, variable, PassContext: passContext, IsSyncChild: !IsStreaming(template)));
+        Add(new Segment(SegmentKind.Template, variable, PassContext: passContext, IsSyncChild: isSyncChild, IsContent: isContent, TypeParameter: typeParameter));
         Add(SegmentKind.BlockEnd);
     }
 
     /// <summary>Only called for templates, which <see cref="IsTemplate"/> has found to have a type.</summary>
     private bool IsStreaming(ExpressionSyntax template) =>
-        FormatReader.Implements(_semanticModel.GetTypeInfo(template, cancellationToken).Type!, FormatReader.Streaming);
+        FormatReader.IsAsyncTemplate(_semanticModel.GetTypeInfo(template, cancellationToken).Type!);
 
     private void WriteEach(InvocationExpressionSyntax invocation)
     {
@@ -577,7 +587,9 @@ internal sealed class BuildTranslator(
         {
             Report(outermost.GetLocation(), LooksLikeUnresolvedEach(outermost)
                 ? $"'{outermost}' can only be used if the factory class of this format is in another project"
-                : $"'{outermost}' is not a template node");
+                : SymbolEqualityComparer.Default.Equals(_semanticModel.GetTypeInfo(outermost, cancellationToken).Type, format)
+                    ? $"'{outermost}' is a {format.Name}, which Build can only place if it is written there; pass content as a template, such as an IHtmlContent or IHtmlContent<TContext> parameter"
+                    : $"'{outermost}' is not a template node");
             return;
         }
 
@@ -967,19 +979,34 @@ internal sealed class BuildTranslator(
             return;
         }
 
+        // An interface only has brackets if it declares them, and not the methods that render the children it is given,
+        // which the generator adds to a class or struct. A type parameter constrained to one has them through that.
+        if (type is INamedTypeSymbol { TypeKind: TypeKind.Interface })
+        {
+            Report(brackets[0].ArgumentList.GetLocation(), $"children can't be given to a template of the interface type '{type.Name}'; give them to a class, a struct, or a type parameter constrained to one");
+            return;
+        }
+
         if (IsAsyncInSync(template))
         {
             return;
         }
 
-        if (!TryGetPassContext(template, out var passContext))
+        if (!TryGetPassContext(template, out var passContext) || !TryGetCaptures(brackets, out var captures))
         {
             return;
         }
 
+        var forwardsChildren = acceptsChildren && brackets.Any(access => access.ArgumentList.DescendantNodes().OfType<ExpressionSyntax>().Any(IsChildrenReference));
+
         WriteSeparator();
         FlushIfAwaits(template);
-        Add(new Segment(SegmentKind.TemplateWithChildrenStart, template.ToString(), PassContext: passContext));
+        Add(new Segment(
+            SegmentKind.TemplateWithChildrenStart,
+            template.ToString(),
+            PassContext: passContext,
+            Captures: new EquatableArray<Capture>(captures),
+            ForwardsChildren: forwardsChildren));
 
         // These children are placed by the template, inside whatever it writes around them.
         var outerSeparator = _separator;
@@ -993,6 +1020,81 @@ internal sealed class BuildTranslator(
         _separator = outerSeparator;
         Add(SegmentKind.TemplateWithChildrenEnd);
     }
+
+    /// <summary>
+    /// The variables of Build that children given to a template use. The children become a method of the template,
+    /// which can use its members, but gets these as copies. A copy can't be assigned for the code after the children,
+    /// and some types can't be copied into a field at all, so those are reported.
+    /// </summary>
+    private bool TryGetCaptures(List<ElementAccessExpressionSyntax> brackets, out Capture[] captures)
+    {
+        var found = new List<Capture>();
+        var names = new HashSet<string>(StringComparer.Ordinal);
+        var ok = true;
+
+        foreach (var argument in brackets.SelectMany(access => access.ArgumentList.Arguments))
+        {
+            // Children are expressions in the body of Build, which can always be analyzed.
+            var flow = _semanticModel.AnalyzeDataFlow(argument.Expression)!;
+
+            foreach (var variable in Outside(flow.WrittenInside, flow))
+            {
+                Report(argument.GetLocation(), $"'{variable.Name}' is assigned in the children of a template, which only get a copy of it");
+                ok = false;
+            }
+
+            foreach (var variable in Outside(flow.ReadInside, flow))
+            {
+                if (!names.Add(variable.Name))
+                {
+                    continue;
+                }
+
+                // Children only read and write locals and parameters: a query's variables are inside a query, which isn't a child.
+                var (type, isRef) = variable is IParameterSymbol parameter
+                    ? (parameter.Type, parameter.RefKind != RefKind.None)
+                    : (((ILocalSymbol)variable).Type, ((ILocalSymbol)variable).IsRef);
+
+                if (isRef || type.IsRefLikeType || ContainsAnonymousType(type))
+                {
+                    Report(argument.GetLocation(), $"'{variable.Name}' is used in the children of a template, which get a copy of it, but a ref, a ref struct or an anonymous type can't be copied");
+                    ok = false;
+                    continue;
+                }
+
+                var name = SyntaxFacts.GetKeywordKind(variable.Name) != SyntaxKind.None ? "@" + variable.Name : variable.Name;
+                found.Add(new Capture(name, type.ToDisplayString(CaptureFormat)));
+            }
+        }
+
+        captures = found.ToArray();
+        return ok;
+    }
+
+    private static readonly SymbolDisplayFormat CaptureFormat =
+        SymbolDisplayFormat.FullyQualifiedFormat.AddMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
+
+    /// <summary>The variables of Build that children use, which are declared outside of them.</summary>
+    private IEnumerable<ISymbol> Outside(ImmutableArray<ISymbol> variables, DataFlowAnalysis flow) =>
+        variables.Except(flow.VariablesDeclared, SymbolEqualityComparer.Default).Where(IsCaptured);
+
+    /// <summary>
+    /// Locals and lambda parameters, such as the item of Each. The template's own members, its primary constructor and
+    /// the parameters of Build, which become the context and the token, are there for the children's method anyway.
+    /// </summary>
+    private bool IsCaptured(ISymbol variable) =>
+        variable is not IParameterSymbol parameter
+        || (!parameter.IsThis
+            && parameter.ContainingSymbol is not IMethodSymbol { MethodKind: MethodKind.Constructor }
+            && !SymbolEqualityComparer.Default.Equals(parameter.ContainingSymbol, _buildMethod));
+
+    private static bool ContainsAnonymousType(ITypeSymbol type) => type switch
+    {
+        { IsAnonymousType: true } => true,
+        IArrayTypeSymbol array => ContainsAnonymousType(array.ElementType),
+        INamedTypeSymbol named => named.TypeArguments.Any(ContainsAnonymousType),
+        _ => false,
+    };
 
     /// <summary>Recognizes <c>template[a][b]</c>. The indexer is generated, so it may not be resolvable yet.</summary>
     private bool TryGetTemplateBrackets(
@@ -1293,9 +1395,11 @@ internal sealed class BuildTranslator(
         // Only called for templates, which IsTemplate has found to have a type: a class, an interface, which can be the
         // context interface itself, or a type parameter constrained to a template.
         var type = _semanticModel.GetTypeInfo(template, cancellationToken).Type!;
-        var needed = FormatReader.Interfaces(type)
-            .FirstOrDefault(i => FormatReader.IsCoreType(i, FormatReader.ContextRenderable))
-            ?.TypeArguments[0];
+        var needed = IsContent(type)
+            ? ContentContext(type)
+            : FormatReader.Interfaces(type)
+                .FirstOrDefault(i => FormatReader.IsCoreType(i, FormatReader.ContextRenderable))
+                ?.TypeArguments[0];
 
         passContext = needed is not null;
 
@@ -1308,9 +1412,28 @@ internal sealed class BuildTranslator(
             TemplateDsl.Generators.Diagnostics.ContextNotProvided,
             template.GetLocation(),
             contextType is null
-                ? $"'{type.Name}' needs a context of type '{needed.Name}', but this template has no context; derive it from a template base class with a context"
+                ? $"'{type.Name}' needs a context of type '{needed.Name}', but this template has no context; implement a template interface with a context, such as IHtmlTemplate<TContext>"
                 : $"'{type.Name}' needs a context of type '{needed.Name}', which the context '{contextType.Name}' of this template doesn't provide"));
         return false;
+    }
+
+    /// <summary>
+    /// Whether a template is content of an interface or type parameter type, such as <c>IHtmlContent&lt;TContext&gt;</c>,
+    /// <c>IAsyncHtmlContent&lt;TContext&gt;</c> or <c>IHtmlTemplate</c>, which renders through its content methods: called
+    /// directly, so a struct isn't boxed, with the parent's context, which only a template that needs one uses.
+    /// </summary>
+    private static bool IsContent(ITypeSymbol type) =>
+        type is ITypeParameterSymbol or INamedTypeSymbol { TypeKind: TypeKind.Interface }
+        && FormatReader.Implements(type, FormatReader.AsyncContextContent);
+
+    /// <summary>
+    /// The context content renders with, or null if it needs none, which is content for an object context. Only called
+    /// for content, which IsContent has found to have this interface.
+    /// </summary>
+    private static ITypeSymbol? ContentContext(ITypeSymbol type)
+    {
+        var context = FormatReader.Interfaces(type).First(i => FormatReader.IsCoreType(i, FormatReader.AsyncContextContent)).TypeArguments[1];
+        return context.SpecialType == SpecialType.System_Object ? null : context;
     }
 
     private bool IsTemplate(ExpressionSyntax expression) =>

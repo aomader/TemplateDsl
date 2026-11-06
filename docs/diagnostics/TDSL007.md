@@ -4,11 +4,11 @@ Nodes and children brackets are compiled away: the generator turns `Build` into 
 Outside of `Build` there is nothing that would do that, so a node created there could never be rendered.
 
 ```csharp
-public sealed partial class Page : HtmlTemplate
+public sealed partial class Page : IHtmlTemplate
 {
     private static HtmlElement Header() => H.Header [ H.H1 [ "Title" ] ];   // TDSL007
 
-    public override IEnumerable<HtmlElement> Build() => [Header()];
+    public IEnumerable<HtmlElement> Build() => [Header()];
 }
 ```
 
@@ -17,13 +17,13 @@ public sealed partial class Page : HtmlTemplate
 Create a template for the part, which can be used anywhere a node can:
 
 ```csharp
-public sealed partial class Header : HtmlTemplate
+public sealed partial class Header : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Header [ H.H1 [ "Title" ] ]];
+    public IEnumerable<HtmlElement> Build() => [H.Header [ H.H1 [ "Title" ] ]];
 }
 
-public sealed partial class Page : HtmlTemplate
+public sealed partial class Page : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [new Header()];
+    public IEnumerable<HtmlElement> Build() => [new Header()];
 }
 ```

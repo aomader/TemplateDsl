@@ -56,5 +56,5 @@ public static partial class Rss
     public static RssGuid Guid => new();
 }
 
-[TemplateBase]
-public abstract partial class RssTemplate : RssNode, ITemplate<RssNode>;
+/// <summary>A template that outputs RSS.</summary>
+public interface IRssTemplate : ITemplate<RssNode>;

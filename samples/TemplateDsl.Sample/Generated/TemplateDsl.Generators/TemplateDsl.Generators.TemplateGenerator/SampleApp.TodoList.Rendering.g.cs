@@ -7,27 +7,57 @@ namespace SampleApp;
 partial class TodoList
 {
     /// <summary>Writes this template as UTF-8 to <paramref name="__writer"/>, without flushing.</summary>
-    public override void RenderTo(global::System.Buffers.IBufferWriter<byte> __writer)
+    public void RenderTo(global::System.Buffers.IBufferWriter<byte> __writer)
     {
-        (new Card("Todos"))?.__RenderWithChildren(__writer, () =>
-        {
-            foreach (var item in items)
-            {
-                global::System.Buffers.BuffersExtensions.Write(__writer, "<div"u8);
-                if (item.Done)
-                {
-                    global::System.Buffers.BuffersExtensions.Write(__writer, " class=\"todo done\""u8);
-                }
-                else
-                {
-                    global::System.Buffers.BuffersExtensions.Write(__writer, " class=\"todo\""u8);
-                }
-                global::System.Buffers.BuffersExtensions.Write(__writer, ">"u8);
-                global::TemplateDsl.Html.HtmlElement.__WriteEscaped_text((string?)(item.Title), __writer);
-                global::System.Buffers.BuffersExtensions.Write(__writer, "</div>"u8);
-            }
-            (new Button("Add"))?.RenderTo(__writer);
-        });
+        if ((new Card("Todos")) is { } __t0) __t0.__RenderWithChildren(__writer, null!, new __Children0(this));
     }
 
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    private readonly struct __Children0 : global::TemplateDsl.IChildrenWriter
+    {
+        internal readonly TodoList __self;
+
+        public __Children0(TodoList __self)
+        {
+            this.__self = __self;
+        }
+
+        public void __Write(global::System.Buffers.IBufferWriter<byte> __writer) => __self.__WriteChildren0(__writer, this);
+    }
+
+    private void __WriteChildren0(global::System.Buffers.IBufferWriter<byte> __writer, __Children0 __state)
+    {
+        foreach (var item in items)
+        {
+            global::System.Buffers.BuffersExtensions.Write(__writer, "<div"u8);
+            if (item.Done)
+            {
+                global::System.Buffers.BuffersExtensions.Write(__writer, " class=\"todo done\""u8);
+            }
+            else
+            {
+                global::System.Buffers.BuffersExtensions.Write(__writer, " class=\"todo\""u8);
+            }
+            global::System.Buffers.BuffersExtensions.Write(__writer, ">"u8);
+            global::TemplateDsl.Html.HtmlElement.__WriteEscaped_text((string?)(item.Title), __writer);
+            global::System.Buffers.BuffersExtensions.Write(__writer, "</div>"u8);
+        }
+        if ((new Button("Add")) is { } __t0) __t0.RenderTo(__writer);
+    }
+
+
+    /// <summary>Lets this template be a node in Build.</summary>
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    [return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(template))]
+    public static implicit operator global::TemplateDsl.Html.HtmlElement?(TodoList? template) => throw global::TemplateDsl.TemplateBuild.NotExecutable();
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    void global::TemplateDsl.ITemplateContent<global::TemplateDsl.Html.HtmlElement, object>.__RenderContent(global::System.Buffers.IBufferWriter<byte> writer, object context) => RenderTo(writer);
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    global::System.Threading.Tasks.ValueTask global::TemplateDsl.IAsyncTemplateContent<global::TemplateDsl.Html.HtmlElement, object>.__RenderContentAsync(global::System.IO.Pipelines.PipeWriter writer, object context, global::System.Threading.CancellationToken cancellationToken)
+    {
+        RenderTo(writer);
+        return global::TemplateDsl.TemplateStreaming.FlushIfNeededAsync(writer, cancellationToken);
+    }
 }

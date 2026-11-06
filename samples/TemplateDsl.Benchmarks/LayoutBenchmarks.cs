@@ -40,6 +40,13 @@ public partial class LayoutBenchmarks
             return new DslMainLayout(new DslDashboardPage(Dashboard.Sample)).RenderToAsync(context.Response.BodyWriter, context.RequestAborted);
         });
 
+        _app.MapGet("/dsl-struct", (HttpContext context) =>
+        {
+            context.Response.ContentType = "text/html; charset=utf-8";
+            return new DslStructMainLayout<DslStructDashboardPage, DslStructDashboardHead>(new DslStructDashboardPage(Dashboard.Sample))
+                .RenderToAsync(context.Response.BodyWriter, context.RequestAborted);
+        });
+
         _app.MapGet("/slices", () => SliceDashboard.Create(Dashboard.Sample));
 
         await _app.StartAsync();
@@ -55,6 +62,9 @@ public partial class LayoutBenchmarks
 
     [Benchmark(Baseline = true)]
     public Task<byte[]> Layout_TemplateDsl() => _client.GetByteArrayAsync("/dsl");
+
+    [Benchmark]
+    public Task<byte[]> Layout_TemplateDslStruct() => _client.GetByteArrayAsync("/dsl-struct");
 
     [Benchmark]
     public Task<byte[]> Layout_RazorPages() => _client.GetByteArrayAsync("/razor");
@@ -73,13 +83,14 @@ public partial class LayoutBenchmarks
         try
         {
             var dsl = await _client.GetStringAsync("/dsl");
+            var dslStruct = await _client.GetStringAsync("/dsl-struct");
             var razor = await _client.GetStringAsync("/razor");
             var slices = await _client.GetStringAsync("/slices");
-            var same = Normalize(dsl) == Normalize(razor) && Normalize(dsl) == Normalize(slices);
+            var same = dslStruct == dsl && Normalize(dsl) == Normalize(razor) && Normalize(dsl) == Normalize(slices);
 
             Console.WriteLine($"Layout page: {dsl.Length} characters with TemplateDsl, {razor.Length} with Razor Pages, {slices.Length} with RazorSlices.");
 
-            return same ? null : $"Layout outputs differ:\nTemplateDsl: {Normalize(dsl)}\nRazor Pages: {Normalize(razor)}\nRazorSlices: {Normalize(slices)}";
+            return same ? null : $"Layout outputs differ:\nTemplateDsl: {Normalize(dsl)}\nStructs:     {Normalize(dslStruct)}\nRazor Pages: {Normalize(razor)}\nRazorSlices: {Normalize(slices)}";
         }
         finally
         {

@@ -3,9 +3,9 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class TypedInputs(decimal price, int count, double? level, DateOnly day, TimeOnly time, DateTime moment) : HtmlTemplate
+public sealed partial class TypedInputs(decimal price, int count, double? level, DateOnly day, TimeOnly time, DateTime moment) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.InputNumber.Name("price").Min(0).Max(price).Step("any").Value(price),
         H.InputRange.Min(0.5).Max(count).Step(0.25).Value(level),
@@ -21,9 +21,9 @@ public sealed partial class TypedInputs(decimal price, int count, double? level,
     ];
 }
 
-public sealed partial class InputOfType(InputType type, InputType? maybe) : HtmlTemplate
+public sealed partial class InputOfType(InputType type, InputType? maybe) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Input.Type(InputType.DatetimeLocal),
         H.Input.Type(type).Name("a"),

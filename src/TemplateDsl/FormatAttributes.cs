@@ -163,12 +163,3 @@ public sealed class TextNodeAttribute : Attribute
     /// <summary>The <see cref="EscapeAttribute"/> context of the text, or null for no escaping.</summary>
     public string? Escape { get; set; }
 }
-
-/// <summary>
-/// Marks an abstract partial class that templates of a format derive from, implementing <see cref="ITemplate{TNode}"/>
-/// or <see cref="IAsyncTemplate{TNode}"/>, optionally with <see cref="IAcceptsChildren"/> in a class derived from it.
-/// The generator adds the abstract members. A synchronous one should also derive from the format's
-/// base class, which is what makes its templates usable as children directly.
-/// </summary>
-[AttributeUsage(AttributeTargets.Class, Inherited = false)]
-public sealed class TemplateBaseAttribute : Attribute;

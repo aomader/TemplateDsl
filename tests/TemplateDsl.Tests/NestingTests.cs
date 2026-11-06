@@ -2,18 +2,18 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class Chip(string label) : HtmlTemplate
+public sealed partial class Chip(string label) : IHtmlTemplate
 {
     public string? Css { get; init; }
 
-    public override IEnumerable<HtmlElement> Build() => [H.Div.Class(Css)[label]];
+    public IEnumerable<HtmlElement> Build() => [H.Div.Class(Css)[label]];
 }
 
-public sealed partial class ChipBar(string title, Chip? optional, bool flag) : HtmlTemplate
+public sealed partial class ChipBar(string title, Chip? optional, bool flag) : IHtmlTemplate
 {
     public Chip Primary { get; } = new("primary");
 
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         new Chip("top"),
         H.Div.Id(title)
@@ -32,9 +32,9 @@ public sealed partial class ChipBar(string title, Chip? optional, bool flag) : H
     ];
 }
 
-public sealed partial class ChipBranch(bool flag) : HtmlTemplate
+public sealed partial class ChipBranch(bool flag) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build()
+    public IEnumerable<HtmlElement> Build()
     {
         if (flag)
         {
@@ -45,18 +45,18 @@ public sealed partial class ChipBranch(bool flag) : HtmlTemplate
     }
 }
 
-public sealed partial class ChipYield : HtmlTemplate
+public sealed partial class ChipYield : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build()
+    public IEnumerable<HtmlElement> Build()
     {
         yield return new Chip("a");
         yield return "b";
     }
 }
 
-public sealed partial class TreeNode(int depth) : HtmlTemplate
+public sealed partial class TreeNode(int depth) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Id($"d{depth}")[depth > 0 ? new TreeNode(depth - 1) : null]
     ];

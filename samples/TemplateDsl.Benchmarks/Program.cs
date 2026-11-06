@@ -3,13 +3,19 @@ using Benchmarks;
 
 // The comparison only means something if all sides produce the same bytes.
 var benchmarks = new RenderBenchmarks();
-foreach (var outputs in new[] { benchmarks.RenderButtonOutputs(), benchmarks.RenderPageOutputs() })
+foreach (var outputs in new[] { benchmarks.RenderButtonOutputs(), benchmarks.RenderPageOutputs(), benchmarks.RenderLargePageOutputs() })
 {
     if (outputs.Distinct().Count() != 1)
     {
-        Console.Error.WriteLine($"Outputs differ:\nTemplateDsl: {outputs[0]}\nBlazor:      {outputs[1]}\nRazorSlices: {outputs[2]}{(outputs.Length > 3 ? $"\nAsync:       {outputs[3]}" : "")}");
+        Console.Error.WriteLine($"Outputs differ:\n{string.Join("\n", outputs)}");
         return 1;
     }
+}
+
+if (await benchmarks.RenderPipeOutputsAsync() is [_, ..] pipeOutputs)
+{
+    Console.Error.WriteLine($"Outputs to the pipe differ:\n{string.Join("\n", pipeOutputs.Select(output => output.Length > 300 ? output[..300] + "..." : output))}");
+    return 1;
 }
 
 Console.WriteLine($"Outputs are identical ({benchmarks.RenderPageOutputs()[0].Length} characters for the page).");

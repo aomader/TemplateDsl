@@ -7,6 +7,23 @@ namespace TemplateDsl.Generators;
 // Everything in this file has value equality and holds no symbols or syntax nodes,
 // so that the incremental pipeline can cache its results between compilations.
 
+/// <param name="Namespace">The namespace of the template, or null for the global one.</param>
+/// <param name="Name">The name of the template, with its type parameters.</param>
+/// <param name="MetadataName">The name of the template in metadata, which names the generated file.</param>
+/// <param name="Keyword">How the type is declared: class, struct, record or record struct.</param>
+/// <param name="Usings">The using directives of the file with Build, which the copied expressions may need.</param>
+/// <param name="Segments">What the render methods write, or null to generate nothing, such as for a type that isn't partial.</param>
+/// <param name="AcceptsChildren">Whether the template can be given children in brackets.</param>
+/// <param name="IsAsync">Whether the template streams.</param>
+/// <param name="CancellationParameter">The name BuildAsync gives its cancellation token, if it is async.</param>
+/// <param name="ContextType">The type of the context the template needs, if it needs one.</param>
+/// <param name="ContextParameter">The name Build gives its context, if it needs one.</param>
+/// <param name="FormatType">The format's node type.</param>
+/// <param name="Modifier">Of the render methods: empty, virtual, override, or abstract for a template without Build.</param>
+/// <param name="Interfaces">The interface to add for children, for a template that takes them and whose base class isn't one already, or null.</param>
+/// <param name="AbstractBuild">The Build method to declare for an abstract template that doesn't declare it, or null.</param>
+/// <param name="HasConversion">Whether it gets a conversion to the format's node type, which only sync templates have.</param>
+/// <param name="Diagnostics">What is wrong with the template, if anything.</param>
 internal sealed record TemplateModel(
     string? Namespace,
     string Name,
@@ -20,6 +37,10 @@ internal sealed record TemplateModel(
     string? ContextType,
     string? ContextParameter,
     string FormatType,
+    string Modifier,
+    string? Interfaces,
+    string? AbstractBuild,
+    bool HasConversion,
     EquatableArray<DiagnosticInfo> Diagnostics);
 
 internal enum SegmentKind
@@ -46,6 +67,7 @@ internal enum SegmentKind
 
     /// <summary>The place where this template's own children go.</summary>
     Children,
+
 
     /// <summary>Text is code that writes nothing itself, such as a statement or a case label, copied as it is.</summary>
     Statement,
@@ -75,6 +97,10 @@ internal enum SegmentKind
 /// <param name="IsInvariant">For formatted values: whether they use the invariant culture instead of the current one.</param>
 /// <param name="IsUtf8">For formatted values: whether they can format themselves as UTF-8.</param>
 /// <param name="IsSyncChild">For nested templates: whether this one renders in one go.</param>
+/// <param name="Captures">For children given to a template: the variables of Build they use, which their method gets.</param>
+/// <param name="TypeParameter">For content of a type parameter type: its name, to test for null without boxing a struct.</param>
+/// <param name="IsContent">For nested templates: whether this one is content of an interface or type parameter type, which may need a context or not.</param>
+/// <param name="ForwardsChildren">For children given to a template: whether they include this template's own children.</param>
 internal sealed record Segment(
     SegmentKind Kind,
     string Text,
@@ -85,7 +111,14 @@ internal sealed record Segment(
     string? ValueFormat = null,
     bool IsInvariant = false,
     bool IsUtf8 = false,
-    bool IsSyncChild = false);
+    bool IsSyncChild = false,
+    EquatableArray<Capture>? Captures = null,
+    bool ForwardsChildren = false,
+    bool IsContent = false,
+    string? TypeParameter = null);
+
+/// <summary>A variable of Build that children given to a template use, by its name in code and its type.</summary>
+internal sealed record Capture(string Name, string Type);
 
 internal sealed record DiagnosticInfo(
     DiagnosticDescriptor Descriptor,

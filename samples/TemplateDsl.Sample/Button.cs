@@ -6,11 +6,11 @@ public enum ButtonKind
     Secondary,
 }
 
-public sealed partial class Button(string label) : HtmlTemplate
+public sealed partial class Button(string label) : IHtmlTemplate
 {
     public ButtonKind Kind { get; init; } = ButtonKind.Primary;
 
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Class(Kind == ButtonKind.Primary ? "btn btn-primary" : "btn btn-secondary") [
             label

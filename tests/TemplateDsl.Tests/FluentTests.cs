@@ -5,9 +5,9 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class FluentPage(string id, bool done) : HtmlTemplate
+public sealed partial class FluentPage(string id, bool done) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Class("box").Id(id).Attr("data-id", id) [
             H.InputCheckbox.Checked(done).Disabled(),
@@ -46,9 +46,9 @@ public class FluentTests
                 using TemplateDsl;
                 using TemplateDsl.Html;
 
-                public sealed partial class T : HtmlTemplate
+                public sealed partial class T : IHtmlTemplate
                 {
-                    public override IEnumerable<HtmlElement> Build() {{build}}
+                    public IEnumerable<HtmlElement> Build() {{build}}
                 }
                 """)],
             ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
@@ -71,7 +71,7 @@ public class FluentTests
     }
 }
 
-public sealed partial class ClashPage(string id, string p) : HtmlTemplate
+public sealed partial class ClashPage(string id, string p) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Div.Id(id) [ H.P [ p ] ]];
+    public IEnumerable<HtmlElement> Build() => [H.Div.Id(id) [ H.P [ p ] ]];
 }

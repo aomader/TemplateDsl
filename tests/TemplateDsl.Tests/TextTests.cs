@@ -2,11 +2,11 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class TextTemplate : HtmlTemplate
+public sealed partial class TextTemplate : IHtmlTemplate
 {
     private const string Constant = "from constant";
 
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         "top level",
         H.Text(" explicit top level"),

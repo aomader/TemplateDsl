@@ -9,25 +9,25 @@ using Xunit;
 
 namespace Tests;
 
-public abstract class LayoutPage : HtmlTemplate
+public abstract partial class LayoutPage : IHtmlTemplate
 {
     public abstract string PageTitle { get; }
 
-    public virtual HtmlTemplate? Extra => null;
+    public virtual IHtmlTemplate? Extra => null;
 }
 
 public sealed partial class HomeContent(string name) : LayoutPage
 {
     public override string PageTitle => $"Hello {name}";
 
-    public override HtmlTemplate? Extra => new HomeExtra();
+    public override IHtmlTemplate? Extra => new HomeExtra();
 
     public override IEnumerable<HtmlElement> Build() => [H.H1 [ $"Welcome {name}" ]];
 }
 
-public sealed partial class HomeExtra : HtmlTemplate
+public sealed partial class HomeExtra : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Meta.Name("a").Content("b")];
+    public IEnumerable<HtmlElement> Build() => [H.Meta.Name("a").Content("b")];
 }
 
 public sealed partial class AboutContent : LayoutPage
@@ -37,36 +37,36 @@ public sealed partial class AboutContent : LayoutPage
     public override IEnumerable<HtmlElement> Build() => [H.P [ "About" ]];
 }
 
-public sealed partial class LayoutA(LayoutPage page) : HtmlTemplate
+public sealed partial class LayoutA(LayoutPage page) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Html [ H.Head [ H.Title [ page.PageTitle ], page.Extra ], H.Body [ H.Main [ page ] ] ]
     ];
 }
 
-public sealed partial class LayoutB(LayoutPage page) : HtmlTemplate
+public sealed partial class LayoutB(LayoutPage page) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Div.Class("b") [ page ]];
+    public IEnumerable<HtmlElement> Build() => [H.Div.Class("b") [ page ]];
 }
 
-public sealed partial class AsyncContent(Task<string> value) : AsyncHtmlTemplate
+public sealed partial class AsyncContent(Task<string> value) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) => [H.P [ await value ]];
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) => [H.P [ await value ]];
 }
 
-public sealed partial class AsyncLayout(AsyncHtmlTemplate page, HtmlTemplate? sync) : AsyncHtmlTemplate
+public sealed partial class AsyncLayout(IAsyncHtmlTemplate page, IHtmlTemplate? sync) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
         H.Div [ "before", sync, await page, new Panel("in panel") [ await page ], "after" ]
     ];
 }
 
 
-public sealed partial class JsonOne : JsonTemplate
+public sealed partial class JsonOne : IJsonTemplate
 {
-    public override IEnumerable<JsonNode> Build() => [Json.Lit ("9")];
+    public IEnumerable<JsonNode> Build() => [Json.Lit ("9")];
 }
 
 public class LayoutTests
@@ -93,7 +93,7 @@ public class LayoutTests
     public void Layout_can_be_chosen_at_runtime_and_rendered_through_the_interface(bool first, string expected)
     {
         LayoutPage page = new AboutContent();
-        HtmlTemplate view = first ? new LayoutA(page) : new LayoutB(page);
+        IHtmlTemplate view = first ? new LayoutA(page) : new LayoutB(page);
 
         Assert.Equal(expected, view.RenderToString());
 
@@ -105,7 +105,7 @@ public class LayoutTests
     [Fact]
     public async Task Sync_and_async_views_render_to_streams_through_the_common_interface()
     {
-        ITemplateRenderable[] views = [new LayoutB(new AboutContent()), new AsyncContent(Task.FromResult("v"))];
+        IAsyncHtmlContent[] views = [new LayoutB(new AboutContent()), new AsyncContent(Task.FromResult("v"))];
         string[] expected = ["<div class=\"b\"><p>About</p></div>", "<p>v</p>"];
 
         for (var i = 0; i < views.Length; i++)
@@ -119,7 +119,7 @@ public class LayoutTests
     [Fact]
     public async Task Async_view_renders_to_a_string_through_the_interface()
     {
-        AsyncHtmlTemplate view = new AsyncContent(Task.FromResult("v"));
+        IAsyncHtmlTemplate view = new AsyncContent(Task.FromResult("v"));
 
         Assert.Equal("<p>v</p>", await view.RenderToStringAsync());
     }
@@ -194,9 +194,9 @@ public class LayoutTests
     public void Async_template_in_a_sync_layout_is_rejected_by_csharp()
     {
         var (diagnostics, errors) = Run("""
-            public sealed partial class T(AsyncHtmlTemplate page) : HtmlTemplate
+            public sealed partial class T(IAsyncHtmlTemplate page) : IHtmlTemplate
             {
-                public override IEnumerable<HtmlElement> Build() => [page];
+                public IEnumerable<HtmlElement> Build() => [page];
             }
             """);
 
@@ -208,9 +208,9 @@ public class LayoutTests
     public void Template_of_another_format_does_not_compile()
     {
         var (_, errors) = Run("""
-            public sealed partial class T(JsonTemplate page) : HtmlTemplate
+            public sealed partial class T(JsonNode page) : IHtmlTemplate
             {
-                public override IEnumerable<HtmlElement> Build() => [page];
+                public IEnumerable<HtmlElement> Build() => [page];
             }
             """);
 
@@ -219,17 +219,17 @@ public class LayoutTests
 
 }
 
-public sealed partial class JsonLayoutPage(JsonTemplate? first, JsonTemplate? second) : JsonTemplate
+public sealed partial class JsonLayoutPage(IJsonTemplate? first, IJsonTemplate? second) : IJsonTemplate
 {
-    public override IEnumerable<JsonNode> Build() =>
+    public IEnumerable<JsonNode> Build() =>
     [
         Json.Arr [ Json.Lit ("1"), first, second, Json.Lit ("2") ]
     ];
 }
 
-public sealed partial class AwaitedInterfaceLayout(AsyncHtmlTemplate? page) : AsyncHtmlTemplate
+public sealed partial class AwaitedInterfaceLayout(IAsyncHtmlTemplate? page) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) => [H.Div [ "a", await page!, "b" ]];
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) => [H.Div [ "a", await page!, "b" ]];
 }
 
 public class AwaitedTemplateTests

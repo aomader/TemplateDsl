@@ -4,11 +4,11 @@ A nested template gets its context from the template that writes it (see "Contex
 less than that, such as one interface of the context, but not for more, and not for one if the parent has none.
 
 ```csharp
-public sealed partial class SaveButton : HtmlTemplate<IHasStrings> { ... }
+public sealed partial class SaveButton : IHtmlTemplate<IHasStrings> { ... }
 
-public sealed partial class Form : HtmlTemplate                     // no context
+public sealed partial class Form : IHtmlTemplate                     // no context
 {
-    public override IEnumerable<HtmlElement> Build() => [new SaveButton()];   // TDSL008
+    public IEnumerable<HtmlElement> Build() => [new SaveButton()];   // TDSL008
 }
 ```
 
@@ -19,9 +19,9 @@ Give the parent a context that has what the child needs, either the same type or
 ```csharp
 public sealed record AppContext(Strings Strings, User User) : IHasStrings;
 
-public sealed partial class Form : HtmlTemplate<AppContext>
+public sealed partial class Form : IHtmlTemplate<AppContext>
 {
-    public override IEnumerable<HtmlElement> Build(AppContext context) => [new SaveButton()];
+    public IEnumerable<HtmlElement> Build(AppContext context) => [new SaveButton()];
 }
 ```
 

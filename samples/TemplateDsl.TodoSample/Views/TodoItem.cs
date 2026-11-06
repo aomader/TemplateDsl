@@ -4,9 +4,9 @@ namespace TodoSample.Views;
 /// One todo as it is shown. Ticking and deleting change the counter too, so they return the whole app. Edit only
 /// replaces this row with a <see cref="TodoEditor"/>, which replaces itself with this row again when it's done.
 /// </summary>
-public sealed partial class TodoItem(Todo todo, TodoFilter filter) : HtmlTemplate
+public sealed partial class TodoItem(Todo todo, TodoFilter filter) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Li.Id($"todo-{todo.Id}") [
             H.Label.Class(todo.Done ? "done" : null) [

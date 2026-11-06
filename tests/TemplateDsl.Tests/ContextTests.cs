@@ -12,29 +12,29 @@ public interface IHasGreeting
 
 public sealed record TestContext(string Greeting, string User) : IHasGreeting;
 
-public sealed partial class NarrowChild : HtmlTemplate<IHasGreeting>
+public sealed partial class NarrowChild : IHtmlTemplate<IHasGreeting>
 {
-    public override IEnumerable<HtmlElement> Build(IHasGreeting c) => [H.B [ c.Greeting ]];
+    public IEnumerable<HtmlElement> Build(IHasGreeting c) => [H.B [ c.Greeting ]];
 }
 
-public sealed partial class PlainChild : HtmlTemplate
+public sealed partial class PlainChild : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.I [ "plain" ]];
+    public IEnumerable<HtmlElement> Build() => [H.I [ "plain" ]];
 }
 
-public sealed partial class Box : HtmlTemplateWithChildren
+public sealed partial class Box : IHtmlTemplate, IAcceptsChildren
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Div [ Children ]];
+    public IEnumerable<HtmlElement> Build() => [H.Div [ Children ]];
 }
 
-public sealed partial class ContextBox : HtmlTemplateWithChildren<TestContext>
+public sealed partial class ContextBox : IHtmlTemplate<TestContext>, IAcceptsChildren
 {
-    public override IEnumerable<HtmlElement> Build(TestContext context) => [H.Section.Id(context.User) [ Children ]];
+    public IEnumerable<HtmlElement> Build(TestContext context) => [H.Section.Id(context.User) [ Children ]];
 }
 
-public sealed partial class ContextPage(string[] items) : HtmlTemplate<TestContext>
+public sealed partial class ContextPage(string[] items) : IHtmlTemplate<TestContext>
 {
-    public override IEnumerable<HtmlElement> Build(TestContext ctx)
+    public IEnumerable<HtmlElement> Build(TestContext ctx)
     {
         var upper = ctx.User.ToUpperInvariant();
 
@@ -51,21 +51,21 @@ public sealed partial class ContextPage(string[] items) : HtmlTemplate<TestConte
     }
 }
 
-public sealed partial class AsyncContextChild : AsyncHtmlTemplate<IHasGreeting>
+public sealed partial class AsyncContextChild : IAsyncHtmlTemplate<IHasGreeting>
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(IHasGreeting c, CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(IHasGreeting c, CancellationToken ct) =>
         [H.B [ await Task.FromResult(c.Greeting) ]];
 }
 
-public sealed partial class AsyncContextBox : AsyncHtmlTemplateWithChildren<TestContext>
+public sealed partial class AsyncContextBox : IAsyncHtmlTemplate<TestContext>, IAcceptsChildren
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(TestContext c, CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(TestContext c, CancellationToken ct) =>
         [H.Section.Id(await Task.FromResult(c.User)) [ Children ]];
 }
 
-public sealed partial class AsyncContextPage : AsyncHtmlTemplate<TestContext>
+public sealed partial class AsyncContextPage : IAsyncHtmlTemplate<TestContext>
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(TestContext c, CancellationToken cancellationToken) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(TestContext c, CancellationToken cancellationToken) =>
     [
         H.P [ await Task.FromResult(c.User) ],
         await new AsyncContextChild(),
@@ -76,7 +76,7 @@ public sealed partial class AsyncContextPage : AsyncHtmlTemplate<TestContext>
 }
 
 /// <summary>A contract for layouts, whose implementations and layout share a context.</summary>
-public abstract class ContextContent : HtmlTemplate<TestContext>
+public abstract partial class ContextContent : IHtmlTemplate<TestContext>
 {
     public abstract string Title { get; }
 }
@@ -88,23 +88,22 @@ public sealed partial class ContextHome : ContextContent
     public override IEnumerable<HtmlElement> Build(TestContext c) => [H.P [ c.User ]];
 }
 
-public sealed partial class ContextLayout(ContextContent page) : HtmlTemplate<TestContext>
+public sealed partial class ContextLayout(ContextContent page) : IHtmlTemplate<TestContext>
 {
-    public override IEnumerable<HtmlElement> Build(TestContext c) => [H.H1 [ page.Title, " ", c.Greeting ], page];
+    public IEnumerable<HtmlElement> Build(TestContext c) => [H.H1 [ page.Title, " ", c.Greeting ], page];
 }
 
-// A custom format in the same project, where the generated base class members can't be seen while translating.
-[TemplateBase]
-public abstract partial class MiniContextTemplate : MiniNode, ITemplate<MiniNode, TestContext>;
+// A custom format in the same project, where the generated members of its templates can't be seen while translating.
+public interface IMiniContextTemplate : ITemplate<MiniNode, TestContext>;
 
-public sealed partial class MiniContextPart : MiniContextTemplate
+public sealed partial class MiniContextPart : IMiniContextTemplate
 {
-    public override IEnumerable<MiniNode> Build(TestContext c) => [c.User];
+    public IEnumerable<MiniNode> Build(TestContext c) => [c.User];
 }
 
-public sealed partial class MiniContextDoc : MiniContextTemplate
+public sealed partial class MiniContextDoc : IMiniContextTemplate
 {
-    public override IEnumerable<MiniNode> Build(TestContext c) => [Mini.List[c.Greeting, new MiniContextPart(), new MiniPart()]];
+    public IEnumerable<MiniNode> Build(TestContext c) => [Mini.List[c.Greeting, new MiniContextPart(), new MiniPart()]];
 }
 
 public class ContextTests
@@ -157,10 +156,10 @@ public class ContextTests
     }
 
     [Theory]
-    [InlineData("""public sealed partial class T : HtmlTemplate { public override IEnumerable<HtmlElement> Build() => [new NeedsA()]; }""")]
-    [InlineData("""public sealed partial class T : HtmlTemplate { public override IEnumerable<HtmlElement> Build() => [H.Div [ new NeedsA() ]]; }""")]
-    [InlineData("""public sealed partial class T : HtmlTemplate<B> { public override IEnumerable<HtmlElement> Build(B c) => [new NeedsA()]; }""")]
-    [InlineData("""public sealed partial class T : HtmlTemplate { public override IEnumerable<HtmlElement> Build() => [new BoxA() [ "x" ]]; }""")]
+    [InlineData("""public sealed partial class T : IHtmlTemplate { public IEnumerable<HtmlElement> Build() => [new NeedsA()]; }""")]
+    [InlineData("""public sealed partial class T : IHtmlTemplate { public IEnumerable<HtmlElement> Build() => [H.Div [ new NeedsA() ]]; }""")]
+    [InlineData("""public sealed partial class T : IHtmlTemplate<B> { public IEnumerable<HtmlElement> Build(B c) => [new NeedsA()]; }""")]
+    [InlineData("""public sealed partial class T : IHtmlTemplate { public IEnumerable<HtmlElement> Build() => [new BoxA() [ "x" ]]; }""")]
     public void A_context_the_parent_does_not_have_is_reported(string source)
     {
         var (diagnostics, _) = Run(source);
@@ -172,7 +171,7 @@ public class ContextTests
     [InlineData("""class C { string M() => new NeedsA().RenderToString(); }""")]
     [InlineData("""class C { string M() => new NeedsA().RenderToString(new B()); }""")]
     [InlineData("""class C { string M() => new NeedsA().RenderToString(null!, 1); }""")]
-    [InlineData("""public sealed partial class T : HtmlTemplate<A> { public override IEnumerable<HtmlElement> Build() => []; }""")]
+    [InlineData("""public sealed partial class T : IHtmlTemplate<A> { public IEnumerable<HtmlElement> Build() => []; }""")]
     public void Wrong_uses_do_not_compile(string source)
     {
         Assert.NotEmpty(Run(source).Errors);
@@ -181,7 +180,7 @@ public class ContextTests
     [Theory]
     [InlineData("""class C { string M() => new NeedsA().RenderToString(new A()); }""")]
     [InlineData("""class C { string M() => new NeedsA().RenderToString(new SubA()); }""")]
-    [InlineData("""public sealed partial class T : HtmlTemplate<SubA> { public override IEnumerable<HtmlElement> Build(SubA _) => [new NeedsA()]; }""")]
+    [InlineData("""public sealed partial class T : IHtmlTemplate<SubA> { public IEnumerable<HtmlElement> Build(SubA _) => [new NeedsA()]; }""")]
     public void Compatible_contexts_compile(string source)
     {
         var (diagnostics, errors) = Run(source);
@@ -202,8 +201,8 @@ public class ContextTests
                 public class A;
                 public class SubA : A;
                 public class B;
-                public sealed partial class NeedsA : HtmlTemplate<A> { public override IEnumerable<HtmlElement> Build(A c) => [H.Div]; }
-                public sealed partial class BoxA : HtmlTemplateWithChildren<A> { public override IEnumerable<HtmlElement> Build(A c) => [Children]; }
+                public sealed partial class NeedsA : IHtmlTemplate<A> { public IEnumerable<HtmlElement> Build(A c) => [H.Div]; }
+                public sealed partial class BoxA : IHtmlTemplate<A>, IAcceptsChildren { public IEnumerable<HtmlElement> Build(A c) => [Children]; }
                 {{source}}
                 """)],
             ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)

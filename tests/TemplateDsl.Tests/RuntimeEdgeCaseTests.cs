@@ -7,9 +7,9 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class TupleSwitch(int first, int second) : HtmlTemplate
+public sealed partial class TupleSwitch(int first, int second) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build()
+    public IEnumerable<HtmlElement> Build()
     {
         switch (first, second)
         {
@@ -23,9 +23,9 @@ public sealed partial class TupleSwitch(int first, int second) : HtmlTemplate
     }
 }
 
-public sealed partial class GuardedArm(int number, bool isLate) : HtmlTemplate
+public sealed partial class GuardedArm(int number, bool isLate) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         number switch
         {
@@ -37,24 +37,24 @@ public sealed partial class GuardedArm(int number, bool isLate) : HtmlTemplate
     ];
 }
 
-public sealed partial class NamedAttrArguments(string value) : HtmlTemplate
+public sealed partial class NamedAttrArguments(string value) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Div.Attr(value: value, name: "data-value").Attr(name: "data-name", value: value)];
+    public IEnumerable<HtmlElement> Build() => [H.Div.Attr(value: value, name: "data-value").Attr(name: "data-name", value: value)];
 }
 
-public sealed partial class NumberForPeople(double value) : HtmlTemplate
+public sealed partial class NumberForPeople(double value) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Div.Attr("aria-label", value).Attr("data-value", value)];
+    public IEnumerable<HtmlElement> Build() => [H.Div.Attr("aria-label", value).Attr("data-value", value)];
 }
 
-public sealed partial class NullConstants : HtmlTemplate
+public sealed partial class NullConstants : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Div.Hidden(null), H.Input.Type(null), H.Input.Type((InputType?)null)];
+    public IEnumerable<HtmlElement> Build() => [H.Div.Hidden(null), H.Input.Type(null), H.Input.Type((InputType?)null)];
 }
 
-public sealed partial class DateAndGuidFormats(DateTime date, DateOnly day, TimeOnly time, DateTimeOffset moment, Guid id) : HtmlTemplate
+public sealed partial class DateAndGuidFormats(DateTime date, DateOnly day, TimeOnly time, DateTimeOffset moment, Guid id) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Attr("data-month", $"{date:MMM}").Attr("data-day", $"{day:ddd}").Attr("data-id", $"{id:N}"),
         H.Div.Attr("data-time", time).Attr("data-moment", moment),
@@ -62,23 +62,23 @@ public sealed partial class DateAndGuidFormats(DateTime date, DateOnly day, Time
     ];
 }
 
-public sealed partial class LongValues(double number, DateTime date) : HtmlTemplate
+public sealed partial class LongValues(double number, DateTime date) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.P [ $"{number:F70}" ],
         H.Div.Attr("data-date", $"{date:yyyyMMddHHmmssyyyyMMddHHmmssyyyyMMddHHmmssyyyyMMddHHmmssyyyyMMddHHmmss}")
     ];
 }
 
-public sealed partial class FormattedBracketed(Bracketed value) : HtmlTemplate
+public sealed partial class FormattedBracketed(Bracketed value) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.P.Attr("data-value", value) [ $"{value:wide}" ]];
+    public IEnumerable<HtmlElement> Build() => [H.P.Attr("data-value", value) [ $"{value:wide}" ]];
 }
 
-public sealed partial class ParenthesizedEach(int[] numbers) : HtmlTemplate
+public sealed partial class ParenthesizedEach(int[] numbers) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Ul [ H.Each(numbers, (number) => H.Li [ number ]) ]];
+    public IEnumerable<HtmlElement> Build() => [H.Ul [ H.Each(numbers, (number) => H.Li [ number ]) ]];
 }
 
 /// <summary>An async sequence of its own, not one from an async iterator.</summary>
@@ -94,38 +94,44 @@ public sealed class Countdown(int from) : IAsyncEnumerable<int>
     }
 }
 
-public sealed partial class CountdownList(Countdown countdown) : AsyncHtmlTemplate
+public sealed partial class CountdownList(Countdown countdown) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken) =>
         [H.Ul [ await H.EachAsync(countdown, number => H.Li [ number ]) ]];
 }
 
-public sealed partial class FailingItem(IAsyncEnumerable<int> numbers) : AsyncHtmlTemplate
+public sealed partial class FailingItem(IAsyncEnumerable<int> numbers) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken) =>
         [H.Ul [ await H.EachAsync(numbers, number => number == 2 ? throw new InvalidOperationException("two") : H.Li [ number ]) ]];
 }
 
-public sealed partial class FailingPage(bool fail) : HtmlTemplate
+public sealed partial class FailingPage(bool fail) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.P [ fail ? throw new InvalidOperationException("failed") : "fine" ]];
+    public IEnumerable<HtmlElement> Build() => [H.P [ fail ? throw new InvalidOperationException("failed") : "fine" ]];
 }
 
-public sealed partial class FailingPageWithContext : HtmlTemplate<TestContext>
+public sealed partial class FailingPageWithContext : IHtmlTemplate<TestContext>
 {
-    public override IEnumerable<HtmlElement> Build(TestContext context) =>
+    public IEnumerable<HtmlElement> Build(TestContext context) =>
         [H.P [ context.User == "fail" ? throw new InvalidOperationException("failed") : context.User ]];
 }
 
 /// <summary>Renders by hand, without being a template, so it has no format.</summary>
-public sealed class HandWritten : ISyncRenderable
+public sealed class HandWritten : ITemplateRenderable, ITemplateContent<TemplateNode, object>
 {
-    public void RenderTo(IBufferWriter<byte> writer) => writer.Write("by hand"u8);
+    void ITemplateContent<TemplateNode, object>.__RenderContent(IBufferWriter<byte> writer, object context) => writer.Write("by hand"u8);
+
+    ValueTask IAsyncTemplateContent<TemplateNode, object>.__RenderContentAsync(System.IO.Pipelines.PipeWriter writer, object context, CancellationToken cancellationToken)
+    {
+        writer.Write("by hand"u8);
+        return ValueTask.CompletedTask;
+    }
 }
 
-public sealed partial class AsyncGreetingFromContext : AsyncHtmlTemplate<TestContext>
+public sealed partial class AsyncGreetingFromContext : IAsyncHtmlTemplate<TestContext>
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(TestContext context, CancellationToken cancellationToken) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(TestContext context, CancellationToken cancellationToken) =>
         [H.P [ await Task.FromResult(context.Greeting) ]];
 }
 
@@ -303,14 +309,14 @@ public class RuntimeEdgeCaseTests
         var context = new TestContext("Hi", "you");
         var writer = System.IO.Pipelines.PipeWriter.Create(Stream.Null);
 
-        Assert.Throws<ArgumentNullException>(() => TemplateRendering.RenderToString(null!));
-        Assert.Throws<ArgumentNullException>(() => TemplateRendering.RenderToString<TestContext>(null!, context));
-        Assert.Throws<ArgumentNullException>(() => withContext.RenderToString(null!));
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await TemplateRendering.RenderToAsync(null!, writer));
+        Assert.Throws<ArgumentNullException>(() => TemplateRendering.RenderToString<FailingPage>(null!));
+        Assert.Throws<ArgumentNullException>(() => TemplateRendering.RenderToString<FailingPageWithContext, TestContext>(null!, context));
+        Assert.Throws<ArgumentNullException>(() => withContext.RenderToString<FailingPageWithContext, TestContext>(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await TemplateRendering.RenderToAsync<FailingPage>(null!, writer));
         await Assert.ThrowsAsync<ArgumentNullException>(async () => await page.RenderToAsync((System.IO.Pipelines.PipeWriter)null!));
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await TemplateRendering.RenderToAsync<TestContext>(null!, writer, context));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await TemplateRendering.RenderToAsync<FailingPageWithContext, TestContext>(null!, writer, context));
         await Assert.ThrowsAsync<ArgumentNullException>(async () => await withContext.RenderToAsync((System.IO.Pipelines.PipeWriter)null!, context));
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await withContext.RenderToAsync(writer, null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await withContext.RenderToAsync(writer, (TestContext)null!));
     }
 
     [Fact]

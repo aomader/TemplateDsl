@@ -32,7 +32,7 @@ public sealed class TemplateResult : IResult, IActionResult, IStatusCodeHttpResu
     {
         ArgumentNullException.ThrowIfNull(httpContext);
         TemplateResults.Prepare(httpContext.Response, StatusCode, ContentType);
-        return Template.RenderToAsync(httpContext.Response.BodyWriter, httpContext.RequestAborted).AsTask();
+        return TemplateResults.RenderAsync(Template, httpContext.Response.BodyWriter, (object)null!, httpContext.RequestAborted);
     }
 
     Task IActionResult.ExecuteResultAsync(ActionContext context) => ExecuteAsync(context.HttpContext);
@@ -69,7 +69,7 @@ public sealed class TemplateResult<TContext> : IResult, IActionResult, IStatusCo
         ArgumentNullException.ThrowIfNull(httpContext);
 
         TemplateResults.Prepare(httpContext.Response, StatusCode, ContentType);
-        return Template.RenderToAsync(httpContext.Response.BodyWriter, _context, httpContext.RequestAborted).AsTask();
+        return TemplateResults.RenderAsync(Template, httpContext.Response.BodyWriter, _context, httpContext.RequestAborted);
     }
 
     Task IActionResult.ExecuteResultAsync(ActionContext context) => ExecuteAsync(context.HttpContext);

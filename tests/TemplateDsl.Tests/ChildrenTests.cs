@@ -2,9 +2,9 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class Panel(string title) : HtmlTemplateWithChildren
+public sealed partial class Panel(string title) : IHtmlTemplate, IAcceptsChildren
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Class("panel")
         [
@@ -14,21 +14,21 @@ public sealed partial class Panel(string title) : HtmlTemplateWithChildren
     ];
 }
 
-public sealed partial class RecordPanel(string title) : HtmlTemplateWithChildren
+public sealed partial class RecordPanel(string title) : IHtmlTemplate, IAcceptsChildren
 {
     public string? Css { get; init; }
 
-    public override IEnumerable<HtmlElement> Build() => [H.Div.Id(title).Class(Css)["<", this.Children, ">", (Children)]];
+    public IEnumerable<HtmlElement> Build() => [H.Div.Id(title).Class(Css)["<", this.Children, ">", (Children)]];
 }
 
-public sealed partial class TopLevelChildren : HtmlTemplateWithChildren
+public sealed partial class TopLevelChildren : IHtmlTemplate, IAcceptsChildren
 {
-    public override IEnumerable<HtmlElement> Build() => [Children];
+    public IEnumerable<HtmlElement> Build() => [Children];
 }
 
-public sealed partial class OptionalChildren(bool show) : HtmlTemplateWithChildren
+public sealed partial class OptionalChildren(bool show) : IHtmlTemplate, IAcceptsChildren
 {
-    public override IEnumerable<HtmlElement> Build()
+    public IEnumerable<HtmlElement> Build()
     {
         if (show)
         {
@@ -40,9 +40,9 @@ public sealed partial class OptionalChildren(bool show) : HtmlTemplateWithChildr
 }
 
 /// <summary>Passes its own children on to another template, inside a lambda inside a lambda.</summary>
-public sealed partial class ForwardingPanel(string title) : HtmlTemplateWithChildren
+public sealed partial class ForwardingPanel(string title) : IHtmlTemplate, IAcceptsChildren
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         new Panel(title)
         [
@@ -54,11 +54,11 @@ public sealed partial class ForwardingPanel(string title) : HtmlTemplateWithChil
     ];
 }
 
-public sealed partial class PanelUser(string name, bool flag) : HtmlTemplate
+public sealed partial class PanelUser(string name, bool flag) : IHtmlTemplate
 {
     public Panel Prepared { get; } = new Panel("prepared");
 
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         new Panel("a")
         [
@@ -108,9 +108,9 @@ public class ChildrenTests
 }
 
 
-public sealed partial class ChildrenCases(int @case) : HtmlTemplate
+public sealed partial class ChildrenCases(int @case) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build()
+    public IEnumerable<HtmlElement> Build()
     {
         if (@case == 0)
         {

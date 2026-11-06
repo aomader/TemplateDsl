@@ -4,9 +4,9 @@ namespace Tests;
 
 public enum Tone { Calm, Loud, Silent }
 
-public sealed partial class SwitchExpressionChildren(int number, object? value, Tone tone) : HtmlTemplate
+public sealed partial class SwitchExpressionChildren(int number, object? value, Tone tone) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div [
             number switch
@@ -28,14 +28,14 @@ public sealed partial class SwitchExpressionChildren(int number, object? value, 
     ];
 }
 
-public sealed partial class Kid : HtmlTemplate
+public sealed partial class Kid : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Em];
+    public IEnumerable<HtmlElement> Build() => [H.Em];
 }
 
-public sealed partial class SwitchWholeOutput(int number) : HtmlTemplate
+public sealed partial class SwitchWholeOutput(int number) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
         number switch
         {
             1 => [H.P, H.B],
@@ -44,16 +44,16 @@ public sealed partial class SwitchWholeOutput(int number) : HtmlTemplate
         };
 }
 
-public sealed partial class NotExhaustive(Tone tone) : HtmlTemplate
+public sealed partial class NotExhaustive(Tone tone) : IHtmlTemplate
 {
 #pragma warning disable CS8524
-    public override IEnumerable<HtmlElement> Build() => [tone switch { Tone.Calm => H.P, Tone.Loud => H.B, Tone.Silent => H.I }];
+    public IEnumerable<HtmlElement> Build() => [tone switch { Tone.Calm => H.P, Tone.Loud => H.B, Tone.Silent => H.I }];
 #pragma warning restore CS8524
 }
 
-public sealed partial class SwitchStatementPage(int number, int[] numbers) : HtmlTemplate
+public sealed partial class SwitchStatementPage(int number, int[] numbers) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build()
+    public IEnumerable<HtmlElement> Build()
     {
         yield return "start";
 
@@ -98,9 +98,9 @@ public sealed partial class SwitchStatementPage(int number, int[] numbers) : Htm
     }
 }
 
-public sealed partial class SwitchReturns(int number) : HtmlTemplate
+public sealed partial class SwitchReturns(int number) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build()
+    public IEnumerable<HtmlElement> Build()
     {
         switch (number)
         {
@@ -112,9 +112,9 @@ public sealed partial class SwitchReturns(int number) : HtmlTemplate
     }
 }
 
-public sealed partial class AsyncSwitch(Task<int> number) : AsyncHtmlTemplate
+public sealed partial class AsyncSwitch(Task<int> number) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct)
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct)
     {
         switch (await number)
         {
@@ -126,14 +126,14 @@ public sealed partial class AsyncSwitch(Task<int> number) : AsyncHtmlTemplate
     }
 }
 
-public sealed partial class AsyncKid : AsyncHtmlTemplate
+public sealed partial class AsyncKid : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) => [H.Em [ await Task.FromResult("x") ]];
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) => [H.Em [ await Task.FromResult("x") ]];
 }
 
-public sealed partial class WithStatements(List<string> log, int count) : HtmlTemplate
+public sealed partial class WithStatements(List<string> log, int count) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build()
+    public IEnumerable<HtmlElement> Build()
     {
         string label;
         var i = 0;
@@ -163,9 +163,9 @@ public sealed partial class WithStatements(List<string> log, int count) : HtmlTe
     }
 }
 
-public sealed partial class AsyncStatements2(List<string> log, Task delay) : AsyncHtmlTemplate
+public sealed partial class AsyncStatements2(List<string> log, Task delay) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct)
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct)
     {
         log.Add("before");
         await delay;

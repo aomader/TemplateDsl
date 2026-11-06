@@ -26,14 +26,14 @@ public sealed class OrderRepository
     }
 }
 
-public sealed partial class OrderRow(Order order) : HtmlTemplate
+public sealed partial class OrderRow(Order order) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [ H.Div.Id($"order-{order.Id}").Class("order") [ order.Product ] ];
+    public IEnumerable<HtmlElement> Build() => [ H.Div.Id($"order-{order.Id}").Class("order") [ order.Product ] ];
 }
 
-public sealed partial class OrdersPage(OrderRepository repository, int userId) : AsyncHtmlTemplate
+public sealed partial class OrdersPage(OrderRepository repository, int userId) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
         H.Html [
             H.Body [

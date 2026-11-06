@@ -15,13 +15,7 @@ partial class IndexPage
     {
         global::System.Threading.CancellationToken ct = __ct;
         global::System.Buffers.BuffersExtensions.Write(__writer, "<p>This text arrived first. The status below takes a second, and then the entries appear one by one.</p>"u8);
-        {
-            var __t0 = new ServerStatus();
-            if (__t0 is not null)
-            {
-                await __t0.__RenderAsync(__writer, __ct).ConfigureAwait(false);
-            }
-        }
+        if ((new ServerStatus()) is { } __t0) await __t0.__RenderAsync(__writer, __ct).ConfigureAwait(false);
         global::System.Buffers.BuffersExtensions.Write(__writer, "<ul>"u8);
         await foreach (var item in global::System.Threading.Tasks.TaskAsyncEnumerableExtensions.ConfigureAwait(global::TemplateDsl.TemplateStreaming.FlushWhileWaiting(items, __writer, __ct), false))
         {

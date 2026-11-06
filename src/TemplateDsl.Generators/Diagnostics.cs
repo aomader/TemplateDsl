@@ -18,10 +18,10 @@ internal static class Diagnostics
         isEnabledByDefault: true,
         helpLinkUri: HelpLink + "TDSL001.md");
 
-    public static readonly DiagnosticDescriptor MustBeSealed = new(
+    public static readonly DiagnosticDescriptor UnsupportedTemplateType = new(
         "TDSL002",
-        "Template must be a sealed class",
-        "Template '{0}' must be a sealed class",
+        "Template can't be a ref struct",
+        "Template '{0}' can't be a ref struct; make it a class, a struct or a record",
         Category,
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
@@ -80,4 +80,13 @@ internal static class Diagnostics
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         helpLinkUri: HelpLink + "TDSL008.md");
+
+    public static readonly DiagnosticDescriptor TemplateAsNode = new(
+        "TDSL009",
+        "A template is only a node in Build",
+        "'{0}' is converted to a node, which only Build does to place it; pass it as content instead, such as an IHtmlContent or IHtmlContent<TContext> parameter",
+        Category,
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink + "TDSL009.md");
 }

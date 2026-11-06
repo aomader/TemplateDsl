@@ -1,9 +1,9 @@
 namespace SampleApp;
 
 /// <summary>Children are only given inside another template's Build method.</summary>
-public sealed partial class SettingsPage : HtmlTemplate
+public sealed partial class SettingsPage : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         new Card("Settings") [
             "Some content & more",
@@ -12,10 +12,10 @@ public sealed partial class SettingsPage : HtmlTemplate
     ];
 }
 
-/// <summary>Implementing HtmlTemplateWithChildren is what allows <c>new Card("Title") [ ... ]</c>.</summary>
-public sealed partial class Card(string title) : HtmlTemplateWithChildren
+/// <summary>Implementing IAcceptsChildren is what allows <c>new Card("Title") [ ... ]</c>.</summary>
+public sealed partial class Card(string title) : IHtmlTemplate, IAcceptsChildren
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Class("card") [
             H.Div.Class("card-title") [ title ],

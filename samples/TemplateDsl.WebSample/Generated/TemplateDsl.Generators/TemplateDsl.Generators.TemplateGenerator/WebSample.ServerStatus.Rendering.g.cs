@@ -11,7 +11,7 @@ namespace WebSample;
 partial class ServerStatus
 {
     [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public override async global::System.Threading.Tasks.ValueTask __RenderAsync(global::System.IO.Pipelines.PipeWriter __writer, global::System.Threading.CancellationToken __ct)
+    public async global::System.Threading.Tasks.ValueTask __RenderAsync(global::System.IO.Pipelines.PipeWriter __writer, global::System.Threading.CancellationToken __ct)
     {
         global::System.Threading.CancellationToken ct = __ct;
         global::System.Buffers.BuffersExtensions.Write(__writer, "<div class=\"status\">"u8);
@@ -21,4 +21,7 @@ partial class ServerStatus
         await global::TemplateDsl.TemplateStreaming.FlushIfNeededAsync(__writer, __ct).ConfigureAwait(false);
     }
 
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    global::System.Threading.Tasks.ValueTask global::TemplateDsl.IAsyncTemplateContent<global::TemplateDsl.Html.HtmlElement, object>.__RenderContentAsync(global::System.IO.Pipelines.PipeWriter writer, object context, global::System.Threading.CancellationToken cancellationToken) => __RenderAsync(writer, cancellationToken);
 }

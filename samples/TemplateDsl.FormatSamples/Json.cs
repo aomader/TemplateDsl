@@ -51,11 +51,8 @@ public static partial class Json
     public static JsonLiteral Lit(string? value) => new();
 }
 
-[TemplateBase]
-public abstract partial class JsonTemplate : JsonNode, ITemplate<JsonNode>;
+/// <summary>A template that outputs JSON. To be given children, it also implements <see cref="IAcceptsChildren"/>.</summary>
+public interface IJsonTemplate : ITemplate<JsonNode>;
 
-[TemplateBase]
-public abstract partial class JsonTemplateWithChildren : JsonTemplate, IAcceptsChildren;
-
-[TemplateBase]
-public abstract partial class AsyncJsonTemplate : IAsyncTemplate<JsonNode>;
+/// <summary>A JSON template that streams.</summary>
+public interface IAsyncJsonTemplate : IAsyncTemplate<JsonNode>;

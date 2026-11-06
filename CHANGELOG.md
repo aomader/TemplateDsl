@@ -5,6 +5,40 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
 
 ## [Unreleased]
 
+### Added
+
+- Templates can be structs and records, such as a `readonly record struct` for a row, which a parent renders without
+  allocating it, as do `RenderTo`, `RenderToString` and `RenderToAsync`, which take a template as its own type.
+- Children given to a template in brackets are written without allocating: they become a method of the template
+  that gives them, instead of a lambda.
+- `IHtmlContent` and `IHtmlContent<TContext>` for content passed to a layout or a slot, without or with a context: any HTML template that renders with that context,
+  because it needs it, less of it, or none. Brackets take it, and templates of any type: an interface such as
+  `IHtmlTemplate`, or a type parameter, which renders a struct without boxing it. The context is checked where content is
+  passed and where it is placed. `H.Each` takes a lambda that returns such content too.
+- `IAsyncHtmlContent` and `IAsyncHtmlContent<TContext>` for content of an async template, such as a layout that may host a sync or an async page:
+  any HTML template that renders with that context, placed with `await content`. A sync template can be awaited too,
+  and renders in one go.
+- TDSL009 reports a template converted to a node outside of `Build`, which is only how `Build` places it.
+- `RenderTo(writer)` also through an interface, such as `IHtmlTemplate`.
+
+### Changed
+
+- **Breaking:** templates implement an interface instead of deriving from a base class: `IHtmlTemplate`,
+  `IHtmlTemplate<TContext>`, `IAsyncHtmlTemplate` and `IAsyncHtmlTemplate<TContext>`, with `IAcceptsChildren` to take
+  children. `Build` is no longer an override, except in a class derived from another template.
+  `HtmlTemplate`, `HtmlTemplateWithChildren`, the async variants and `[TemplateBase]` are gone. A custom format
+  declares an interface such as `public interface IXmlTemplate : ITemplate<XmlNode>;`.
+- Templates don't have to be sealed. One derived from another can override `Build` or the members it uses, and an
+  abstract one without `Build` gets it, and its render methods, as abstract.
+- A template with an error gets its generated members anyway, so the reason is the only error, instead of errors about
+  `RenderTo` not being implemented. An IDE only suggests implementing `Build`.
+- TDSL002 now reports a `ref struct`, instead of a template that isn't sealed.
+- `RenderTo`, `RenderToString` and `RenderToAsync` take a template or content, such as `IHtmlTemplate` or
+  `IAsyncHtmlContent`, and no longer a bare `ITemplateRenderable` or `ISyncRenderable`, which only say what kind
+  of template something is. `IStreamingRenderable` is gone.
+- Brackets take `TemplateChildren<TNode>`, so a child that is neither a node nor a template is now reported by C# as a
+  type that can't be used for `TTemplate` (CS0311 or CS0315), instead of as a missing conversion.
+
 ## [0.1.0-preview.2] - 2026-11-05
 
 ### Added

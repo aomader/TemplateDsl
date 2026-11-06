@@ -7,7 +7,7 @@ namespace TodoSample.Views;
 partial class TodoEditor
 {
     /// <summary>Writes this template as UTF-8 to <paramref name="__writer"/>, without flushing.</summary>
-    public override void RenderTo(global::System.Buffers.IBufferWriter<byte> __writer)
+    public void RenderTo(global::System.Buffers.IBufferWriter<byte> __writer)
     {
         global::System.Buffers.BuffersExtensions.Write(__writer, "<li id=\"todo-"u8);
         global::TemplateDsl.TemplateValues.WriteUtf8(todo.Id, __writer, null, global::System.Globalization.CultureInfo.InvariantCulture, null, null);
@@ -64,4 +64,19 @@ partial class TodoEditor
         global::System.Buffers.BuffersExtensions.Write(__writer, "</li>"u8);
     }
 
+
+    /// <summary>Lets this template be a node in Build.</summary>
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    [return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(template))]
+    public static implicit operator global::TemplateDsl.Html.HtmlElement?(TodoEditor? template) => throw global::TemplateDsl.TemplateBuild.NotExecutable();
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    void global::TemplateDsl.ITemplateContent<global::TemplateDsl.Html.HtmlElement, object>.__RenderContent(global::System.Buffers.IBufferWriter<byte> writer, object context) => RenderTo(writer);
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    global::System.Threading.Tasks.ValueTask global::TemplateDsl.IAsyncTemplateContent<global::TemplateDsl.Html.HtmlElement, object>.__RenderContentAsync(global::System.IO.Pipelines.PipeWriter writer, object context, global::System.Threading.CancellationToken cancellationToken)
+    {
+        RenderTo(writer);
+        return global::TemplateDsl.TemplateStreaming.FlushIfNeededAsync(writer, cancellationToken);
+    }
 }

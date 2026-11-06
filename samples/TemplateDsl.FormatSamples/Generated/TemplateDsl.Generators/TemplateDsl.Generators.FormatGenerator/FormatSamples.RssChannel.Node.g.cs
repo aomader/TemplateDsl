@@ -7,5 +7,5 @@ partial class RssChannel
 {
     /// <summary>The children of this node in Build.</summary>
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public global::FormatSamples.RssNode this[params global::FormatSamples.RssNode?[] children] => throw global::TemplateDsl.TemplateBuild.NotExecutable();
+    public global::FormatSamples.RssNode this[params global::TemplateDsl.TemplateChildren<global::FormatSamples.RssNode> children] => throw global::TemplateDsl.TemplateBuild.NotExecutable();
 }

@@ -2,11 +2,11 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class AttributeTemplate : HtmlTemplate
+public sealed partial class AttributeTemplate : IHtmlTemplate
 {
     public const string ConstantClass = "from-constant";
 
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Id("123").Class("outer")
         [

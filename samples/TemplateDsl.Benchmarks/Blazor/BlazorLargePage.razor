@@ -1,0 +1,9 @@
+@* A component per row, like a template per row in TemplateDsl. *@
+<table>@foreach (var row in Rows)
+{
+    <BlazorLargeRow Number="row" />
+}</table>
+
+@code {
+    [Parameter, EditorRequired] public int[] Rows { get; set; } = [];
+}

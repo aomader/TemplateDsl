@@ -7,7 +7,7 @@ namespace SampleApp;
 partial class HelloPage
 {
     /// <summary>Writes this template as UTF-8 to <paramref name="__writer"/>, without flushing.</summary>
-    public override void RenderTo(global::System.Buffers.IBufferWriter<byte> __writer)
+    public void RenderTo(global::System.Buffers.IBufferWriter<byte> __writer)
     {
         if (isAdmin)
         {
@@ -17,18 +17,7 @@ partial class HelloPage
             global::TemplateDsl.Html.HtmlElement.__WriteEscaped_text((string?)(userName), __writer);
             global::System.Buffers.BuffersExtensions.Write(__writer, " at "u8);
             global::TemplateDsl.TemplateValues.WriteUtf8(DateTime.UtcNow, __writer, null, null, global::TemplateDsl.Html.HtmlElement.__SpecialBytes_text, global::TemplateDsl.Html.HtmlElement.__WriteEscaped_text);
-            (new Card("Admin tools"))?.__RenderWithChildren(__writer, () =>
-            {
-                (new Button("Save"))?.RenderTo(__writer);
-                (new Button("Delete") { Kind = ButtonKind.Secondary })?.RenderTo(__writer);
-                if (unreadMessages > 0)
-                {
-                    (new Button($"Read {unreadMessages}"))?.RenderTo(__writer);
-                }
-                else
-                {
-                }
-            });
+            if ((new Card("Admin tools")) is { } __t0) __t0.__RenderWithChildren(__writer, null!, new __Children0(this));
             global::System.Buffers.BuffersExtensions.Write(__writer, "</div></body></html>"u8);
             return;
         }
@@ -65,4 +54,45 @@ partial class HelloPage
         return;
     }
 
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    private readonly struct __Children0 : global::TemplateDsl.IChildrenWriter
+    {
+        internal readonly HelloPage __self;
+
+        public __Children0(HelloPage __self)
+        {
+            this.__self = __self;
+        }
+
+        public void __Write(global::System.Buffers.IBufferWriter<byte> __writer) => __self.__WriteChildren0(__writer, this);
+    }
+
+    private void __WriteChildren0(global::System.Buffers.IBufferWriter<byte> __writer, __Children0 __state)
+    {
+        if ((new Button("Save")) is { } __t0) __t0.RenderTo(__writer);
+        if ((new Button("Delete") { Kind = ButtonKind.Secondary }) is { } __t1) __t1.RenderTo(__writer);
+        if (unreadMessages > 0)
+        {
+            if ((new Button($"Read {unreadMessages}")) is { } __t2) __t2.RenderTo(__writer);
+        }
+        else
+        {
+        }
+    }
+
+
+    /// <summary>Lets this template be a node in Build.</summary>
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    [return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(template))]
+    public static implicit operator global::TemplateDsl.Html.HtmlElement?(HelloPage? template) => throw global::TemplateDsl.TemplateBuild.NotExecutable();
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    void global::TemplateDsl.ITemplateContent<global::TemplateDsl.Html.HtmlElement, object>.__RenderContent(global::System.Buffers.IBufferWriter<byte> writer, object context) => RenderTo(writer);
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    global::System.Threading.Tasks.ValueTask global::TemplateDsl.IAsyncTemplateContent<global::TemplateDsl.Html.HtmlElement, object>.__RenderContentAsync(global::System.IO.Pipelines.PipeWriter writer, object context, global::System.Threading.CancellationToken cancellationToken)
+    {
+        RenderTo(writer);
+        return global::TemplateDsl.TemplateStreaming.FlushIfNeededAsync(writer, cancellationToken);
+    }
 }

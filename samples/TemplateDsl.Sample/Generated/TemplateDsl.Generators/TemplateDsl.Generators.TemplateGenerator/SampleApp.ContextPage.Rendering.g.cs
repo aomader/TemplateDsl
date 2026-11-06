@@ -7,7 +7,7 @@ namespace SampleApp;
 partial class ContextPage
 {
     /// <summary>Writes this template as UTF-8 to <paramref name="__writer"/>, without flushing.</summary>
-    public override void RenderTo(global::System.Buffers.IBufferWriter<byte> __writer, global::SampleApp.RequestContext __context)
+    public void RenderTo(global::System.Buffers.IBufferWriter<byte> __writer, global::SampleApp.RequestContext __context)
     {
         global::SampleApp.RequestContext context = __context;
         global::System.Buffers.BuffersExtensions.Write(__writer, "<h1>"u8);
@@ -15,10 +15,44 @@ partial class ContextPage
         global::System.Buffers.BuffersExtensions.Write(__writer, " for "u8);
         global::TemplateDsl.Html.HtmlElement.__WriteEscaped_text((string?)(context.UserName), __writer);
         global::System.Buffers.BuffersExtensions.Write(__writer, "</h1>"u8);
-        (new Card("Settings"))?.__RenderWithChildren(__writer, () =>
-        {
-            (new LanguageBadge())?.RenderTo(__writer, __context);
-        });
+        if ((new Card("Settings")) is { } __t0) __t0.__RenderWithChildren(__writer, null!, new __Children0(this, __context));
     }
 
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    private readonly struct __Children0 : global::TemplateDsl.IChildrenWriter
+    {
+        internal readonly ContextPage __self;
+        internal readonly global::SampleApp.RequestContext __context;
+
+        public __Children0(ContextPage __self, global::SampleApp.RequestContext __context)
+        {
+            this.__self = __self;
+            this.__context = __context;
+        }
+
+        public void __Write(global::System.Buffers.IBufferWriter<byte> __writer) => __self.__WriteChildren0(__writer, this);
+    }
+
+    private void __WriteChildren0(global::System.Buffers.IBufferWriter<byte> __writer, __Children0 __state)
+    {
+        var __context = __state.__context;
+        global::SampleApp.RequestContext context = __context;
+        if ((new LanguageBadge()) is { } __t0) __t0.RenderTo(__writer, __context);
+    }
+
+
+    /// <summary>Lets this template be a node in Build.</summary>
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    [return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(template))]
+    public static implicit operator global::TemplateDsl.Html.HtmlElement?(ContextPage? template) => throw global::TemplateDsl.TemplateBuild.NotExecutable();
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    void global::TemplateDsl.ITemplateContent<global::TemplateDsl.Html.HtmlElement, global::SampleApp.RequestContext>.__RenderContent(global::System.Buffers.IBufferWriter<byte> writer, global::SampleApp.RequestContext context) => RenderTo(writer, context);
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    global::System.Threading.Tasks.ValueTask global::TemplateDsl.IAsyncTemplateContent<global::TemplateDsl.Html.HtmlElement, global::SampleApp.RequestContext>.__RenderContentAsync(global::System.IO.Pipelines.PipeWriter writer, global::SampleApp.RequestContext context, global::System.Threading.CancellationToken cancellationToken)
+    {
+        RenderTo(writer, context);
+        return global::TemplateDsl.TemplateStreaming.FlushIfNeededAsync(writer, cancellationToken);
+    }
 }

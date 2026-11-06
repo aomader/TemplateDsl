@@ -17,6 +17,10 @@ Console.WriteLine(new Button("Cancel") { Kind = ButtonKind.Secondary }.RenderToS
 Console.WriteLine(new SettingsPage().RenderToString());
 Console.WriteLine(new TodoList([new("Write code", Done: true), new("Ship it", Done: false)]).RenderToString());
 
+// Struct templates, which their parents render without allocating them.
+Product[] products = [new("Keyboard", 49.90m, 3), new("Mouse", 19.50m, 0)];
+Console.WriteLine(new ProductPage("Shop", products).RenderToString());
+
 // The same mechanism, in other output formats.
 Post[] posts = [new("Hello & welcome", "https://example.com/1", "A \"first\" post"), new("Second", "https://example.com/2", null)];
 Console.WriteLine(new BlogFeed("My <blog>", posts).RenderToString());

@@ -11,9 +11,9 @@ namespace Tests;
 
 public sealed record FeedEntry(string Title, string? Summary);
 
-public sealed partial class TestFeed(string name, IEnumerable<FeedEntry> entries) : RssTemplate
+public sealed partial class TestFeed(string name, IEnumerable<FeedEntry> entries) : IRssTemplate
 {
-    public override IEnumerable<RssNode> Build() =>
+    public IEnumerable<RssNode> Build() =>
     [
         Rss.Root
         [
@@ -26,9 +26,9 @@ public sealed partial class TestFeed(string name, IEnumerable<FeedEntry> entries
     ];
 }
 
-public sealed partial class TestFeedItem(FeedEntry entry) : RssTemplate
+public sealed partial class TestFeedItem(FeedEntry entry) : IRssTemplate
 {
-    public override IEnumerable<RssNode> Build() =>
+    public IEnumerable<RssNode> Build() =>
     [
         Rss.Item
         [
@@ -39,9 +39,9 @@ public sealed partial class TestFeedItem(FeedEntry entry) : RssTemplate
     ];
 }
 
-public sealed partial class JsonDoc(string name, bool flag, string[] tags) : JsonTemplate
+public sealed partial class JsonDoc(string name, bool flag, string[] tags) : IJsonTemplate
 {
-    public override IEnumerable<JsonNode> Build() =>
+    public IEnumerable<JsonNode> Build() =>
     [
         Json.Obj
         [
@@ -57,29 +57,29 @@ public sealed partial class JsonDoc(string name, bool flag, string[] tags) : Jso
     ];
 }
 
-public sealed partial class JsonPart(string value) : JsonTemplate
+public sealed partial class JsonPart(string value) : IJsonTemplate
 {
-    public override IEnumerable<JsonNode> Build() => [Json.Obj[Json.Prop("value")[value]]];
+    public IEnumerable<JsonNode> Build() => [Json.Obj[Json.Prop("value")[value]]];
 }
 
-public sealed partial class JsonNullable(string? value) : JsonTemplate
+public sealed partial class JsonNullable(string? value) : IJsonTemplate
 {
-    public override IEnumerable<JsonNode> Build() => [Json.Arr[Json.Lit("1"), value, Json.Lit("2")]];
+    public IEnumerable<JsonNode> Build() => [Json.Arr[Json.Lit("1"), value, Json.Lit("2")]];
 }
 
-public sealed partial class JsonEnvelope(string kind) : JsonTemplateWithChildren
+public sealed partial class JsonEnvelope(string kind) : IJsonTemplate, IAcceptsChildren
 {
-    public override IEnumerable<JsonNode> Build() => [Json.Obj[Json.Prop("kind")[kind], Json.Prop("data")[new JsonWrapper()[Children]]]];
+    public IEnumerable<JsonNode> Build() => [Json.Obj[Json.Prop("kind")[kind], Json.Prop("data")[new JsonWrapper()[Children]]]];
 }
 
-public sealed partial class JsonWrapper : JsonTemplateWithChildren
+public sealed partial class JsonWrapper : IJsonTemplate, IAcceptsChildren
 {
-    public override IEnumerable<JsonNode> Build() => [Children];
+    public IEnumerable<JsonNode> Build() => [Children];
 }
 
-public sealed partial class StreamedJson(IAsyncEnumerable<string> rows, Task<string> name) : AsyncJsonTemplate
+public sealed partial class StreamedJson(IAsyncEnumerable<string> rows, Task<string> name) : IAsyncJsonTemplate
 {
-    public override async Task<IEnumerable<JsonNode>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<JsonNode>> BuildAsync(CancellationToken ct) =>
     [
         Json.Obj
         [
@@ -107,20 +107,19 @@ public static partial class Mini
     public static MiniList List => new();
 }
 
-[TemplateBase]
-public abstract partial class MiniTemplate : MiniNode, ITemplate<MiniNode>;
+public interface IMiniTemplate : ITemplate<MiniNode>;
 
-public sealed partial class MiniDoc(string value, bool flag) : MiniTemplate
+public sealed partial class MiniDoc(string value, bool flag) : IMiniTemplate
 {
-    public override IEnumerable<MiniNode> Build() =>
+    public IEnumerable<MiniNode> Build() =>
     [
         Mini.List["a", flag ? value : null, Mini.List[value, "x"], new MiniPart()]
     ];
 }
 
-public sealed partial class MiniPart : MiniTemplate
+public sealed partial class MiniPart : IMiniTemplate
 {
-    public override IEnumerable<MiniNode> Build() => ["part"];
+    public IEnumerable<MiniNode> Build() => ["part"];
 }
 
 public class OtherFormatTests
@@ -257,13 +256,14 @@ public class OtherFormatTests
     public void A_format_that_does_not_opt_in_rejects_values_that_are_not_strings()
     {
         var (_, errors) = Run("""
-            public sealed partial class T : RssTemplate
+            public sealed partial class T : IRssTemplate
             {
-                public override IEnumerable<RssNode> Build() => [Rss.Title [ 5 ]];
+                public IEnumerable<RssNode> Build() => [Rss.Title [ 5 ]];
             }
             """);
 
-        Assert.Contains("CS1503", errors);
+        // In brackets, what isn't a node goes to the Add method for templates, whose constraint a number doesn't meet.
+        Assert.Contains("CS0315", errors);
     }
 
     private static (string[] DiagnosticIds, string[] Errors) Run(string source, string usings = Usings)
@@ -288,9 +288,9 @@ public class OtherFormatTests
     public void Nodes_of_another_format_are_rejected()
     {
         var (diagnostics, _) = Run("""
-            public sealed partial class T : JsonTemplate
+            public sealed partial class T : IJsonTemplate
             {
-                public override IEnumerable<JsonNode> Build() => [Json.Obj[TemplateDsl.Html.H.div]];
+                public IEnumerable<JsonNode> Build() => [Json.Obj[TemplateDsl.Html.H.div]];
             }
             """);
 
@@ -301,14 +301,14 @@ public class OtherFormatTests
     public void Templates_of_another_format_do_not_compile()
     {
         var (_, errors) = Run("""
-            public sealed partial class Html : HtmlTemplate
+            public sealed partial class Html : IHtmlTemplate
             {
-                public override IEnumerable<HtmlElement> Build() => [];
+                public IEnumerable<HtmlElement> Build() => [];
             }
 
-            public sealed partial class T : JsonTemplate
+            public sealed partial class T : IJsonTemplate
             {
-                public override IEnumerable<JsonNode> Build() => [Json.Obj[new Html()]];
+                public IEnumerable<JsonNode> Build() => [Json.Obj[new Html()]];
             }
             """);
 
@@ -319,9 +319,9 @@ public class OtherFormatTests
     public void Children_in_a_node_with_a_separator_are_reported()
     {
         var (diagnostics, _) = Run("""
-            public sealed partial class T : JsonTemplateWithChildren
+            public sealed partial class T : IJsonTemplate, IAcceptsChildren
             {
-                public override IEnumerable<JsonNode> Build() => [Json.Arr[Children]];
+                public IEnumerable<JsonNode> Build() => [Json.Arr[Children]];
             }
             """);
 
@@ -336,7 +336,7 @@ public class OtherFormatTests
 
             public sealed partial class T : ITemplate<NotAFormat>
             {
-                public override IEnumerable<NotAFormat> Build() => [];
+                public IEnumerable<NotAFormat> Build() => [];
             }
             """);
 
@@ -347,9 +347,9 @@ public class OtherFormatTests
 
 
 
-public sealed partial class JsonEnvelopePage : JsonTemplate
+public sealed partial class JsonEnvelopePage : IJsonTemplate
 {
-    public override IEnumerable<JsonNode> Build() => [new JsonEnvelope("k") [ Json.Str("payload") ]];
+    public IEnumerable<JsonNode> Build() => [new JsonEnvelope("k") [ Json.Str("payload") ]];
 }
 
 public class OtherFormatChildrenTests

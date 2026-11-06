@@ -7,9 +7,9 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class EndlessRows(IAsyncEnumerable<string> rows) : AsyncHtmlTemplate
+public sealed partial class EndlessRows(IAsyncEnumerable<string> rows) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
         [H.Ul [ await H.EachAsync(rows, row => H.Li [ row ]) ]];
 }
 

@@ -12,12 +12,22 @@ partial class Rss
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public static global::FormatSamples.RssNode Each<TItem>(global::System.Collections.Generic.IEnumerable<TItem> items, global::System.Func<TItem, global::FormatSamples.RssNode?> build) => throw global::TemplateDsl.TemplateBuild.NotExecutable();
 
+    /// <summary>Repeats the template <paramref name="build"/> returns for each item, also one of an interface type, such as content.</summary>
+    [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    public static global::FormatSamples.RssNode Each<TItem, TTemplate>(global::System.Collections.Generic.IEnumerable<TItem> items, global::System.Func<TItem, TTemplate?> build)
+        where TTemplate : global::TemplateDsl.ITemplateContent<global::FormatSamples.RssNode> => throw global::TemplateDsl.TemplateBuild.NotExecutable();
+
     /// <summary>
     /// Repeats <paramref name="build"/> for each item as it arrives: <c>await EachAsync(Items, ...)</c>. If the
     /// next item isn't ready yet, the output so far is sent to the client before waiting for it.
     /// </summary>
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public static global::System.Threading.Tasks.Task<global::FormatSamples.RssNode> EachAsync<TItem>(global::System.Collections.Generic.IAsyncEnumerable<TItem> items, global::System.Func<TItem, global::FormatSamples.RssNode?> build) => throw global::TemplateDsl.TemplateBuild.NotExecutable();
+
+    /// <summary>Repeats the template <paramref name="build"/> returns for each item as it arrives, also one of an interface type.</summary>
+    [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    public static global::System.Threading.Tasks.Task<global::FormatSamples.RssNode> EachAsync<TItem, TTemplate>(global::System.Collections.Generic.IAsyncEnumerable<TItem> items, global::System.Func<TItem, TTemplate?> build)
+        where TTemplate : global::TemplateDsl.ITemplateContent<global::FormatSamples.RssNode> => throw global::TemplateDsl.TemplateBuild.NotExecutable();
 
     /// <summary>Repeats <paramref name="build"/>, which can await, for each item as it arrives.</summary>
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]

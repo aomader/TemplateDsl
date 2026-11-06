@@ -10,7 +10,7 @@ namespace SampleApp;
 partial class FeedItem
 {
     /// <summary>Writes this template as UTF-8 to <paramref name="__writer"/>, without flushing.</summary>
-    public override void RenderTo(global::System.Buffers.IBufferWriter<byte> __writer)
+    public void RenderTo(global::System.Buffers.IBufferWriter<byte> __writer)
     {
         global::System.Buffers.BuffersExtensions.Write(__writer, "<item><title>"u8);
         global::FormatSamples.RssNode.__WriteEscaped_text((string?)(post.Title), __writer);
@@ -31,4 +31,19 @@ partial class FeedItem
         global::System.Buffers.BuffersExtensions.Write(__writer, "</guid></item>"u8);
     }
 
+
+    /// <summary>Lets this template be a node in Build.</summary>
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    [return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(template))]
+    public static implicit operator global::FormatSamples.RssNode?(FeedItem? template) => throw global::TemplateDsl.TemplateBuild.NotExecutable();
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    void global::TemplateDsl.ITemplateContent<global::FormatSamples.RssNode, object>.__RenderContent(global::System.Buffers.IBufferWriter<byte> writer, object context) => RenderTo(writer);
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    global::System.Threading.Tasks.ValueTask global::TemplateDsl.IAsyncTemplateContent<global::FormatSamples.RssNode, object>.__RenderContentAsync(global::System.IO.Pipelines.PipeWriter writer, object context, global::System.Threading.CancellationToken cancellationToken)
+    {
+        RenderTo(writer);
+        return global::TemplateDsl.TemplateStreaming.FlushIfNeededAsync(writer, cancellationToken);
+    }
 }

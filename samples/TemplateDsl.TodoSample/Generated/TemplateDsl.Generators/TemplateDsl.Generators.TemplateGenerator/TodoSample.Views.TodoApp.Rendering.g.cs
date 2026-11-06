@@ -7,13 +7,28 @@ namespace TodoSample.Views;
 partial class TodoApp
 {
     /// <summary>Writes this template as UTF-8 to <paramref name="__writer"/>, without flushing.</summary>
-    public override void RenderTo(global::System.Buffers.IBufferWriter<byte> __writer)
+    public void RenderTo(global::System.Buffers.IBufferWriter<byte> __writer)
     {
         global::System.Buffers.BuffersExtensions.Write(__writer, "<div id=\"app\" hx-target:inherited=\"#app\" hx-swap:inherited=\"outerHTML\"><h1>Todos</h1>"u8);
-        (new NewTodoForm(filter, error))?.RenderTo(__writer);
-        (new TodoList(Visible, filter))?.RenderTo(__writer);
-        (new TodoFooter(todos, filter))?.RenderTo(__writer);
+        if ((new NewTodoForm(filter, error)) is { } __t0) __t0.RenderTo(__writer);
+        if ((new TodoList(Visible, filter)) is { } __t1) __t1.RenderTo(__writer);
+        if ((new TodoFooter(todos, filter)) is { } __t2) __t2.RenderTo(__writer);
         global::System.Buffers.BuffersExtensions.Write(__writer, "</div>"u8);
     }
 
+
+    /// <summary>Lets this template be a node in Build.</summary>
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    [return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(template))]
+    public static implicit operator global::TemplateDsl.Html.HtmlElement?(TodoApp? template) => throw global::TemplateDsl.TemplateBuild.NotExecutable();
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    void global::TemplateDsl.ITemplateContent<global::TemplateDsl.Html.HtmlElement, object>.__RenderContent(global::System.Buffers.IBufferWriter<byte> writer, object context) => RenderTo(writer);
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    global::System.Threading.Tasks.ValueTask global::TemplateDsl.IAsyncTemplateContent<global::TemplateDsl.Html.HtmlElement, object>.__RenderContentAsync(global::System.IO.Pipelines.PipeWriter writer, object context, global::System.Threading.CancellationToken cancellationToken)
+    {
+        RenderTo(writer);
+        return global::TemplateDsl.TemplateStreaming.FlushIfNeededAsync(writer, cancellationToken);
+    }
 }

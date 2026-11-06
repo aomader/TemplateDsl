@@ -1,16 +1,16 @@
 namespace Benchmarks.Dsl;
 
-public sealed partial class DslButton(string label, bool primary = true) : HtmlTemplate
+public sealed partial class DslButton(string label, bool primary = true) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Class(primary ? "btn btn-primary" : "btn btn-secondary")[label]
     ];
 }
 
-public sealed partial class DslCard(string title, string summary, int count) : HtmlTemplate
+public sealed partial class DslCard(string title, string summary, int count) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Id($"card-{title}").Class(count > 0 ? "card active" : "card")
         [
@@ -30,9 +30,9 @@ public sealed partial class DslCard(string title, string summary, int count) : H
     ];
 }
 
-public sealed partial class DslPage(string userName, bool isAdmin, int unread) : HtmlTemplate
+public sealed partial class DslPage(string userName, bool isAdmin, int unread) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Html
         [
@@ -67,9 +67,9 @@ public sealed partial class DslPage(string userName, bool isAdmin, int unread) :
 }
 
 /// <summary>The same page as DslPage, rendered through the async path. The one await completes immediately.</summary>
-public sealed partial class DslAsyncPage(string userName, bool isAdmin, int unread) : AsyncHtmlTemplate
+public sealed partial class DslAsyncPage(string userName, bool isAdmin, int unread) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
         H.Html
         [
@@ -104,27 +104,27 @@ public sealed partial class DslAsyncPage(string userName, bool isAdmin, int unre
     ];
 }
 
-public sealed partial class DslLargeRow(int number) : HtmlTemplate
+public sealed partial class DslLargeRow(int number) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Tr [ H.Td [ number ], H.Td.Class("name") [ "Row name" ] ]
     ];
 }
 
 /// <summary>Has nothing to wait for, so as a sync template it renders in one go.</summary>
-public sealed partial class DslLargePage(int[] rows) : HtmlTemplate
+public sealed partial class DslLargePage(int[] rows) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Table [ H.Each(rows, row => new DslLargeRow(row)) ]
     ];
 }
 
 /// <summary>The same page as an async template, which is what streams.</summary>
-public sealed partial class DslLargeAsyncPage(int[] rows) : AsyncHtmlTemplate
+public sealed partial class DslLargeAsyncPage(int[] rows) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
         H.Table [ H.Each(rows, row => new DslLargeRow(row)) ]
     ];

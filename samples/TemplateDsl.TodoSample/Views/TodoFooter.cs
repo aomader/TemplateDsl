@@ -1,10 +1,10 @@
 namespace TodoSample.Views;
 
-public sealed partial class TodoFooter(Todo[] todos, TodoFilter filter) : HtmlTemplate
+public sealed partial class TodoFooter(Todo[] todos, TodoFilter filter) : IHtmlTemplate
 {
     private int Left => todos.Count(todo => !todo.Done);
 
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Footer [
             H.Span [ Left == 1 ? "1 item left" : $"{Left} items left" ],
