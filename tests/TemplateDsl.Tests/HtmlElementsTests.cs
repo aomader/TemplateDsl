@@ -6,11 +6,11 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class ElementsPage(string url, bool flag) : HtmlTemplate
+public sealed partial class ElementsPage(string url, bool flag) : IHtmlTemplate
 {
     private static readonly string[] Items = ["x"];
 
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Html.Lang("en") [
             H.Head [
@@ -89,9 +89,9 @@ public class HtmlElementsTests
             using TemplateDsl;
             using TemplateDsl.Html;
 
-            public sealed partial class T : HtmlTemplate
+            public sealed partial class T : IHtmlTemplate
             {
-                public override IEnumerable<HtmlElement> Build() => [{{string.Join(", ", factories.Select(Call))}}];
+                public IEnumerable<HtmlElement> Build() => [{{string.Join(", ", factories.Select(Call))}}];
             }
             """;
 
@@ -132,9 +132,9 @@ public class HtmlElementsTests
                 using TemplateDsl.Html;
                 using TemplateDsl.Html.Elements;
 
-                public sealed partial class T : HtmlTemplate
+                public sealed partial class T : IHtmlTemplate
                 {
-                    public override IEnumerable<HtmlElement> Build() {{build}}
+                    public IEnumerable<HtmlElement> Build() {{build}}
                 }
                 """)],
             ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)

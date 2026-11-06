@@ -6,9 +6,9 @@ namespace SampleApp;
 public sealed record Post(string Title, string Url, string? Summary);
 
 /// <summary>The same kind of template as a page, with loops, ternaries and nesting, but it outputs RSS.</summary>
-public sealed partial class BlogFeed(string blogTitle, IEnumerable<Post> posts) : RssTemplate
+public sealed partial class BlogFeed(string blogTitle, IEnumerable<Post> posts) : IRssTemplate
 {
-    public override IEnumerable<RssNode> Build() =>
+    public IEnumerable<RssNode> Build() =>
     [
         Rss.Root [
             Rss.Channel [
@@ -19,9 +19,9 @@ public sealed partial class BlogFeed(string blogTitle, IEnumerable<Post> posts) 
     ];
 }
 
-public sealed partial class FeedItem(Post post) : RssTemplate
+public sealed partial class FeedItem(Post post) : IRssTemplate
 {
-    public override IEnumerable<RssNode> Build() =>
+    public IEnumerable<RssNode> Build() =>
     [
         Rss.Item [
             Rss.Title [ post.Title ],
@@ -33,9 +33,9 @@ public sealed partial class FeedItem(Post post) : RssTemplate
 }
 
 /// <summary>And this one outputs JSON.</summary>
-public sealed partial class PostsJson(IEnumerable<Post> posts) : JsonTemplate
+public sealed partial class PostsJson(IEnumerable<Post> posts) : IJsonTemplate
 {
-    public override IEnumerable<JsonNode> Build() =>
+    public IEnumerable<JsonNode> Build() =>
     [
         Json.Obj [
             Json.Prop("count") [ Json.Lit(posts.Count().ToString(CultureInfo.InvariantCulture)) ],

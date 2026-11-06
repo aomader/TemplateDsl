@@ -1,9 +1,9 @@
 
 namespace Tests;
 
-public sealed partial class PageTemplate : HtmlTemplate
+public sealed partial class PageTemplate : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Html
         [

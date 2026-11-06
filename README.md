@@ -20,22 +20,22 @@ TemplateDsl lets you write **HTML templates** as **plain C# classes**. A **sourc
 
 ```csharp
 // A simple component
-public sealed partial class OrderRow(Order order) : HtmlTemplate
+public readonly partial record struct OrderRow(Order Order) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
-        H.Tr.Class(order.IsLate ? "late" : null) [
-            H.Td [ order.Id ],
-            H.Td [ order.Product ],
-            H.Td [ H.Time.DateTime(order.Due) [ order.Due ] ]
+        H.Tr.Class(Order.IsLate ? "late" : null) [
+            H.Td [ Order.Id ],
+            H.Td [ Order.Product ],
+            H.Td [ H.Time.DateTime(Order.Due) [ Order.Due ] ]
         ]
     ];
 }
 
 // An async page that streams a list of orders, with a context for the current user
-public sealed partial class OrdersPage(IAsyncEnumerable<Order> orders) : AsyncHtmlTemplate<PageContext>
+public sealed partial class OrdersPage(IAsyncEnumerable<Order> orders) : IAsyncHtmlTemplate<PageContext>
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(PageContext context, CancellationToken ct)
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(PageContext context, CancellationToken ct)
     {
         var title = $"Orders of {context.UserName}";
         
@@ -78,14 +78,14 @@ dotnet add package TemplateDsl.Html --prerelease
 dotnet add package TemplateDsl.AspNetCore --prerelease
 ```
 
-2. Write a template as a `sealed partial` class that derives from `HtmlTemplate` or `AsyncHtmlTemplate`, and implement its `Build` or `BuildAsync` method. Use the static class `H` from the `TemplateDsl.Html` namespace to write elements, attributes and children.
+2. Write a template as a `partial` class, struct or record that implements `IHtmlTemplate` or `IAsyncHtmlTemplate`, and implement its `Build` or `BuildAsync` method. The generator adds the rest. Use the static class `H` from the `TemplateDsl.Html` namespace to write elements, attributes and children.
 
 ```csharp
 using TemplateDsl.Html;
 
-public sealed partial class TodoList(IEnumerable<Todo> todos) : HtmlTemplate
+public sealed partial class TodoList(IEnumerable<Todo> todos) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Ul [
             H.Each(todos, todo => H.Li [ todo.Text ])
@@ -118,7 +118,7 @@ The following packages are published to NuGet and may be installed with, e.g., `
 
 | Package             | Description                                                                     | Version |
 |---------------------|---------------------------------------------------------------------------------|---------|
-| `TemplateDsl`       | The core package for templates, with the base classes and the source generator. | [![NuGet version](https://img.shields.io/nuget/v/TemplateDsl?label=NuGet)](https://www.nuget.org/packages/TemplateDsl/) |
+| `TemplateDsl`       | The core package for templates, with the template interfaces and the source generator. | [![NuGet version](https://img.shields.io/nuget/v/TemplateDsl?label=NuGet)](https://www.nuget.org/packages/TemplateDsl/) |
 | `TemplateDsl.Html` | Brings the HTML elements and attributes to the template DSL.                                                                | [![NuGet version](https://img.shields.io/nuget/v/TemplateDsl.Html?label=NuGet)](https://www.nuget.org/packages/TemplateDsl.Html/) |
 | `TemplateDsl.AspNetCore` | Adds convenience methods for returning templates from ASP.NET Core endpoints and controllers. | [![NuGet version](https://img.shields.io/nuget/v/TemplateDsl.AspNetCore?label=NuGet)](https://www.nuget.org/packages/TemplateDsl.AspNetCore/) |
 
@@ -143,7 +143,7 @@ keywords: `H.Object`, `.Class(...)` and `.For(...)`. Attributes of several words
 doctype is written with `H.Raw("<!DOCTYPE html>")`.
 
 Nodes and children brackets can only be used inside `Build`, so that everything is checked and compiled. Templates
-must be `sealed partial` classes, or abstract classes without a `Build` method. What the generator can't compile is a
+must be `partial` and not nested in another type. What the generator can't compile is a
 build error with its own ID, each explained in [docs/diagnostics](https://github.com/aomader/TemplateDsl/blob/main/docs/diagnostics/README.md).
 
 ### Attributes and values
@@ -221,13 +221,13 @@ a template or a method returning a string is what to use instead.
 
 ### Components and layouts
 
-Every template is a node, so templates are nested like elements. A template that derives from
-`HtmlTemplateWithChildren` takes children in brackets and places them with `Children`:
+Templates are nested like elements. A template that also implements `IAcceptsChildren` takes children in brackets and
+places them with `Children`:
 
 ```csharp
-public sealed partial class Card(string title) : HtmlTemplateWithChildren
+public sealed partial class Card(string title) : IHtmlTemplate, IAcceptsChildren
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Class("card") [
             H.Div.Class("title") [ title ],
@@ -239,27 +239,60 @@ public sealed partial class Card(string title) : HtmlTemplateWithChildren
 new Card("Hello") [ "Some text", H.Div [ "nested" ] ]
 ```
 
+A template is a class, a struct or a record. A small one, such as a row, can be a `readonly record struct`, which a
+parent renders without allocating it, as do `RenderToString` and `RenderToAsync`. Children given in brackets are
+written without allocating either. A class doesn't have to be sealed: one derived from it can override `Build` or the
+members it uses. In a struct, C# doesn't let a lambda use its members, so a struct loops with `foreach` and
+`yield return` instead of `H.Each` where it needs them.
+
+Content, such as what a layout wraps, is passed as `IHtmlContent<TContext>`: any HTML template that renders with that
+context, because it needs it, less of it, or none. Without a context, it is `IHtmlContent`. Brackets take it like any
+template, and a null one renders nothing. A template that needs another context is a compile error where it is passed:
+
+```csharp
+public sealed partial class Layout(string title, IHtmlContent<PageContext> content, IHtmlContent<PageContext>? sidebar = null)
+    : IHtmlTemplate<PageContext>
+{
+    public IEnumerable<HtmlElement> Build(PageContext context) =>
+    [
+        H.Html [ H.Head [ H.Title [ title ] ], H.Body [ H.Main [ content ], sidebar ] ]
+    ];
+}
+
+new Layout("Orders", new OrderTable(orders), sidebar: new Filters())
+```
+
+Which type to take depends on whether the template taking the content has a context, and whether it is async:
+
+| The template taking content | Takes content as | And places it with |
+|-----------------------------|------------------|--------------------|
+| has no context | `IHtmlContent`: content that needs no context | `H.Main [ content ]` |
+| has context `PageContext` | `IHtmlContent<PageContext>`: no context, that one, or less of it | `H.Main [ content ]` |
+| is async, and the content may be too | `IAsyncHtmlContent`, or `IAsyncHtmlContent<PageContext>` with a context | `H.Main [ await content ]` |
+
+A type parameter works too, as in `Layout<TContent>(TContent content) where TContent : IHtmlContent<PageContext>`, and
+renders a struct without boxing it. A template only converts to `HtmlElement` inside `Build`, where that places it,
+such as at the top level of `Build` or in a ternary. Content of an interface type goes in brackets, as above.
+
 Templates can be generic. A value of a type parameter isn't a node, so the template writes it through what it is given
 for it, such as a `Func<TItem, string>` or a template per item:
 
 ```csharp
-public sealed partial class Table<TItem>(IEnumerable<TItem> items, Func<TItem, HtmlTemplate> row) : HtmlTemplate
+public sealed partial class Table<TItem>(IEnumerable<TItem> items, Func<TItem, IHtmlTemplate> row) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Table [ H.Tbody [ H.Each(items, item => row(item)) ] ]];
+    public IEnumerable<HtmlElement> Build() => [H.Table [ H.Tbody [ H.Each(items, item => row(item)) ] ]];
 }
 
 new Table<Order>(orders, order => new OrderRow(order))
 ```
 
-A type parameter constrained to a template, as in `where TPart : HtmlTemplate`, is nested like any template, and gets
-the context if it needs one. Children in brackets need the template's own type, because each template has its own
-brackets.
+Children in brackets need the template's own type, because each template has its own brackets.
 
-A page can be plain content, with its layout chosen from outside. An abstract class in your app says what layouts
-need from a page:
+When layouts need more from a page than its content, an abstract class in your app says what. It doesn't declare
+`Build`, which the generator adds as abstract:
 
 ```csharp
-public abstract class Page : HtmlTemplate
+public abstract partial class Page : IHtmlTemplate
 {
     public abstract string Title { get; }
 }
@@ -271,15 +304,16 @@ public sealed partial class HomePage(User user) : Page
     public override IEnumerable<HtmlElement> Build() => [H.H1 [ Title ]];
 }
 
-public sealed partial class MainLayout(Page page) : HtmlTemplate
+public sealed partial class MainLayout(Page page) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Html [ H.Head [ H.Title [ page.Title ] ], H.Body [ H.Main [ page ] ] ]
     ];
 }
 
-HtmlTemplate view = user.IsAdmin ? new AdminLayout(page) : new MainLayout(page);
+IHtmlTemplate view = user.IsAdmin ? new AdminLayout(page) : new MainLayout(page);
+var html = view.RenderToString();
 ```
 
 ### Context
@@ -293,17 +327,17 @@ public interface IHasStrings { Strings Strings { get; } }
 
 public sealed record PageContext(Strings Strings, User User) : IHasStrings;
 
-public sealed partial class SaveButton : HtmlTemplate<IHasStrings>
+public sealed partial class SaveButton : IHtmlTemplate<IHasStrings>
 {
-    public override IEnumerable<HtmlElement> Build(IHasStrings context) =>
+    public IEnumerable<HtmlElement> Build(IHasStrings context) =>
     [
         H.Button.Type("submit") [ context.Strings.Save ]
     ];
 }
 
-public sealed partial class SettingsPage : HtmlTemplate<PageContext>
+public sealed partial class SettingsPage : IHtmlTemplate<PageContext>
 {
-    public override IEnumerable<HtmlElement> Build(PageContext context) =>
+    public IEnumerable<HtmlElement> Build(PageContext context) =>
     [
         H.H1 [ context.User.Name ],
         new Card("Settings") [ new SaveButton() ]
@@ -321,29 +355,30 @@ Everything is checked at compile time:
 - Children in brackets belong to the template that writes them, so they use its context, whatever the template they're
   placed in has. Above, `Card` needs no context at all.
 - Templates without a context can be nested anywhere and cost nothing extra.
+- Content passed as `IHtmlContent<TContext>` gets the context too, and is checked where it is passed.
 
-The same exists for the other base classes: `HtmlTemplateWithChildren<TContext>`, `AsyncHtmlTemplate<TContext>` and
-`AsyncHtmlTemplateWithChildren<TContext>`, whose method is `BuildAsync(TContext context, CancellationToken ct)`. The
-context is for what stays the same during a render. A component's own data still goes in its constructor.
+The async one is `IAsyncHtmlTemplate<TContext>`, whose method is `BuildAsync(TContext context, CancellationToken ct)`.
+The context is for what stays the same during a render. A component's own data still goes in its constructor.
 
 ### Async and streaming
 
 A sync template renders in one go: `RenderToAsync` holds all of its output in memory, then sends it. That suits normal
 pages. An async template streams: output is sent as it is rendered, a slow client slows down rendering, and a client
-that goes away stops it. So a large page should be an `AsyncHtmlTemplate`, even if it has nothing to await:
+that goes away stops it. So a large page should be an `IAsyncHtmlTemplate`, even if it has nothing to await:
 
 ```csharp
-public sealed partial class Export(List<Row> rows) : AsyncHtmlTemplate
+public sealed partial class Export(List<Row> rows) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
         H.Table [ H.Each(rows, row => new RowView(row)) ]
     ];
 }
 ```
 
-Async content is awaited like anything else in C#: `await H.EachAsync(items, ...)` and `await new SlowPart()`. Only an
-`AsyncHtmlTemplate` can do that, so a layout that may host an async page should be one. Forgetting the `await`, or using
+Async content is awaited like anything else in C#: `await H.EachAsync(items, ...)` and `await new SlowPart()`, also
+through an interface, as in `await page` for an `IAsyncHtmlContent<PageContext> page`, which takes a sync page too.
+Only an async template can do that, so a layout that may host an async page should be one. Forgetting the `await`, or using
 it in a sync template, is an ordinary compile error.
 
 A sync template nested in an async one is written in one go too, and sent right after. A sync template with `Children`
@@ -404,16 +439,17 @@ To report a vulnerability, see [SECURITY.md](https://github.com/aomader/Template
 
 ## Performance
 
-The [TemplateDsl.Benchmarks](https://github.com/aomader/TemplateDsl/tree/main/samples/TemplateDsl.Benchmarks) sample compares TemplateDsl against Razor Pages and Blazer (where it makes sense), as well as [Razor Slices](https://github.com/DamianEdwards/RazorSlices).
+The [TemplateDsl.Benchmarks](https://github.com/aomader/TemplateDsl/tree/main/samples/TemplateDsl.Benchmarks) sample compares TemplateDsl against Razor Pages and Blazor (where it makes sense), as well as [Razor Slices](https://github.com/DamianEdwards/RazorSlices).
 
-Measured with BenchmarkDotNet on .NET SDK 10.0.103 on an AMD Ryzen 7 3700X under Windows 11, the results are favorable to TemplateDsl in both speed and memory usage in all (artificial) test cases:
+Measured with BenchmarkDotNet 0.15.2 on .NET 10.0.13 (SDK 10.0.303), on an AMD Ryzen 7 3700X with 4 cores under Alpine Linux 3.24, the results are favorable to TemplateDsl in both speed and memory usage in all (artificial) test cases. The same templates are measured as classes and as structs, which their parents and the render methods use without allocating them. "To pipe" writes to a `PipeWriter`, as a response does in ASP.NET Core, and the large page is a table of 5,000 rows, with a template, partial or component per row:
 
-| Benchmark | TemplateDsl | Razor Slices | Blazor | Razor Pages |
-|-----------|------------:|-------------:|-------:|------------:|
-| Button to string | 123 ns, 144 B | 160 ns, 328 B | 1,988 ns, 3,792 B | |
-| Page to string | 1.70 µs, 3.7 KB | 2.78 µs, 6.7 KB | 19.1 µs, 21.4 KB | |
-| Page to stream | 1.87 µs, 0.9 KB | 5.28 µs, 3.9 KB | 19.2 µs, 18.8 KB | |
-| Whole request with a layout | 79 µs, 11.6 KB | 92 µs, 16.4 KB | | 189 µs, 79.0 KB |
+| Benchmark |    TemplateDsl (struct) |   TemplateDsl (class) | Razor Slices | Blazor | Razor Pages |
+|-----------|------------------------:|----------------------:|-------------:|-------:|------------:|
+| Button to string | **123 ns**, **144 B** | **123 ns**, **144 B** | 153 ns, 328 B | 1,797 ns, 3,792 B | |
+| Page to string | **1.60 µs**, **3.2 KB** |       1.62 µs, 3.7 KB | 2.54 µs, 6.7 KB | 18.0 µs, 21.4 KB | |
+| Page to pipe |   **1.83 µs**, **56 B** |        1.96 µs, 568 B | 5.21 µs, 3.6 KB | 17.8 µs, 13.7 KB | |
+| Large page to pipe |     **159 µs**, **0 B** |        228 µs, 117 KB | 478 µs, 938 KB | 13.2 ms, 9.9 MB | |
+| Whole request with a layout |  **89 µs**, **11.0 KB** |        91 µs, 11.6 KB | 98 µs, 16.4 KB | | 182 µs, 79.0 KB |
 
 To run them yourself, execute `dotnet run -c Release --project samples/TemplateDsl.Benchmarks -- --filter '*'`.
 
@@ -453,8 +489,7 @@ public static partial class Xml
     public static Item Item => new();
 }
 
-[TemplateBase]
-public abstract partial class XmlTemplate : XmlNode, ITemplate<XmlNode>;
+public interface IXmlTemplate : ITemplate<XmlNode>;
 ```
 
 An attribute is a partial method that returns the node, which the generator implements, so this is written
@@ -463,8 +498,7 @@ An attribute is a partial method that returns the node, which the generator impl
 with a value: a number type can be one of the app's own, which writes whatever it formats as. Attributes that several
 nodes share go in a base class that takes the node as a type parameter and returns it, as `HtmlTag<TElement>` does.
 
-Templates in the format derive from its `[TemplateBase]` class, and one with a context from
-`[TemplateBase] public abstract partial class XmlTemplate<TContext> : XmlNode, ITemplate<XmlNode, TContext> where TContext : notnull;`.
+Templates in the format implement `IXmlTemplate`, or `ITemplate<XmlNode>` itself. One with a context implements `ITemplate<XmlNode, TContext>`, and an async one `IAsyncTemplate<XmlNode>`.
 A format opts in to numbers and dates with `[TemplateFormat(typeof(XmlText), FormatsValues = true)]`. Its text uses the
 current culture unless it sets `TextCulture = ValueCulture.Invariant`, and its attributes are invariant unless they set
 `Culture = ValueCulture.Current`. The formats that fit are text formats with a nested structure.

@@ -9,41 +9,51 @@ namespace SampleApp;
 partial class OrdersPage
 {
     [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public override async global::System.Threading.Tasks.ValueTask __RenderAsync(global::System.IO.Pipelines.PipeWriter __writer, global::System.Threading.CancellationToken __ct)
+    public async global::System.Threading.Tasks.ValueTask __RenderAsync(global::System.IO.Pipelines.PipeWriter __writer, global::System.Threading.CancellationToken __ct)
     {
         global::System.Threading.CancellationToken ct = __ct;
         global::System.Buffers.BuffersExtensions.Write(__writer, "<html><body><div class=\"header\">Sent right away, before anything is awaited</div><div class=\"user\">"u8);
         await global::TemplateDsl.TemplateStreaming.FlushBufferedAsync(__writer, __ct).ConfigureAwait(false);
         global::TemplateDsl.Html.HtmlElement.__WriteEscaped_text((string?)(await repository.GetUserNameAsync(userId, ct)), __writer);
         global::System.Buffers.BuffersExtensions.Write(__writer, "</div>"u8);
+        if ((new Card("Orders")) is { } __t0) await __t0.__RenderWithChildrenAsync(__writer, null!, new __AsyncChildren0(this), __ct).ConfigureAwait(false);
+        if ((new Button("Done")) is { } __t1)
         {
-            var __t0 = new Card("Orders");
-            if (__t0 is not null) await __t0.__RenderWithChildrenAsync(__writer, __ct, async () =>
-            {
-                await foreach (var order in global::System.Threading.Tasks.TaskAsyncEnumerableExtensions.ConfigureAwait(global::TemplateDsl.TemplateStreaming.FlushWhileWaiting(repository.StreamOrders(userId, ct), __writer, __ct), false))
-                {
-                    {
-                        var __t1 = new OrderRow(order);
-                        if (__t1 is not null)
-                        {
-                            __t1.RenderTo(__writer);
-                            await global::TemplateDsl.TemplateStreaming.FlushIfNeededAsync(__writer, __ct).ConfigureAwait(false);
-                        }
-                    }
-                    await global::TemplateDsl.TemplateStreaming.FlushIfNeededAsync(__writer, __ct).ConfigureAwait(false);
-                }
-            }).ConfigureAwait(false);
-        }
-        {
-            var __t2 = new Button("Done");
-            if (__t2 is not null)
-            {
-                __t2.RenderTo(__writer);
-                await global::TemplateDsl.TemplateStreaming.FlushIfNeededAsync(__writer, __ct).ConfigureAwait(false);
-            }
+            __t1.RenderTo(__writer);
+            await global::TemplateDsl.TemplateStreaming.FlushIfNeededAsync(__writer, __ct).ConfigureAwait(false);
         }
         global::System.Buffers.BuffersExtensions.Write(__writer, "</body></html>"u8);
         await global::TemplateDsl.TemplateStreaming.FlushIfNeededAsync(__writer, __ct).ConfigureAwait(false);
     }
 
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    private readonly struct __AsyncChildren0 : global::TemplateDsl.IAsyncChildrenWriter
+    {
+        internal readonly OrdersPage __self;
+
+        public __AsyncChildren0(OrdersPage __self)
+        {
+            this.__self = __self;
+        }
+
+        public global::System.Threading.Tasks.ValueTask __WriteAsync(global::System.IO.Pipelines.PipeWriter __writer, global::System.Threading.CancellationToken __ct) => __self.__WriteAsyncChildren0(__writer, this, __ct);
+    }
+
+    private async global::System.Threading.Tasks.ValueTask __WriteAsyncChildren0(global::System.IO.Pipelines.PipeWriter __writer, __AsyncChildren0 __state, global::System.Threading.CancellationToken __ct)
+    {
+        global::System.Threading.CancellationToken ct = __ct;
+        await foreach (var order in global::System.Threading.Tasks.TaskAsyncEnumerableExtensions.ConfigureAwait(global::TemplateDsl.TemplateStreaming.FlushWhileWaiting(repository.StreamOrders(userId, ct), __writer, __ct), false))
+        {
+            if ((new OrderRow(order)) is { } __t0)
+            {
+                __t0.RenderTo(__writer);
+                await global::TemplateDsl.TemplateStreaming.FlushIfNeededAsync(__writer, __ct).ConfigureAwait(false);
+            }
+            await global::TemplateDsl.TemplateStreaming.FlushIfNeededAsync(__writer, __ct).ConfigureAwait(false);
+        }
+    }
+
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    global::System.Threading.Tasks.ValueTask global::TemplateDsl.IAsyncTemplateContent<global::TemplateDsl.Html.HtmlElement, object>.__RenderContentAsync(global::System.IO.Pipelines.PipeWriter writer, object context, global::System.Threading.CancellationToken cancellationToken) => __RenderAsync(writer, cancellationToken);
 }

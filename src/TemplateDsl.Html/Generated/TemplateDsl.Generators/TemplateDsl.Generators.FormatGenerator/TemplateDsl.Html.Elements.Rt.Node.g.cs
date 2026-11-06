@@ -7,5 +7,5 @@ partial class Rt
 {
     /// <summary>The children of this node in Build.</summary>
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public global::TemplateDsl.Html.HtmlElement this[params global::TemplateDsl.Html.HtmlElement?[] children] => throw global::TemplateDsl.TemplateBuild.NotExecutable();
+    public global::TemplateDsl.Html.HtmlElement this[params global::TemplateDsl.TemplateChildren<global::TemplateDsl.Html.HtmlElement> children] => throw global::TemplateDsl.TemplateBuild.NotExecutable();
 }

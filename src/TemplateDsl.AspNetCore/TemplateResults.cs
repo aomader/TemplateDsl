@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.IO.Pipelines;
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
 
@@ -33,6 +34,14 @@ public static class TemplateResults
         ArgumentNullException.ThrowIfNull(template);
         ArgumentNullException.ThrowIfNull(context);
         return new TemplateResult<TContext>(template, context, statusCode, contentType ?? GetContentType(template));
+    }
+
+    /// <summary>Renders as content, which every template is, without or with the context it needs, and flushes.</summary>
+    internal static async Task RenderAsync<TContext>(IRenderable template, PipeWriter writer, TContext context, CancellationToken cancellationToken)
+        where TContext : notnull
+    {
+        await ((IAsyncTemplateContent<TemplateNode, TContext>)template).__RenderContentAsync(writer, context, cancellationToken).ConfigureAwait(false);
+        await TemplateStreaming.FlushAsync(writer, cancellationToken).ConfigureAwait(false);
     }
 
     internal static void Prepare(HttpResponse response, int? statusCode, string contentType)

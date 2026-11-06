@@ -1,8 +1,8 @@
 namespace TodoSample.Views;
 
-public sealed partial class TodoList(IEnumerable<Todo> todos, TodoFilter filter) : HtmlTemplate
+public sealed partial class TodoList(IEnumerable<Todo> todos, TodoFilter filter) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Ul [
             H.Each(todos, todo => new TodoItem(todo, filter))

@@ -7,7 +7,7 @@ namespace SampleApp;
 partial class LanguageBadge
 {
     /// <summary>Writes this template as UTF-8 to <paramref name="__writer"/>, without flushing.</summary>
-    public override void RenderTo(global::System.Buffers.IBufferWriter<byte> __writer, global::SampleApp.IHasLanguage __context)
+    public void RenderTo(global::System.Buffers.IBufferWriter<byte> __writer, global::SampleApp.IHasLanguage __context)
     {
         global::SampleApp.IHasLanguage context = __context;
         global::System.Buffers.BuffersExtensions.Write(__writer, "<span class=\"language\">"u8);
@@ -15,4 +15,19 @@ partial class LanguageBadge
         global::System.Buffers.BuffersExtensions.Write(__writer, "</span>"u8);
     }
 
+
+    /// <summary>Lets this template be a node in Build.</summary>
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    [return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(template))]
+    public static implicit operator global::TemplateDsl.Html.HtmlElement?(LanguageBadge? template) => throw global::TemplateDsl.TemplateBuild.NotExecutable();
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    void global::TemplateDsl.ITemplateContent<global::TemplateDsl.Html.HtmlElement, global::SampleApp.IHasLanguage>.__RenderContent(global::System.Buffers.IBufferWriter<byte> writer, global::SampleApp.IHasLanguage context) => RenderTo(writer, context);
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    global::System.Threading.Tasks.ValueTask global::TemplateDsl.IAsyncTemplateContent<global::TemplateDsl.Html.HtmlElement, global::SampleApp.IHasLanguage>.__RenderContentAsync(global::System.IO.Pipelines.PipeWriter writer, global::SampleApp.IHasLanguage context, global::System.Threading.CancellationToken cancellationToken)
+    {
+        RenderTo(writer, context);
+        return global::TemplateDsl.TemplateStreaming.FlushIfNeededAsync(writer, cancellationToken);
+    }
 }

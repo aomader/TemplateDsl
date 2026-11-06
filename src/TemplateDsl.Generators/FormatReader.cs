@@ -68,9 +68,11 @@ internal sealed record EscapeRule(string Context, EquatableArray<string> Replace
 internal static class FormatReader
 {
     public const string Renderable = "IRenderable";
-    public const string Streaming = "IStreamingRenderable";
     public const string AcceptsChildren = "IAcceptsChildren";
     public const string ContextRenderable = "ITemplateRenderable`1";
+    public const string Content = "ITemplateContent`1";
+    public const string ContextContent = "ITemplateContent`2";
+    public const string AsyncContextContent = "IAsyncTemplateContent`2";
 
     /// <summary>Whether <paramref name="type"/> is the type with this metadata name in the core library.</summary>
     public static bool IsCoreType(ITypeSymbol type, string metadataName) => NameIn(type, "TemplateDsl") == metadataName;
@@ -95,12 +97,20 @@ internal static class FormatReader
 
     /// <summary>
     /// All interfaces of <paramref name="type"/>, including itself if it is one. A type parameter has those of its
-    /// constraints, which Roslyn doesn't list as its own.
+    /// constraints, which Roslyn doesn't list as its own, and a nullable struct those of the struct.
     /// </summary>
     public static IEnumerable<INamedTypeSymbol> Interfaces(ITypeSymbol type) =>
-        type is ITypeParameterSymbol parameter
-            ? parameter.ConstraintTypes.SelectMany(Interfaces)
-            : type is INamedTypeSymbol { TypeKind: TypeKind.Interface } named ? type.AllInterfaces.Prepend(named) : type.AllInterfaces;
+        type switch
+        {
+            ITypeParameterSymbol parameter => parameter.ConstraintTypes.SelectMany(Interfaces),
+            INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } nullable => Interfaces(nullable.TypeArguments[0]),
+            INamedTypeSymbol { TypeKind: TypeKind.Interface } named => type.AllInterfaces.Prepend(named),
+            _ => type.AllInterfaces,
+        };
+
+    /// <summary>Whether this is an async template, or an interface or type parameter of one.</summary>
+    public static bool IsAsyncTemplate(ITypeSymbol type) =>
+        Interfaces(type).Any(i => IsCoreType(i, "IAsyncTemplate`1") || IsCoreType(i, "IAsyncTemplate`2"));
 
     public static bool IsTemplateInterface(INamedTypeSymbol type) =>
         IsCoreType(type, "ITemplate`1") || IsCoreType(type, "IAsyncTemplate`1") || IsCoreType(type, "ITemplate`2") || IsCoreType(type, "IAsyncTemplate`2");
@@ -166,9 +176,6 @@ internal static class FormatReader
         format.GetAttributes()
             .FirstOrDefault(attribute => IsAttribute(attribute, "TemplateFormatAttribute") && attribute.ConstructorArguments.Length == 1)
             ?.ConstructorArguments[0].Value as ITypeSymbol;
-
-    public static bool IsTemplateBase(ITypeSymbol type) =>
-        type.GetAttributes().Any(attribute => IsAttribute(attribute, "TemplateBaseAttribute"));
 
     public static bool IsTags(ITypeSymbol type) =>
         type.GetAttributes().Any(attribute => IsAttribute(attribute, "TemplateTagsAttribute"));

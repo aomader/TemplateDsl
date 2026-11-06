@@ -5,9 +5,9 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class EachList(IEnumerable<string> items) : HtmlTemplate
+public sealed partial class EachList(IEnumerable<string> items) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Class("list")
         [
@@ -18,9 +18,9 @@ public sealed partial class EachList(IEnumerable<string> items) : HtmlTemplate
     ];
 }
 
-public sealed partial class StatementLoops(int count) : HtmlTemplate
+public sealed partial class StatementLoops(int count) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build()
+    public IEnumerable<HtmlElement> Build()
     {
         yield return "[";
 
@@ -45,9 +45,9 @@ public sealed partial class StatementLoops(int count) : HtmlTemplate
     }
 }
 
-public sealed partial class ForAndWhile(int count) : HtmlTemplate
+public sealed partial class ForAndWhile(int count) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build()
+    public IEnumerable<HtmlElement> Build()
     {
         for (var i = 0; i < count; i++)
         {
@@ -63,9 +63,9 @@ public sealed partial class ForAndWhile(int count) : HtmlTemplate
     }
 }
 
-public sealed partial class ReturnInLoop(int[] numbers) : HtmlTemplate
+public sealed partial class ReturnInLoop(int[] numbers) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build()
+    public IEnumerable<HtmlElement> Build()
     {
         foreach (var number in numbers)
         {
@@ -79,9 +79,9 @@ public sealed partial class ReturnInLoop(int[] numbers) : HtmlTemplate
     }
 }
 
-public sealed partial class NestedLoops(string[] groups, IEnumerable<string> items) : HtmlTemplate
+public sealed partial class NestedLoops(string[] groups, IEnumerable<string> items) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Each(groups, group => new Panel(group)
         [
@@ -90,9 +90,9 @@ public sealed partial class NestedLoops(string[] groups, IEnumerable<string> ite
     ];
 }
 
-public sealed partial class AsyncEachList(IEnumerable<string> items) : AsyncHtmlTemplate
+public sealed partial class AsyncEachList(IEnumerable<string> items) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
         H.Div.Class("list")
         [
@@ -103,9 +103,9 @@ public sealed partial class AsyncEachList(IEnumerable<string> items) : AsyncHtml
     ];
 }
 
-public sealed partial class AsyncNestedLoops(string[] groups, IEnumerable<string> items) : AsyncHtmlTemplate
+public sealed partial class AsyncNestedLoops(string[] groups, IEnumerable<string> items) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
         H.Each(groups, group => new Panel(group)
         [

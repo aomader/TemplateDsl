@@ -1,7 +1,7 @@
 namespace TodoSample.Views;
 
 /// <summary>The full page, sent for a first visit or a reload. Everything after that swaps a part of it.</summary>
-public sealed partial class Layout(HtmlTemplate app) : HtmlTemplate
+public sealed partial class Layout(IHtmlContent app) : IHtmlTemplate
 {
     private const string Styles = """
         body { font: 16px/1.5 system-ui, sans-serif; max-width: 32rem; margin: 2rem auto; padding: 0 1rem; }
@@ -19,7 +19,7 @@ public sealed partial class Layout(HtmlTemplate app) : HtmlTemplate
         footer { display: flex; gap: .75rem; align-items: center; }
         """;
 
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Raw("<!DOCTYPE html>"),
         H.Html.Lang("en") [

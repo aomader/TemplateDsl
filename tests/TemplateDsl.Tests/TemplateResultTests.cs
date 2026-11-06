@@ -13,29 +13,29 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class Greeting(string name) : HtmlTemplate
+public sealed partial class Greeting(string name) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.P [ "Hi ", name ]];
+    public IEnumerable<HtmlElement> Build() => [H.P [ "Hi ", name ]];
 }
 
-public sealed partial class GreetingFromContext : HtmlTemplate<TestContext>
+public sealed partial class GreetingFromContext : IHtmlTemplate<TestContext>
 {
-    public override IEnumerable<HtmlElement> Build(TestContext context) => [H.P [ context.Greeting, " ", context.User ]];
+    public IEnumerable<HtmlElement> Build(TestContext context) => [H.P [ context.Greeting, " ", context.User ]];
 }
 
-public sealed partial class RequestPath : HtmlTemplate<HttpContext>
+public sealed partial class RequestPath : IHtmlTemplate<HttpContext>
 {
-    public override IEnumerable<HtmlElement> Build(HttpContext context) => [H.Code [ context.Request.Path.Value ]];
+    public IEnumerable<HtmlElement> Build(HttpContext context) => [H.Code [ context.Request.Path.Value ]];
 }
 
-public sealed partial class FeedTitle(string title) : FormatSamples.RssTemplate
+public sealed partial class FeedTitle(string title) : FormatSamples.IRssTemplate
 {
-    public override IEnumerable<FormatSamples.RssNode> Build() => [FormatSamples.Rss.Title [ title ]];
+    public IEnumerable<FormatSamples.RssNode> Build() => [FormatSamples.Rss.Title [ title ]];
 }
 
-public sealed partial class GatedPage(Task<string> rest) : AsyncHtmlTemplate
+public sealed partial class GatedPage(Task<string> rest) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken) =>
     [
         H.P [ "first" ],
         H.P [ await rest ]

@@ -4,9 +4,9 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class DynamicTemplate(string name, string? optionalId, int count, decimal price) : HtmlTemplate
+public sealed partial class DynamicTemplate(string name, string? optionalId, int count, decimal price) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         name,
         H.Div.Id($"Oli{name}").Class(optionalId)
@@ -26,14 +26,14 @@ public sealed partial class DynamicTemplate(string name, string? optionalId, int
     private static string Shout(string value) => value.ToUpperInvariant() + "!";
 }
 
-public sealed partial class OliTemplate(string model) : HtmlTemplate
+public sealed partial class OliTemplate(string model) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Div.Id($"Oli{model}")];
+    public IEnumerable<HtmlElement> Build() => [H.Div.Id($"Oli{model}")];
 }
 
-public sealed partial class InterpolationFormsTemplate(int model) : HtmlTemplate
+public sealed partial class InterpolationFormsTemplate(int model) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         $"regular {{x}} }}{{ \t \\ {model}",
         @$"verbatim {{x}} ""q"" \n {model}",

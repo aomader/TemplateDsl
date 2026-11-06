@@ -8,14 +8,14 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class UnicodeTemplate : HtmlTemplate
+public sealed partial class UnicodeTemplate : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Div.Class("äö€😀")];
+    public IEnumerable<HtmlElement> Build() => [H.Div.Class("äö€😀")];
 }
 
-public sealed partial class EmptyTemplate : HtmlTemplate
+public sealed partial class EmptyTemplate : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [];
+    public IEnumerable<HtmlElement> Build() => [];
 }
 
 public class StreamingTests

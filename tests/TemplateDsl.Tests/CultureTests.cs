@@ -3,9 +3,9 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class ForPrograms(double real, DateOnly date, DateTime moment, DateTimeOffset offset, TimeOnly time, int? number) : HtmlTemplate
+public sealed partial class ForPrograms(double real, DateOnly date, DateTime moment, DateTimeOffset offset, TimeOnly time, int? number) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Style($"width:{real}%").Attr("data-a", real),
         H.Input.Value(real).Min(date).Max(moment),
@@ -16,24 +16,24 @@ public sealed partial class ForPrograms(double real, DateOnly date, DateTime mom
     ];
 }
 
-public sealed partial class ForPeople(double real, int number) : HtmlTemplate
+public sealed partial class ForPeople(double real, int number) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Img.Alt(real),
         H.Div.Title($"{real} of {number,3}").Attr("aria-label", real) [ real, $" {real}" ]
     ];
 }
 
-public sealed partial class AwaitedInvariant(Task<double> real, Task<double?> maybe) : AsyncHtmlTemplate
+public sealed partial class AwaitedInvariant(Task<double> real, Task<double?> maybe) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
         [H.Div.Id($"{await real}").Attr("data-a", await maybe) [ await real ]];
 }
 
-public sealed partial class TrueOrFalse(bool yes, bool? maybe) : HtmlTemplate
+public sealed partial class TrueOrFalse(bool yes, bool? maybe) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Draggable(true).Spellcheck(false).ContentEditable(null),
         H.Div.Draggable(yes).Spellcheck(maybe),
@@ -41,9 +41,9 @@ public sealed partial class TrueOrFalse(bool yes, bool? maybe) : HtmlTemplate
     ];
 }
 
-public sealed partial class Numbers(int count, double level) : HtmlTemplate
+public sealed partial class Numbers(int count, double level) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Td.ColSpan(2).RowSpan(count > 0 ? count : null),
         H.Meter.Value(level).Max(1),

@@ -6,68 +6,68 @@ namespace Tests;
 
 public sealed record Order(int Id, string Product);
 
-public sealed partial class OrderRow(Order order) : HtmlTemplate
+public sealed partial class OrderRow(Order order) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Tr [ H.Td [ order.Id ], H.Td [ order.Product ] ]];
+    public IEnumerable<HtmlElement> Build() => [H.Tr [ H.Td [ order.Id ], H.Td [ order.Product ] ]];
 }
 
 /// <summary>Writes each item with the row template it's given, since an item of any type isn't a node itself.</summary>
-public sealed partial class Table<TItem>(IEnumerable<TItem> items, Func<TItem, HtmlTemplate> row) : HtmlTemplate
+public sealed partial class Table<TItem>(IEnumerable<TItem> items, Func<TItem, IHtmlTemplate> row) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Table [ H.Tbody [ H.Each(items, item => row(item)) ] ]];
+    public IEnumerable<HtmlElement> Build() => [H.Table [ H.Tbody [ H.Each(items, item => row(item)) ] ]];
 }
 
-public sealed partial class Choice<TValue>(IEnumerable<TValue> values, Func<TValue, string> label) : HtmlTemplate
+public sealed partial class Choice<TValue>(IEnumerable<TValue> values, Func<TValue, string> label) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
         [H.Select [ H.Each(values, value => H.Option.Value(label(value)) [ $"{value}" ]) ]];
 }
 
 /// <summary>Takes two type parameters, and nests another generic template with one of them.</summary>
-public sealed partial class Grouped<TKey, TItem>(TKey key, IEnumerable<TItem> items, Func<TItem, HtmlTemplate> row) : HtmlTemplate
+public sealed partial class Grouped<TKey, TItem>(TKey key, IEnumerable<TItem> items, Func<TItem, IHtmlTemplate> row) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Section [ H.H2 [ $"{key}" ], new Table<TItem>(items, row) ]];
+    public IEnumerable<HtmlElement> Build() => [H.Section [ H.H2 [ $"{key}" ], new Table<TItem>(items, row) ]];
 }
 
 /// <summary>A type parameter constrained to a template can be nested like any template.</summary>
-public sealed partial class Slot<TPart>(TPart part) : HtmlTemplate
-    where TPart : HtmlTemplate
+public sealed partial class Slot<TPart>(TPart part) : IHtmlTemplate
+    where TPart : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Div.Class("slot") [ part ]];
+    public IEnumerable<HtmlElement> Build() => [H.Div.Class("slot") [ part ]];
 }
 
 /// <summary>Puts children in brackets into a generic template that takes children.</summary>
-public sealed partial class PageWithBox<TItem>(TItem item) : HtmlTemplate
+public sealed partial class PageWithBox<TItem>(TItem item) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [new Box<TItem>(item) [ "inner" ]];
+    public IEnumerable<HtmlElement> Build() => [new Box<TItem>(item) [ "inner" ]];
 }
 
-public sealed partial class Box<TItem>(TItem item) : HtmlTemplateWithChildren
+public sealed partial class Box<TItem>(TItem item) : IHtmlTemplate, IAcceptsChildren
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Div.Title($"{item}") [ Children ]];
+    public IEnumerable<HtmlElement> Build() => [H.Div.Title($"{item}") [ Children ]];
 }
 
 /// <summary>A part that needs the context gets it from this template, also through a type parameter.</summary>
-public sealed partial class ContextSlot<TPart>(TPart part) : HtmlTemplate<TestContext>
-    where TPart : HtmlTemplate<TestContext>
+public sealed partial class ContextSlot<TPart>(TPart part) : IHtmlTemplate<TestContext>
+    where TPart : IHtmlTemplate<TestContext>
 {
-    public override IEnumerable<HtmlElement> Build(TestContext context) => [H.Div [ context.Greeting, part ]];
+    public IEnumerable<HtmlElement> Build(TestContext context) => [H.Div [ context.Greeting, part ]];
 }
 
-public sealed partial class UserName : HtmlTemplate<TestContext>
+public sealed partial class UserName : IHtmlTemplate<TestContext>
 {
-    public override IEnumerable<HtmlElement> Build(TestContext context) => [H.B [ context.User ]];
+    public IEnumerable<HtmlElement> Build(TestContext context) => [H.B [ context.User ]];
 }
 
-public sealed partial class Formatted<TValue>(TValue value) : HtmlTemplate
+public sealed partial class Formatted<TValue>(TValue value) : IHtmlTemplate
     where TValue : struct, ISpanFormattable
 {
-    public override IEnumerable<HtmlElement> Build() => [H.P.Attr("data-value", value) [ $"{value}" ]];
+    public IEnumerable<HtmlElement> Build() => [H.P.Attr("data-value", value) [ $"{value}" ]];
 }
 
-public sealed partial class AsyncList<TItem>(IAsyncEnumerable<TItem> items, Func<TItem, string> text) : AsyncHtmlTemplate
+public sealed partial class AsyncList<TItem>(IAsyncEnumerable<TItem> items, Func<TItem, string> text) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken) =>
         [H.Ul [ await H.EachAsync(items, item => H.Li [ text(item) ]) ]];
 }
 

@@ -28,9 +28,9 @@ public static class Entries
 /// An async component: it loads its own data, so the page using it doesn't have to know how.
 /// Using it takes an await, like any other async call: <c>await new ServerStatus()</c>.
 /// </summary>
-public sealed partial class ServerStatus : AsyncHtmlTemplate
+public sealed partial class ServerStatus : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
         H.Div.Class("status") [ await Entries.LoadServerStatusAsync(ct) ]
     ];
@@ -41,7 +41,7 @@ public sealed partial class IndexPage(IAsyncEnumerable<string> items) : Page
 {
     public override string Title => "Streaming with TemplateDsl";
 
-    public override HtmlTemplate? Head => new IndexHead();
+    public override IHtmlContent? Head => new IndexHead();
 
     public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
@@ -55,7 +55,7 @@ public sealed partial class IndexPage(IAsyncEnumerable<string> items) : Page
     ];
 }
 
-public sealed partial class IndexHead : HtmlTemplate
+public sealed partial class IndexHead : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Meta.Name("description").Content("A streaming sample")];
+    public IEnumerable<HtmlElement> Build() => [H.Meta.Name("description").Content("A streaming sample")];
 }

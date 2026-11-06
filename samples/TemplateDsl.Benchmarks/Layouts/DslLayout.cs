@@ -1,17 +1,17 @@
 namespace Benchmarks.Layouts;
 
-public abstract class DslLayoutPage : HtmlTemplate
+public abstract partial class DslLayoutPage : IHtmlTemplate
 {
     public abstract string Title { get; }
 
     public abstract string Description { get; }
 
-    public virtual HtmlTemplate? Head => null;
+    public virtual IHtmlContent? Head => null;
 }
 
-public sealed partial class DslMainLayout(DslLayoutPage page) : HtmlTemplate
+public sealed partial class DslMainLayout(DslLayoutPage page) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Raw("<!DOCTYPE html>"),
         H.Html.Lang("en") [
@@ -33,9 +33,9 @@ public sealed partial class DslMainLayout(DslLayoutPage page) : HtmlTemplate
     ];
 }
 
-public sealed partial class DslDashboardHead : HtmlTemplate
+public sealed partial class DslDashboardHead : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Link.Rel("stylesheet").Href("/dashboard.css")];
+    public IEnumerable<HtmlElement> Build() => [H.Link.Rel("stylesheet").Href("/dashboard.css")];
 }
 
 public sealed partial class DslDashboardPage(Dashboard data) : DslLayoutPage
@@ -44,7 +44,7 @@ public sealed partial class DslDashboardPage(Dashboard data) : DslLayoutPage
 
     public override string Description => $"Everything about {data.UserName}";
 
-    public override HtmlTemplate? Head => new DslDashboardHead();
+    public override IHtmlContent? Head => new DslDashboardHead();
 
     public override IEnumerable<HtmlElement> Build()
     {
@@ -63,9 +63,9 @@ public sealed partial class DslDashboardPage(Dashboard data) : DslLayoutPage
     }
 }
 
-public sealed partial class DslRow(Row row) : HtmlTemplate
+public sealed partial class DslRow(Row row) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Tr.Class(row.Active ? "active" : null) [
             H.Td [ row.Name ],

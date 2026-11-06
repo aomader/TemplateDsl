@@ -5,7 +5,7 @@ namespace TodoSample.Views;
 /// swaps it in place, so the counter and the filter always agree with the list. Everything inside targets it by
 /// inheritance, unless it changes only its own row, as editing does.
 /// </summary>
-public sealed partial class TodoApp(Todo[] todos, TodoFilter filter, string? error = null) : HtmlTemplate
+public sealed partial class TodoApp(Todo[] todos, TodoFilter filter, string? error = null) : IHtmlTemplate
 {
     private IEnumerable<Todo> Visible => filter switch
     {
@@ -14,7 +14,7 @@ public sealed partial class TodoApp(Todo[] todos, TodoFilter filter, string? err
         _ => todos,
     };
 
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Id("app").Attr("hx-target:inherited", "#app").Attr("hx-swap:inherited", "outerHTML") [
             H.H1 [ "Todos" ],

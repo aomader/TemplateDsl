@@ -18,10 +18,9 @@ public static partial class Lists
     public static Items Items => new();
 }
 
-[TemplateBase]
-public abstract partial class ListTemplate : ListNode, ITemplate<ListNode>;
+public interface IListTemplate : ITemplate<ListNode>;
 
-public sealed partial class Doc(string value) : ListTemplate
+public sealed partial class Doc(string value) : IListTemplate
 {
-    public override IEnumerable<ListNode> Build() => [Lists.Items[value, "c"]];
+    public IEnumerable<ListNode> Build() => [Lists.Items[value, "c"]];
 }

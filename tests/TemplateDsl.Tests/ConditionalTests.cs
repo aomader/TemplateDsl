@@ -2,9 +2,9 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class IfReturnTemplate(bool flag, string? name = null, int count = 0) : HtmlTemplate
+public sealed partial class IfReturnTemplate(bool flag, string? name = null, int count = 0) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build()
+    public IEnumerable<HtmlElement> Build()
     {
         if (flag)
         {
@@ -24,9 +24,9 @@ public sealed partial class IfReturnTemplate(bool flag, string? name = null, int
     }
 }
 
-public sealed partial class YieldTemplate(bool flag, int count = 0) : HtmlTemplate
+public sealed partial class YieldTemplate(bool flag, int count = 0) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build()
+    public IEnumerable<HtmlElement> Build()
     {
         yield return "start ";
 
@@ -44,9 +44,9 @@ public sealed partial class YieldTemplate(bool flag, int count = 0) : HtmlTempla
     }
 }
 
-public sealed partial class TernaryTemplate(bool flag, string? name = null, int count = 0) : HtmlTemplate
+public sealed partial class TernaryTemplate(bool flag, string? name = null, int count = 0) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Id(flag ? "a&b" : null).Class(flag ? name : $"c{count}")
         [
@@ -64,9 +64,9 @@ public sealed partial class TernaryTemplate(bool flag, string? name = null, int 
     ];
 }
 
-public sealed partial class WholeOutputTernaryTemplate(bool flag) : HtmlTemplate
+public sealed partial class WholeOutputTernaryTemplate(bool flag) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
         flag ? [H.Div.Id("flag")] : [H.Body, "text"];
 }
 

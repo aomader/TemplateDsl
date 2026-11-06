@@ -11,29 +11,29 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class ThrowingBranch(bool ok) : HtmlTemplate
+public sealed partial class ThrowingBranch(bool ok) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.P [ ok ? H.B : throw new InvalidOperationException("not ok") ]];
+    public IEnumerable<HtmlElement> Build() => [H.P [ ok ? H.B : throw new InvalidOperationException("not ok") ]];
 }
 
-public sealed partial class ConstantPresence : HtmlTemplate
+public sealed partial class ConstantPresence : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Div.Hidden(true), H.Div.Hidden(false)];
+    public IEnumerable<HtmlElement> Build() => [H.Div.Hidden(true), H.Div.Hidden(false)];
 }
 
-public sealed partial class GuidAttributes(Guid id) : HtmlTemplate
+public sealed partial class GuidAttributes(Guid id) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Div.Id(id).Attr("data-id", id)];
+    public IEnumerable<HtmlElement> Build() => [H.Div.Id(id).Attr("data-id", id)];
 }
 
-public sealed partial class NamedFactoryArgument(string value) : JsonTemplate
+public sealed partial class NamedFactoryArgument(string value) : IJsonTemplate
 {
-    public override IEnumerable<JsonNode> Build() => [Json.Obj [ Json.Prop(name: "a\"b") [ value ] ]];
+    public IEnumerable<JsonNode> Build() => [Json.Obj [ Json.Prop(name: "a\"b") [ value ] ]];
 }
 
-public sealed partial class AwaitInLoopHeader(Task<int[]> numbers) : AsyncHtmlTemplate
+public sealed partial class AwaitInLoopHeader(Task<int[]> numbers) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken)
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken)
     {
         var sum = 0;
 
@@ -113,12 +113,12 @@ public class GeneratorEdgeCaseTests
     }
 
     [Theory]
-    [InlineData("public override extern IEnumerable<HtmlElement> Build();", "the method must have a body")]
-    [InlineData("public override IEnumerable<HtmlElement> Build() { var children = Children; return [H.Div]; }", "can only be part of the output")]
+    [InlineData("public extern IEnumerable<HtmlElement> Build();", "the method must have a body")]
+    [InlineData("public IEnumerable<HtmlElement> Build() { var children = Children; return [H.Div]; }", "can only be part of the output")]
     public void Unsupported_build_methods_are_reported(string build, string message)
     {
         var result = Run($$"""
-            public sealed partial class T : HtmlTemplateWithChildren
+            public sealed partial class T : IHtmlTemplate, IAcceptsChildren
             {
                 {{build}}
             }
@@ -135,7 +135,7 @@ public class GeneratorEdgeCaseTests
         var result = Run(Format + $$"""
             public sealed partial class T : XTemplate
             {
-                public override IEnumerable<XNode> Build() => [{{node}}];
+                public IEnumerable<XNode> Build() => [{{node}}];
             }
             """);
 
@@ -146,14 +146,14 @@ public class GeneratorEdgeCaseTests
     public void An_async_template_with_children_in_a_sync_one_is_left_to_the_compiler()
     {
         var result = Run("""
-            public sealed partial class Box : AsyncHtmlTemplateWithChildren
+            public sealed partial class Box : IAsyncHtmlTemplate, IAcceptsChildren
             {
-                public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken) => [H.Div [ Children ]];
+                public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken) => [H.Div [ Children ]];
             }
 
-            public sealed partial class T : HtmlTemplate
+            public sealed partial class T : IHtmlTemplate
             {
-                public override IEnumerable<HtmlElement> Build() => [new Box() [ "x" ]];
+                public IEnumerable<HtmlElement> Build() => [new Box() [ "x" ]];
             }
             """);
 
@@ -178,9 +178,9 @@ public class GeneratorEdgeCaseTests
     public void Build_without_await_is_not_a_warning_but_other_methods_without_await_are()
     {
         var result = Run("""
-            public sealed partial class T : AsyncHtmlTemplate
+            public sealed partial class T : IAsyncHtmlTemplate
             {
-                public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken) => [H.Div];
+                public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken) => [H.Div];
 
                 private static async Task<int> OtherAsync() => 1;
             }
@@ -206,9 +206,9 @@ public class GeneratorEdgeCaseTests
     public void An_unrelated_edit_reuses_what_was_generated()
     {
         var source = CSharpSyntaxTree.ParseText(Usings + """
-            public sealed partial class T(string name) : HtmlTemplate
+            public sealed partial class T(string name) : IHtmlTemplate
             {
-                public override IEnumerable<HtmlElement> Build() => [H.P.Class("c") [ name ]];
+                public IEnumerable<HtmlElement> Build() => [H.P.Class("c") [ name ]];
             }
             """);
         var compilation = CreateCompilation(source);
@@ -266,9 +266,9 @@ public class GeneratorEdgeCaseTests
     public void Each_needs_a_collection_and_a_lambda_with_one_parameter(string each)
     {
         var result = Run($$"""
-            public sealed partial class T(int[] numbers) : HtmlTemplate
+            public sealed partial class T(int[] numbers) : IHtmlTemplate
             {
-                public override IEnumerable<HtmlElement> Build() => [H.Ul [ {{each}} ]];
+                public IEnumerable<HtmlElement> Build() => [H.Ul [ {{each}} ]];
             }
             """);
 
@@ -299,12 +299,11 @@ public class GeneratorEdgeCaseTests
                 public static FItem Item => new();
             }
 
-            [TemplateBase]
-            public abstract partial class FTemplate : FNode, ITemplate<FNode>;
+            public interface IFTemplate : ITemplate<FNode>;
 
-            public sealed partial class T : FTemplate
+            public sealed partial class T : IFTemplate
             {
-                public override IEnumerable<FNode> Build() => [F.Item.A("x") [ "y" ]];
+                public IEnumerable<FNode> Build() => [F.Item.A("x") [ "y" ]];
             }
             """);
 
@@ -319,14 +318,14 @@ public class GeneratorEdgeCaseTests
             namespace Other.TemplateDsl { public interface IAcceptsChildren; }
             namespace Other { public interface IAcceptsChildren; }
 
-            public sealed partial class Plain : HtmlTemplate, Other.TemplateDsl.IAcceptsChildren, Other.IAcceptsChildren
+            public sealed partial class Plain : IHtmlTemplate, Other.TemplateDsl.IAcceptsChildren, Other.IAcceptsChildren
             {
-                public override IEnumerable<HtmlElement> Build() => [H.Div];
+                public IEnumerable<HtmlElement> Build() => [H.Div];
             }
 
-            public sealed partial class T : HtmlTemplate
+            public sealed partial class T : IHtmlTemplate
             {
-                public override IEnumerable<HtmlElement> Build() => [new Plain() [ "x" ]];
+                public IEnumerable<HtmlElement> Build() => [new Plain() [ "x" ]];
             }
             """);
 
@@ -370,10 +369,10 @@ public class GeneratorEdgeCaseTests
     }
 
     [Fact]
-    public void A_struct_that_implements_a_template_interface_is_reported()
+    public void A_ref_struct_that_implements_a_template_interface_is_reported()
     {
         var result = Run("""
-            public partial struct S : ITemplate<HtmlElement>
+            public ref partial struct S : ITemplate<HtmlElement>
             {
                 public IEnumerable<HtmlElement> Build() => [H.Div];
             }
@@ -386,9 +385,9 @@ public class GeneratorEdgeCaseTests
     public void Nodes_of_another_format_are_reported()
     {
         var result = Run("""
-            public sealed partial class T : FormatSamples.JsonTemplate
+            public sealed partial class T : FormatSamples.IJsonTemplate
             {
-                public override IEnumerable<FormatSamples.JsonNode> Build() => [H.Div, H.Text("x")];
+                public IEnumerable<FormatSamples.JsonNode> Build() => [H.Div, H.Text("x")];
             }
             """);
 
@@ -400,11 +399,11 @@ public class GeneratorEdgeCaseTests
     public void Async_lambdas_in_BuildAsync_and_BuildAsync_outside_templates_keep_their_warning()
     {
         var result = Run("""
-            public sealed partial class T : AsyncHtmlTemplate
+            public sealed partial class T : IAsyncHtmlTemplate
             {
                 private static readonly Func<Task> Field = async () => { };
 
-                public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken)
+                public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken)
                 {
                     Func<Task> inner = async () => { };
                     await inner();
@@ -430,14 +429,14 @@ public class GeneratorEdgeCaseTests
     /// there, and leave the errors to the compiler.
     /// </summary>
     [Theory]
-    [InlineData("public sealed partial class T : HtmlTemplate { public override IEnumerable<HtmlElement> Build() => [H.Div [ missing ], H.Div.Hidden(missing), missing.Title]; }")]
-    [InlineData("public sealed partial class T : AsyncHtmlTemplate { public override async Task<IEnumerable<HtmlElement>> BuildAsync() => [H.Div]; }")]
-    [InlineData("public sealed partial class T : HtmlTemplate<string> { public override IEnumerable<HtmlElement> Build() => [H.Div]; }")]
+    [InlineData("public sealed partial class T : IHtmlTemplate { public IEnumerable<HtmlElement> Build() => [H.Div [ missing ], H.Div.Hidden(missing), missing.Title]; }")]
+    [InlineData("public sealed partial class T : IAsyncHtmlTemplate { public async Task<IEnumerable<HtmlElement>> BuildAsync() => [H.Div]; }")]
+    [InlineData("public sealed partial class T : IHtmlTemplate<string> { public IEnumerable<HtmlElement> Build() => [H.Div]; }")]
     [InlineData("public static class Helpers { public static object Make() => new Missing(); public static object Index(object missing) => missing[0]; }")]
     [InlineData("[TemplateFormat] public abstract partial class BNode : TemplateNode; [TemplateTags] public static partial class B { }")]
     [InlineData("[Missing] public abstract partial class BNode : XNode;")]
-    [InlineData("public sealed partial class T : HtmlTemplate { public override IEnumerable<HtmlElement> Build() => [() => 1, H.Div.Hidden(ToString)]; }")]
-    [InlineData("public sealed partial class T : AsyncHtmlTemplate { public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken) => [await H.EachAsync(() => 1, number => H.Li)]; }")]
+    [InlineData("public sealed partial class T : IHtmlTemplate { public IEnumerable<HtmlElement> Build() => [() => 1, H.Div.Hidden(ToString)]; }")]
+    [InlineData("public sealed partial class T : IAsyncHtmlTemplate { public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken) => [await H.EachAsync(() => 1, number => H.Li)]; }")]
     [InlineData("public static class Helpers { public static void Make() { var made = new(); var indexed = (() => 1)[0]; } }")]
     [InlineData("public sealed partial class BItem : XNode { [Attr] public partial BItem A(string? value); }")]
     public void Code_that_does_not_compile_yet_is_left_to_the_compiler(string source)

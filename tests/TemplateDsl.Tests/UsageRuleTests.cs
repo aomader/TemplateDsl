@@ -16,14 +16,14 @@ public class UsageRuleTests
         using TemplateDsl.Html;
         using TemplateDsl.Html.Elements;
 
-        public sealed partial class Box : HtmlTemplateWithChildren
+        public sealed partial class Box : IHtmlTemplate, IAcceptsChildren
         {
-            public override IEnumerable<HtmlElement> Build() => [H.Div [ Children ]];
+            public IEnumerable<HtmlElement> Build() => [H.Div [ Children ]];
         }
 
-        public sealed partial class Leaf : HtmlTemplate
+        public sealed partial class Leaf : IHtmlTemplate
         {
-            public override IEnumerable<HtmlElement> Build() => [H.Div];
+            public IEnumerable<HtmlElement> Build() => [H.Div];
         }
 
         """;
@@ -59,18 +59,18 @@ public class UsageRuleTests
     [InlineData("""class C { object F = H.Div; }""")]
     [InlineData("""class C { object P => H.Div; }""")]
     [InlineData("""class C { object Build() => H.Div; }""")]
-    [InlineData("""public sealed partial class T : HtmlTemplate { public override IEnumerable<HtmlElement> Build() => []; object Helper() => H.Div; }""")]
-    [InlineData("""public sealed partial class T : HtmlTemplate { object F = H.Div; public override IEnumerable<HtmlElement> Build() => []; }""")]
+    [InlineData("""public sealed partial class T : IHtmlTemplate { public IEnumerable<HtmlElement> Build() => []; object Helper() => H.Div; }""")]
+    [InlineData("""public sealed partial class T : IHtmlTemplate { object F = H.Div; public IEnumerable<HtmlElement> Build() => []; }""")]
     public async Task Nodes_outside_build_are_reported(string source)
     {
         Assert.Contains("TDSL007", await AnalyzeAsync(source));
     }
 
     [Theory]
-    [InlineData("""public sealed partial class T : HtmlTemplate { public override IEnumerable<HtmlElement> Build() => [H.Div [ "x" ], new Box() [ "y" ], H.Div.Id("z")]; }""")]
-    [InlineData("""public sealed partial class T : HtmlTemplate { IEnumerable<HtmlElement> HtmlTemplate.Build() => [H.Div]; }""")]
-    [InlineData("""public sealed partial class T(string[] items) : HtmlTemplate { public override IEnumerable<HtmlElement> Build() => [H.Each(items, i => H.Div [ i ])]; }""")]
-    [InlineData("""public sealed partial class T : AsyncHtmlTemplate { public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) => [H.Div [ await Task.FromResult("x") ]]; }""")]
+    [InlineData("""public sealed partial class T : IHtmlTemplate { public IEnumerable<HtmlElement> Build() => [H.Div [ "x" ], new Box() [ "y" ], H.Div.Id("z")]; }""")]
+    [InlineData("""public sealed partial class T : IHtmlTemplate { IEnumerable<HtmlElement> HtmlTemplate.Build() => [H.Div]; }""")]
+    [InlineData("""public sealed partial class T(string[] items) : IHtmlTemplate { public IEnumerable<HtmlElement> Build() => [H.Each(items, i => H.Div [ i ])]; }""")]
+    [InlineData("""public sealed partial class T : IAsyncHtmlTemplate { public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) => [H.Div [ await Task.FromResult("x") ]]; }""")]
     [InlineData("""class C { string M() => new Leaf().RenderToString(); }""")]
     [InlineData("""class C { Box M() => new Box(); }""")]
     [InlineData("""class C { int M(int[] a) => a[0]; }""")]
@@ -91,11 +91,45 @@ public class UsageRuleTests
             """));
     }
 
+    /// <summary>With the generated code, which has the conversions of templates to nodes.</summary>
+    private static async Task<string[]> AnalyzeGeneratedAsync(string source)
+    {
+        var compilation = CSharpCompilation.Create(
+            "Test",
+            [CSharpSyntaxTree.ParseText(Header + source)],
+            ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
+                .Split(Path.PathSeparator)
+                .Select(path => MetadataReference.CreateFromFile(path)),
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        CSharpGeneratorDriver.Create(new TemplateGenerator()).RunGeneratorsAndUpdateCompilation(compilation, out var output, out _);
+        var diagnostics = await output.WithAnalyzers([new TemplateUsageAnalyzer()]).GetAnalyzerDiagnosticsAsync();
+
+        return diagnostics.Select(d => d.Id).ToArray();
+    }
+
+    [Theory]
+    [InlineData("""class C { HtmlElement M() => new Leaf(); }""")]
+    [InlineData("""class C { void Take(HtmlElement content) { } void M() => Take(new Leaf()); }""")]
+    [InlineData("""public sealed partial class T : IHtmlTemplate { HtmlElement? Part => new Leaf(); public IEnumerable<HtmlElement> Build() => []; }""")]
+    public async Task A_template_converted_to_a_node_outside_build_is_reported(string source)
+    {
+        Assert.Contains("TDSL009", await AnalyzeGeneratedAsync(source));
+    }
+
+    [Theory]
+    [InlineData("""public sealed partial class T(IHtmlContent content) : IHtmlTemplate { public IEnumerable<HtmlElement> Build() => [new Leaf(), H.Div [ content, new Leaf() ], H.Each(new[] { 1 }, i => new Leaf())]; }""")]
+    [InlineData("""class C { IHtmlContent M() => new Leaf(); IHtmlTemplate N() => new Leaf(); }""")]
+    public async Task Templates_in_build_and_as_content_are_allowed(string source)
+    {
+        Assert.DoesNotContain("TDSL009", await AnalyzeGeneratedAsync(source));
+    }
+
     private static string[] RunGenerator(string build)
     {
         var compilation = CSharpCompilation.Create(
             "Test",
-            [CSharpSyntaxTree.ParseText(Header + "public sealed partial class T(string model) : HtmlTemplate { public override IEnumerable<HtmlElement> Build() " + build + " }")],
+            [CSharpSyntaxTree.ParseText(Header + "public sealed partial class T(string model) : IHtmlTemplate { public IEnumerable<HtmlElement> Build() " + build + " }")],
             ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
                 .Split(Path.PathSeparator)
                 .Select(path => MetadataReference.CreateFromFile(path)),

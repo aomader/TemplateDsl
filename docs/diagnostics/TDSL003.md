@@ -6,10 +6,10 @@ file: there, a `file`-local type isn't visible, and a nested one would need ever
 ```csharp
 public static class Views
 {
-    public sealed partial class Row : HtmlTemplate { ... }   // TDSL003: nested
+    public sealed partial class Row : IHtmlTemplate { ... }   // TDSL003: nested
 }
 
-file sealed partial class Row : HtmlTemplate { ... }         // TDSL003: file-local
+file sealed partial class Row : IHtmlTemplate { ... }         // TDSL003: file-local
 ```
 
 ## Fix

@@ -87,7 +87,7 @@ static TemplateResult App(HttpContext context, TodoStore store, string? filter, 
     var todoApp = new TodoApp(store.GetAll(), Urls.ParseFilter(filter), error);
     var isPartial = context.Request.Headers["HX-Request-Type"] == "partial";
 
-    return (isPartial ? (HtmlTemplate)todoApp : new Layout(todoApp))
+    return (isPartial ? (IHtmlTemplate)todoApp : new Layout(todoApp))
         .ToResult(statusCode: error is null ? null : StatusCodes.Status422UnprocessableEntity);
 }
 

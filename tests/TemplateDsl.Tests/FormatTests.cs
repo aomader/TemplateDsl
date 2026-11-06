@@ -24,9 +24,9 @@ public static partial class Sections
     public static Section Section => new();
 }
 
-public sealed partial class SectionPage(string value) : HtmlTemplate
+public sealed partial class SectionPage(string value) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         Sections.Section.Name("a&b").Raw("x")["text"],
         Sections.Section.Name(value)[Sections.Section],
@@ -76,9 +76,9 @@ public class FormatTests
     public void Chained_methods_set_attributes_in_source_order(string build, string expected)
     {
         var (diagnostics, errors, generated) = RunTemplate($$"""
-            public sealed partial class T : HtmlTemplate
+            public sealed partial class T : IHtmlTemplate
             {
-                public override IEnumerable<HtmlElement> Build() {{build}}
+                public IEnumerable<HtmlElement> Build() {{build}}
             }
             """);
 
@@ -93,9 +93,9 @@ public class FormatTests
     public void Anything_else_on_a_node_is_reported(string build)
     {
         var (diagnostics, errors, generated) = RunTemplate($$"""
-            public sealed partial class T : HtmlTemplate
+            public sealed partial class T : IHtmlTemplate
             {
-                public override IEnumerable<HtmlElement> Build() {{build}}
+                public IEnumerable<HtmlElement> Build() {{build}}
             }
             """);
 
@@ -169,7 +169,7 @@ public class FormatTests
     public void Escape_rules_are_applied_in_one_pass_regardless_of_their_order()
     {
         var diagnostics = RunFormatGenerator(out var generated, """
-            [TemplateFormat(typeof(Q))] [Escape("x", "<", "&lt;", "&", "&amp;")] public partial class F : TemplateNode;
+            [TemplateFormat(typeof(Q))] [Escape("x", "<", "&lt;", "&", "&amp;")] public abstract partial class F : TemplateNode;
             [TextNode] public sealed partial class Q : F;
             """);
 

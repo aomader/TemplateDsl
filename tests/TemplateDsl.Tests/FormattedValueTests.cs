@@ -3,9 +3,9 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class NumberChildren(int number, int? missing, int? present, double real, char character, DateOnly date, Guid id, byte small, decimal money) : HtmlTemplate
+public sealed partial class NumberChildren(int number, int? missing, int? present, double real, char character, DateOnly date, Guid id, byte small, decimal money) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.P [ number ],
         H.P [ missing ],
@@ -23,9 +23,9 @@ public sealed partial class NumberChildren(int number, int? missing, int? presen
     ];
 }
 
-public sealed partial class NumberAttributes(int number, int? missing, int? present, bool? flag, char character) : HtmlTemplate
+public sealed partial class NumberAttributes(int number, int? missing, int? present, bool? flag, char character) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Td.ColSpan(number).RowSpan(missing),
         H.Td.ColSpan(present).RowSpan(5),
@@ -37,14 +37,14 @@ public sealed partial class NumberAttributes(int number, int? missing, int? pres
     ];
 }
 
-public sealed partial class EachNumbers(int[] numbers) : HtmlTemplate
+public sealed partial class EachNumbers(int[] numbers) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Ul [ H.Each(numbers, n => H.Li [ n ]) ], H.Each(numbers, n => n)];
+    public IEnumerable<HtmlElement> Build() => [H.Ul [ H.Each(numbers, n => H.Li [ n ]) ], H.Each(numbers, n => n)];
 }
 
-public sealed partial class AsyncNumbers(Task<int> number, Task<int?> missing) : AsyncHtmlTemplate
+public sealed partial class AsyncNumbers(Task<int> number, Task<int?> missing) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
         H.P [ await number ],
         H.P [ await missing ],
@@ -52,14 +52,14 @@ public sealed partial class AsyncNumbers(Task<int> number, Task<int?> missing) :
     ];
 }
 
-public sealed partial class CultureValues(double real, DateOnly date) : HtmlTemplate
+public sealed partial class CultureValues(double real, DateOnly date) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.P [ real ], H.P [ $"{real}" ], H.P [ date ], H.P [ $"{date}" ]];
+    public IEnumerable<HtmlElement> Build() => [H.P [ real ], H.P [ $"{real}" ], H.P [ date ], H.P [ $"{date}" ]];
 }
 
-public sealed partial class LongFormatted(LongValue value) : HtmlTemplate
+public sealed partial class LongFormatted(LongValue value) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Div.Attr("data-a", value)];
+    public IEnumerable<HtmlElement> Build() => [H.Div.Attr("data-a", value)];
 }
 
 /// <summary>Longer than any stack buffer, and full of characters that must be escaped.</summary>
@@ -164,9 +164,9 @@ public class FormattedValueTests
     }
 }
 
-public sealed partial class Holes(int number, double real, int? missing, int? present, DateOnly date, char character, string? text) : HtmlTemplate
+public sealed partial class Holes(int number, double real, int? missing, int? present, DateOnly date, char character, string? text) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.P [ $"a{number}b{real:F2}c{missing}d{present}e{date:yyyy}f{character}g{text}h{number,4}i{number:<0>}" ],
         H.P.Id($"a{number}b{real:F2}c{missing}d{present:D3}e{character}f{number:<0>}"),
@@ -174,14 +174,14 @@ public sealed partial class Holes(int number, double real, int? missing, int? pr
     ];
 }
 
-public sealed partial class AllocationFreeHoles(int number, double real, int? present) : HtmlTemplate
+public sealed partial class AllocationFreeHoles(int number, double real, int? present) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.P.Id($"a{number}") [ $"{number} {real:F2} {present}" ]];
+    public IEnumerable<HtmlElement> Build() => [H.P.Id($"a{number}") [ $"{number} {real:F2} {present}" ]];
 }
 
-public sealed partial class AsyncHoles(Task<int> number, Task<int?> missing) : AsyncHtmlTemplate
+public sealed partial class AsyncHoles(Task<int> number, Task<int?> missing) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
         [H.P.Id($"a{await number:D2}") [ $"{await number}-{await missing}-{await number:D3}" ]];
 }
 
@@ -243,9 +243,9 @@ public class InterpolationHoleTests
             await new AsyncHoles(Task.FromResult(4), Task.FromResult<int?>(null)).RenderToStringAsync());
 }
 
-public sealed partial class FeedHoles(int number) : FormatSamples.RssTemplate
+public sealed partial class FeedHoles(int number) : FormatSamples.IRssTemplate
 {
-    public override IEnumerable<FormatSamples.RssNode> Build() => [FormatSamples.Rss.Title [ $"{number:<0>}" ]];
+    public IEnumerable<FormatSamples.RssNode> Build() => [FormatSamples.Rss.Title [ $"{number:<0>}" ]];
 }
 
 public class FormatsWithoutValuesTests

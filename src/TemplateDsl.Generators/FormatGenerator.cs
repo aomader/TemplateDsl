@@ -45,14 +45,6 @@ public sealed class FormatGenerator : IIncrementalGenerator
 
     private sealed record TagsModel(Declaration Declaration, string? FormatType, DiagnosticInfo? Diagnostic);
 
-    /// <param name="Declaration">The base class.</param>
-    /// <param name="FormatType">Set when this class itself adds the template interface, so it declares Build and the rest.</param>
-    /// <param name="ContextType">The type of the context its templates need, if they need one.</param>
-    /// <param name="IsAsync">Whether its templates stream.</param>
-    /// <param name="AddsChildren">Whether this class itself adds the ability to accept children.</param>
-    /// <param name="Diagnostic">What is wrong with the declaration, if anything.</param>
-    private sealed record TemplateBaseModel(Declaration Declaration, string? FormatType, string? ContextType, bool IsAsync, bool AddsChildren, DiagnosticInfo? Diagnostic);
-
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -75,11 +67,6 @@ public sealed class FormatGenerator : IIncrementalGenerator
             "TemplateDsl.TemplateTagsAttribute",
             static (node, _) => node is ClassDeclarationSyntax,
             static (ctx, _) => AnalyzeTags(ctx));
-
-        var templateBases = context.SyntaxProvider.ForAttributeWithMetadataName(
-            "TemplateDsl.TemplateBaseAttribute",
-            static (node, _) => node is ClassDeclarationSyntax,
-            static (ctx, _) => AnalyzeTemplateBase(ctx));
 
         var attributeMethods = context.SyntaxProvider.ForAttributeWithMetadataName(
             "TemplateDsl.AttrAttribute",
@@ -110,17 +97,6 @@ public sealed class FormatGenerator : IIncrementalGenerator
 
                 ctx.AddSource(GetHintName(group.Key, "Attributes"), source.Append("}\n").ToString());
             }
-        });
-
-        context.RegisterSourceOutput(templateBases, static (ctx, templateBase) =>
-        {
-            if (templateBase.Diagnostic is not null)
-            {
-                ctx.ReportDiagnostic(templateBase.Diagnostic.ToDiagnostic());
-                return;
-            }
-
-            ctx.AddSource(GetHintName(templateBase.Declaration, "TemplateBase"), EmitTemplateBase(templateBase));
         });
 
         context.RegisterSourceOutput(formats, static (ctx, format) =>
@@ -160,64 +136,6 @@ public sealed class FormatGenerator : IIncrementalGenerator
         {
             context.AddSource(GetHintName(node.Declaration, "Node"), EmitNode(node));
         }
-    }
-
-    private static TemplateBaseModel AnalyzeTemplateBase(GeneratorAttributeSyntaxContext context)
-    {
-        var symbol = (INamedTypeSymbol)context.TargetSymbol;
-
-        var template = symbol.Interfaces.FirstOrDefault(FormatReader.IsTemplateInterface);
-        var isAsync = FormatReader.Implements(symbol, FormatReader.Streaming);
-        var addsChildren = symbol.Interfaces.Any(i => FormatReader.IsCoreType(i, FormatReader.AcceptsChildren));
-
-        // On a base class that only adds children, the context comes from the base class it derives from.
-        var contextRenderable = symbol.AllInterfaces.FirstOrDefault(i => FormatReader.IsCoreType(i, FormatReader.ContextRenderable));
-
-        return new TemplateBaseModel(
-            GetDeclaration(symbol),
-            template?.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-            contextRenderable?.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-            isAsync,
-            addsChildren,
-            CheckShape(context, symbol, allowGeneric: true)
-                ?? (symbol.IsAbstract ? null : Invalid(context, $"'{symbol.Name}' must be abstract"))
-                ?? (FormatReader.Implements(symbol, FormatReader.Renderable) ? null : Invalid(context, $"'{symbol.Name}' must implement ITemplate<TNode> or IAsyncTemplate<TNode>")));
-    }
-
-    private static string EmitTemplateBase(TemplateBaseModel model)
-    {
-        const string Hide = "    /// <summary>Used by generated code.</summary>\n    " + Hidden + "\n";
-        const string Build = "    /// <summary>\n    /// What this template outputs, in order. The source generator compiles it into the render methods, so it never runs.\n    /// </summary>\n";
-        const string Pipe = "global::System.IO.Pipelines.PipeWriter writer, global::System.Threading.CancellationToken cancellationToken";
-        const string Task = "global::System.Threading.Tasks.ValueTask";
-
-        var source = StartFile(model.Declaration);
-        var context = model.ContextType is { } contextType ? contextType + " context" : null;
-        var pipe = context is null ? Pipe : $"global::System.IO.Pipelines.PipeWriter writer, {context}, global::System.Threading.CancellationToken cancellationToken";
-
-        if (model.FormatType is { } format)
-        {
-            source.Append(Build).Append(model.IsAsync
-                ? $"    public abstract global::System.Threading.Tasks.Task<global::System.Collections.Generic.IEnumerable<{format}>> BuildAsync({(context is null ? "" : context + ", ")}global::System.Threading.CancellationToken cancellationToken);\n\n"
-                : $"    public abstract global::System.Collections.Generic.IEnumerable<{format}> Build({context});\n\n");
-
-            // A sync template renders in one go, an async one as part of its parent's stream.
-            source.Append(model.IsAsync
-                ? Hide + $"    public abstract {Task} __RenderAsync({pipe});\n"
-                : $"    /// <summary>Writes this template as UTF-8 to <paramref name=\"writer\"/>, without flushing. Generated.</summary>\n    public abstract void RenderTo({BufferWriter} writer{(context is null ? "" : ", " + context)});\n");
-        }
-
-        if (model.AddsChildren)
-        {
-            source.Append(Hide).Append($"    public abstract {Task} __RenderWithChildrenAsync({pipe}, global::System.Func<{Task}>? content);\n");
-
-            if (!model.IsAsync)
-            {
-                source.Append(Hide).Append($"    public abstract void __RenderWithChildren({BufferWriter} writer, {(context is null ? "" : context + ", ")}global::System.Action? content);\n");
-            }
-        }
-
-        return source.Append("}\n").ToString();
     }
 
     private static FormatModel AnalyzeFormat(GeneratorAttributeSyntaxContext context)
@@ -280,7 +198,7 @@ public sealed class FormatGenerator : IIncrementalGenerator
 
         // Ends the chain, so attributes can't follow children.
         var formatType = format?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-        var brackets = node.IsVoid ? "" : $"    /// <summary>The children of this node in Build.</summary>\n    {Excluded}\n    public {formatType} this[params {formatType}?[] children] => {NotExecutable};\n";
+        var brackets = node.IsVoid ? "" : $"    /// <summary>The children of this node in Build.</summary>\n    {Excluded}\n    public {formatType} this[params global::TemplateDsl.TemplateChildren<{formatType}> children] => {NotExecutable};\n";
 
         return new NodeModel(GetDeclaration(symbol), node.IsText, brackets, diagnostic);
     }
@@ -345,11 +263,11 @@ public sealed class FormatGenerator : IIncrementalGenerator
                 ?? (format is not null && FormatReader.IsFormat(format) ? null : Invalid(context, $"'{symbol.Name}' must name a class marked with [TemplateFormat]")));
     }
 
-    private static DiagnosticInfo? CheckShape(GeneratorAttributeSyntaxContext context, INamedTypeSymbol symbol, bool allowGeneric = false)
+    private static DiagnosticInfo? CheckShape(GeneratorAttributeSyntaxContext context, INamedTypeSymbol symbol)
     {
         var declaration = (TypeDeclarationSyntax)context.TargetNode;
 
-        return declaration.Modifiers.Any(SyntaxKind.PartialKeyword) && symbol.ContainingType is null && (allowGeneric || !symbol.IsGenericType)
+        return declaration.Modifiers.Any(SyntaxKind.PartialKeyword) && symbol.ContainingType is null && !symbol.IsGenericType
             ? null
             : Invalid(context, $"'{symbol.Name}' must be a top-level, non-generic, partial class");
     }
@@ -528,12 +446,22 @@ public sealed class FormatGenerator : IIncrementalGenerator
                 {{Excluded}}
                 public static {{format}} Each<TItem>(global::System.Collections.Generic.IEnumerable<TItem> items, global::System.Func<TItem, {{format}}?> build) => {{NotExecutable}};
 
+                /// <summary>Repeats the template <paramref name="build"/> returns for each item, also one of an interface type, such as content.</summary>
+                {{Excluded}}
+                public static {{format}} Each<TItem, TTemplate>(global::System.Collections.Generic.IEnumerable<TItem> items, global::System.Func<TItem, TTemplate?> build)
+                    where TTemplate : global::TemplateDsl.ITemplateContent<{{format}}> => {{NotExecutable}};
+
                 /// <summary>
                 /// Repeats <paramref name="build"/> for each item as it arrives: <c>await EachAsync(Items, ...)</c>. If the
                 /// next item isn't ready yet, the output so far is sent to the client before waiting for it.
                 /// </summary>
                 {{Excluded}}
                 public static global::System.Threading.Tasks.Task<{{format}}> EachAsync<TItem>(global::System.Collections.Generic.IAsyncEnumerable<TItem> items, global::System.Func<TItem, {{format}}?> build) => {{NotExecutable}};
+
+                /// <summary>Repeats the template <paramref name="build"/> returns for each item as it arrives, also one of an interface type.</summary>
+                {{Excluded}}
+                public static global::System.Threading.Tasks.Task<{{format}}> EachAsync<TItem, TTemplate>(global::System.Collections.Generic.IAsyncEnumerable<TItem> items, global::System.Func<TItem, TTemplate?> build)
+                    where TTemplate : global::TemplateDsl.ITemplateContent<{{format}}> => {{NotExecutable}};
 
                 /// <summary>Repeats <paramref name="build"/>, which can await, for each item as it arrives.</summary>
                 {{Excluded}}

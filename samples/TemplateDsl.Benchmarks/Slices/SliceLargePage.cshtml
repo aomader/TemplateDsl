@@ -1,0 +1,3 @@
+@inherits RazorSlice<int[]>
+@* A partial per row, like a template per row in TemplateDsl. No whitespace between siblings: the output must match TemplateDsl's. *@
+<table>@foreach (var row in Model) {@await RenderPartialAsync(SliceLargeRow.Create(row))}</table>

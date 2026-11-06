@@ -3,14 +3,14 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class TextPage(string text) : HtmlTemplate
+public sealed partial class TextPage(string text) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() => [H.Div [ text ]];
+    public IEnumerable<HtmlElement> Build() => [H.Div [ text ]];
 }
 
-public sealed partial class NestedRenderPage(string text) : HtmlTemplate
+public sealed partial class NestedRenderPage(string text) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div [ text ],
         H.P [ new TextPage(text).RenderToString() ],
@@ -18,9 +18,9 @@ public sealed partial class NestedRenderPage(string text) : HtmlTemplate
     ];
 }
 
-public sealed partial class ThrowingPage(string text) : HtmlTemplate
+public sealed partial class ThrowingPage(string text) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div [ text ],
         H.Div [ Fail() ]
@@ -264,14 +264,14 @@ public class PooledBufferTests
     }
 }
 
-public sealed partial class AsyncRowsPage(IAsyncEnumerable<string> rows) : AsyncHtmlTemplate
+public sealed partial class AsyncRowsPage(IAsyncEnumerable<string> rows) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
         [H.Ul [ await H.EachAsync(rows, row => H.Li [ row ]) ]];
 }
 
-public sealed partial class AsyncContextTextPage : AsyncHtmlTemplate<string>
+public sealed partial class AsyncContextTextPage : IAsyncHtmlTemplate<string>
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(string context, CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(string context, CancellationToken ct) =>
         [H.P [ await Task.FromResult(context) ]];
 }

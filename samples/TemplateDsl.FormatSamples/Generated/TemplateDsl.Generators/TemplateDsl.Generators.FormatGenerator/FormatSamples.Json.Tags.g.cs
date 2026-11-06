@@ -12,12 +12,22 @@ partial class Json
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public static global::FormatSamples.JsonNode Each<TItem>(global::System.Collections.Generic.IEnumerable<TItem> items, global::System.Func<TItem, global::FormatSamples.JsonNode?> build) => throw global::TemplateDsl.TemplateBuild.NotExecutable();
 
+    /// <summary>Repeats the template <paramref name="build"/> returns for each item, also one of an interface type, such as content.</summary>
+    [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    public static global::FormatSamples.JsonNode Each<TItem, TTemplate>(global::System.Collections.Generic.IEnumerable<TItem> items, global::System.Func<TItem, TTemplate?> build)
+        where TTemplate : global::TemplateDsl.ITemplateContent<global::FormatSamples.JsonNode> => throw global::TemplateDsl.TemplateBuild.NotExecutable();
+
     /// <summary>
     /// Repeats <paramref name="build"/> for each item as it arrives: <c>await EachAsync(Items, ...)</c>. If the
     /// next item isn't ready yet, the output so far is sent to the client before waiting for it.
     /// </summary>
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public static global::System.Threading.Tasks.Task<global::FormatSamples.JsonNode> EachAsync<TItem>(global::System.Collections.Generic.IAsyncEnumerable<TItem> items, global::System.Func<TItem, global::FormatSamples.JsonNode?> build) => throw global::TemplateDsl.TemplateBuild.NotExecutable();
+
+    /// <summary>Repeats the template <paramref name="build"/> returns for each item as it arrives, also one of an interface type.</summary>
+    [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    public static global::System.Threading.Tasks.Task<global::FormatSamples.JsonNode> EachAsync<TItem, TTemplate>(global::System.Collections.Generic.IAsyncEnumerable<TItem> items, global::System.Func<TItem, TTemplate?> build)
+        where TTemplate : global::TemplateDsl.ITemplateContent<global::FormatSamples.JsonNode> => throw global::TemplateDsl.TemplateBuild.NotExecutable();
 
     /// <summary>Repeats <paramref name="build"/>, which can await, for each item as it arrives.</summary>
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]

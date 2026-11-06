@@ -41,9 +41,9 @@ public class GeneratorTests
     }
 
     private static string Template(string build) => $$"""
-        public sealed partial class T(string model) : HtmlTemplate
+        public sealed partial class T(string model) : IHtmlTemplate
         {
-            public override IEnumerable<HtmlElement> Build() {{build}}
+            public IEnumerable<HtmlElement> Build() {{build}}
         }
         """;
 
@@ -172,9 +172,9 @@ public class GeneratorTests
     public void Constructor_parameter_can_have_any_name(string parameter)
     {
         var (generated, diagnostics, errors) = Run($$"""
-            public sealed partial class T(string {{parameter}}) : HtmlTemplate
+            public sealed partial class T(string {{parameter}}) : IHtmlTemplate
             {
-                public override IEnumerable<HtmlElement> Build() => [H.Div.Id({{parameter}})[{{parameter}}]];
+                public IEnumerable<HtmlElement> Build() => [H.Div.Id({{parameter}})[{{parameter}}]];
             }
             """);
 
@@ -194,9 +194,9 @@ public class GeneratorTests
             {
                 using System.Text;
 
-                public sealed partial class T(int model) : HtmlTemplate
+                public sealed partial class T(int model) : IHtmlTemplate
                 {
-                    public override IEnumerable<HtmlElement> Build() =>
+                    public IEnumerable<HtmlElement> Build() =>
                     [
                         model.ToString(CultureInfo.InvariantCulture),
                         Alias.Empty + Encoding.UTF8.WebName + model
@@ -254,16 +254,16 @@ public class GeneratorTests
         var (generated, _, errors) = Run("""
             namespace My.App;
 
-            public sealed partial class T : HtmlTemplate
+            public sealed partial class T : IHtmlTemplate
             {
-                public override IEnumerable<HtmlElement> Build() => [H.Div];
+                public IEnumerable<HtmlElement> Build() => [H.Div];
             }
             """);
 
         Assert.Empty(errors);
         var source = Assert.Single(generated);
         Assert.Contains("namespace My.App;", source);
-        Assert.Contains("public override void RenderTo(", source);
+        Assert.Contains("public void RenderTo(", source);
         Assert.DoesNotContain("static void", source);
     }
 
@@ -271,7 +271,7 @@ public class GeneratorTests
     public void Static_build_with_a_context_does_not_compile()
     {
         var (_, _, errors) = Run("""
-            public sealed partial class T : HtmlTemplate<string>
+            public sealed partial class T : IHtmlTemplate<string>
             {
                 public static IEnumerable<HtmlElement> Build(string model) => [H.Div];
             }
@@ -285,9 +285,9 @@ public class GeneratorTests
     {
         var (generated, diagnostics, errors) = Run(
             """
-            public sealed partial class T : HtmlTemplate
+            public sealed partial class T : IHtmlTemplate
             {
-                public override IEnumerable<HtmlElement> Build() => [H.Div];
+                public IEnumerable<HtmlElement> Build() => [H.Div];
             }
             """,
             "public sealed partial class T : System.IDisposable { public void Dispose() { } }");
@@ -308,15 +308,14 @@ public class GeneratorTests
 
     [Theory]
     [InlineData("public sealed class T", "TDSL001")]
-    [InlineData("public partial class T", "TDSL002")]
-    [InlineData("public abstract partial class T", "TDSL002")]
+    [InlineData("public ref partial struct T", "TDSL002")]
     [InlineData("file sealed partial class T", "TDSL003")]
     public void Invalid_template_shapes_are_reported(string declaration, string expectedId)
     {
         var (generated, diagnostics, _) = Run($$"""
-            {{declaration}} : HtmlTemplate
+            {{declaration}} : IHtmlTemplate
             {
-                public override IEnumerable<HtmlElement> Build() => [H.Div];
+                public IEnumerable<HtmlElement> Build() => [H.Div];
             }
             """);
 
@@ -325,16 +324,17 @@ public class GeneratorTests
     }
 
     [Fact]
-    public void Missing_partial_and_sealed_are_both_reported()
+    public void Missing_partial_is_the_only_error_and_sealed_is_optional()
     {
-        var (_, diagnostics, _) = Run("""
-            public class T : HtmlTemplate
+        var (_, diagnostics, errors) = Run("""
+            public class T : IHtmlTemplate
             {
-                public override IEnumerable<HtmlElement> Build() => [H.Div];
+                public IEnumerable<HtmlElement> Build() => [H.Div];
             }
             """);
 
-        Assert.Equal(["TDSL001", "TDSL002"], diagnostics.Order());
+        Assert.Equal("TDSL001", Assert.Single(diagnostics));
+        Assert.Empty(errors);
     }
 
     [Fact]
@@ -343,9 +343,9 @@ public class GeneratorTests
         var (generated, diagnostics, _) = Run("""
             public partial class Outer
             {
-                public sealed partial class T : HtmlTemplate
+                public sealed partial class T : IHtmlTemplate
                 {
-                    public override IEnumerable<HtmlElement> Build() => [H.Div];
+                    public IEnumerable<HtmlElement> Build() => [H.Div];
                 }
             }
             """);
@@ -357,9 +357,9 @@ public class GeneratorTests
     [Theory]
     [InlineData("{ var div = H.Div; return [div]; }")]
     [InlineData("=> [Helper()]; private static HtmlElement Helper() => H.Div;")]
+    [InlineData("=> [model.Length > 0 ? Helper() : H.Div]; private static HtmlElement Helper() => H.Div;")]
     [InlineData("=> [default(TemplateDsl.Html.Elements.Div)];")]
     [InlineData("=> [.. new HtmlElement[] { H.Div }];")]
-    [InlineData("=> [model.Length > 0 ? Helper() : H.Div]; private static HtmlElement Helper() => H.Div;")]
     [InlineData("""{ do { yield return "x"; } while (false); }""")]
     [InlineData("=> [H.Div[H.Each(model, c => { return H.Div; })]];")]
     [InlineData("=> [H.Div[H.Each(model, Make)]]; private static HtmlElement Make(char c) => H.Div;")]
@@ -386,20 +386,20 @@ public class GeneratorTests
     public void Nested_template_generates_a_direct_render_call()
     {
         var (generated, diagnostics, errors) = Run(
-            "public sealed partial class Child(string label) : HtmlTemplate { public override IEnumerable<HtmlElement> Build() => [label]; }",
+            "public sealed partial class Child(string label) : IHtmlTemplate { public IEnumerable<HtmlElement> Build() => [label]; }",
             Template("""=> [H.Div[new Child("a") { }, new Child(model)]];"""));
 
         Assert.Empty(diagnostics);
         Assert.Empty(errors);
-        Assert.Contains(generated, source => source.Contains("""(new Child("a") { })?.RenderTo(__writer);"""));
-        Assert.Contains(generated, source => source.Contains("(new Child(model))?.RenderTo(__writer);"));
+        Assert.Contains(generated, source => source.Contains("""if ((new Child("a") { }) is { } __t0) __t0.RenderTo(__writer);"""));
+        Assert.Contains(generated, source => source.Contains("if ((new Child(model)) is { } __t1) __t1.RenderTo(__writer);"));
     }
 
     [Fact]
     public void Template_from_a_referenced_assembly_can_be_nested()
     {
         var library = CreateCompilation(
-            "public sealed partial class Child(string label) : HtmlTemplate { public override IEnumerable<HtmlElement> Build() => [label]; }");
+            "public sealed partial class Child(string label) : IHtmlTemplate { public IEnumerable<HtmlElement> Build() => [label]; }");
         CSharpGeneratorDriver.Create(new TemplateGenerator())
             .RunGeneratorsAndUpdateCompilation(library, out var libraryOutput, out _);
 
@@ -423,10 +423,10 @@ public class GeneratorTests
     }
 
     private const string ChildlessTemplate =
-        "public sealed partial class Child(string label) : HtmlTemplate { public override IEnumerable<HtmlElement> Build() => [label]; }";
+        "public sealed partial class Child(string label) : IHtmlTemplate { public IEnumerable<HtmlElement> Build() => [label]; }";
 
     private const string ParentTemplate =
-        "public sealed partial class Parent(string label) : HtmlTemplateWithChildren { public override IEnumerable<HtmlElement> Build() => [H.Div[Children]]; }";
+        "public sealed partial class Parent(string label) : IHtmlTemplate, IAcceptsChildren { public IEnumerable<HtmlElement> Build() => [H.Div[Children]]; }";
 
     [Fact]
     public void Passing_children_to_a_template_that_does_not_accept_them_is_reported()
@@ -449,9 +449,9 @@ public class GeneratorTests
     public void Children_cannot_be_inspected()
     {
         var (generated, diagnostics, _) = Run("""
-            public sealed partial class T : HtmlTemplateWithChildren
+            public sealed partial class T : IHtmlTemplate, IAcceptsChildren
             {
-                public override IEnumerable<HtmlElement> Build() => [H.Div.Id(Children.Elements.Length.ToString())];
+                public IEnumerable<HtmlElement> Build() => [H.Div.Id(Children.Elements.Length.ToString())];
             }
             """);
 
@@ -467,9 +467,11 @@ public class GeneratorTests
         Assert.Empty(diagnostics);
         Assert.Empty(errors);
         var source = Assert.Single(generated, s => s.Contains("partial class T"));
-        Assert.Contains("""(new Parent("a"))?.__RenderWithChildren(__writer, () =>""", source);
+        Assert.Contains("""if ((new Parent("a")) is { } __t0) __t0.__RenderWithChildren(__writer, null!, new __Children0(this));""", source);
+        Assert.Contains("private void __WriteChildren0(global::System.Buffers.IBufferWriter<byte> __writer, __Children0 __state)", source);
         Assert.Contains("\"x\"u8", source);
-        Assert.Contains("(new Child(model))?.RenderTo(__writer);", source);
+        Assert.Contains("if ((new Child(model)) is { } __t0) __t0.RenderTo(__writer);", source);
+        Assert.DoesNotContain("=>\n", source);
     }
 
     [Fact]
@@ -497,7 +499,7 @@ public class GeneratorTests
     }
 
     private const string AsyncChildTemplate =
-        "public sealed partial class AsyncChild : AsyncHtmlTemplate { public override async System.Threading.Tasks.Task<IEnumerable<HtmlElement>> BuildAsync(System.Threading.CancellationToken ct) => [await System.Threading.Tasks.Task.FromResult(\"x\")]; }";
+        "public sealed partial class AsyncChild : IAsyncHtmlTemplate { public async System.Threading.Tasks.Task<IEnumerable<HtmlElement>> BuildAsync(System.Threading.CancellationToken ct) => [await System.Threading.Tasks.Task.FromResult(\"x\")]; }";
 
     [Theory]
     [InlineData("=> [new AsyncChild()];")]
@@ -517,9 +519,9 @@ public class GeneratorTests
     }
 
     private static string AsyncTemplate(string build) => $$"""
-        public sealed partial class T(string model, System.Collections.Generic.IAsyncEnumerable<string> rows, AsyncHtmlTemplate page) : AsyncHtmlTemplate
+        public sealed partial class T(string model, System.Collections.Generic.IAsyncEnumerable<string> rows, IAsyncHtmlTemplate page) : IAsyncHtmlTemplate
         {
-            public override async System.Threading.Tasks.Task<IEnumerable<HtmlElement>> BuildAsync(System.Threading.CancellationToken ct) {{build}}
+            public async System.Threading.Tasks.Task<IEnumerable<HtmlElement>> BuildAsync(System.Threading.CancellationToken ct) {{build}}
         }
         """;
 
@@ -531,16 +533,20 @@ public class GeneratorTests
     {
         var (_, diagnostics, errors) = Run(AsyncChildTemplate, AsyncTemplate(build));
 
+        // In brackets, what isn't a node goes to the Add method for templates, whose constraint an async one doesn't meet.
         Assert.Empty(diagnostics);
-        Assert.Contains("CS1503", errors);
+        Assert.Contains("CS0311", errors);
     }
 
     [Fact]
-    public void Awaiting_a_sync_template_is_rejected_by_csharp()
+    public void Awaiting_a_sync_template_renders_it_in_one_go()
     {
-        var (_, _, errors) = Run(ChildlessTemplate, AsyncTemplate("""=> [await new Child("x")];"""));
+        // Every template is content for an async template, so that one parameter can take a sync or an async page.
+        var (generated, diagnostics, errors) = Run(ChildlessTemplate, AsyncTemplate("""=> [await new Child("x")];"""));
 
-        Assert.Contains("CS1061", errors);
+        Assert.Empty(diagnostics);
+        Assert.Empty(errors);
+        Assert.Contains(generated, source => source.Contains(".RenderTo(__writer);"));
     }
 
     [Theory]
@@ -580,7 +586,7 @@ public class GeneratorTests
     public void Unsupported_async_bodies_are_reported(string body)
     {
         var (generated, diagnostics, _) = Run($$"""
-            public sealed partial class T : AsyncHtmlTemplate
+            public sealed partial class T : IAsyncHtmlTemplate
             {
                 public {{(body.StartsWith('{') ? "async " : "")}}System.Threading.Tasks.Task<IEnumerable<HtmlElement>> BuildAsync(System.Threading.CancellationToken ct) {{body}}
             }
@@ -605,9 +611,9 @@ public class GeneratorTests
     {
         var source = Assert.Single(Run(ParentTemplate).Generated);
 
-        Assert.Contains("__RenderWithChildrenAsync(global::System.IO.Pipelines.PipeWriter __writer", source);
+        Assert.Contains("__RenderWithChildrenAsync<__TChildren>(global::System.IO.Pipelines.PipeWriter __writer", source);
         Assert.DoesNotContain("__RenderAsync", source);
-        Assert.Contains("__RenderWithChildren(writer, null);", source);
+        Assert.Contains("__RenderWithChildren(writer, null!, default(global::TemplateDsl.NoChildren));", source);
     }
 
     [Fact]
@@ -633,7 +639,7 @@ public class GeneratorTests
     [InlineData("""=> [H.Each(model, c => new Item($"{c}") { Css = "x" })];""")]
     public void Loops_generate_code_that_compiles(string build)
     {
-        var item = "public sealed partial class Item(string name) : HtmlTemplate { public string? Css { get; init; } public override IEnumerable<HtmlElement> Build() => [name]; }";
+        var item = "public sealed partial class Item(string name) : IHtmlTemplate { public string? Css { get; init; } public IEnumerable<HtmlElement> Build() => [name]; }";
 
         var (generated, diagnostics, errors) = Run(item, Template(build));
 
@@ -648,7 +654,7 @@ public class GeneratorTests
         var (_, diagnostics, errors) = Run(
             "public sealed record Row(string Name, int Size);",
             ChildlessTemplate,
-            "public sealed partial class Rows(List<Row> rows) : HtmlTemplate { public override IEnumerable<HtmlElement> Build() => [H.Div[H.Each(rows, row => new Child(row.Name))], H.Each(rows, row => row.Size > 0 ? new Child(row.Name) : row.Name)]; }");
+            "public sealed partial class Rows(List<Row> rows) : IHtmlTemplate { public IEnumerable<HtmlElement> Build() => [H.Div[H.Each(rows, row => new Child(row.Name))], H.Each(rows, row => row.Size > 0 ? new Child(row.Name) : row.Name)]; }");
 
         Assert.Empty(diagnostics);
         Assert.Empty(errors);
@@ -681,9 +687,9 @@ public class GeneratorTests
     public void A_failed_template_with_children_only_reports_the_reason()
     {
         var (_, diagnostics, errors) = Run("""
-            public sealed partial class Box : HtmlTemplateWithChildren
+            public sealed partial class Box : IHtmlTemplate, IAcceptsChildren
             {
-                public override IEnumerable<HtmlElement> Build() { lock (this) { return [H.Div [ Children ]]; } }
+                public IEnumerable<HtmlElement> Build() { lock (this) { return [H.Div [ Children ]]; } }
             }
             """);
 

@@ -9,18 +9,18 @@ public interface IHasLanguage
 /// <summary>Everything the templates of this app can use while rendering one request.</summary>
 public sealed record RequestContext(string Language, string UserName) : IHasLanguage;
 
-public sealed partial class LanguageBadge : HtmlTemplate<IHasLanguage>
+public sealed partial class LanguageBadge : IHtmlTemplate<IHasLanguage>
 {
-    public override IEnumerable<HtmlElement> Build(IHasLanguage context) =>
+    public IEnumerable<HtmlElement> Build(IHasLanguage context) =>
     [
         H.Span.Class("language") [ context.Language ]
     ];
 }
 
 /// <summary>Neither this page nor the card in between passes the context to the badge: it arrives by itself.</summary>
-public sealed partial class ContextPage(string title) : HtmlTemplate<RequestContext>
+public sealed partial class ContextPage(string title) : IHtmlTemplate<RequestContext>
 {
-    public override IEnumerable<HtmlElement> Build(RequestContext context) =>
+    public IEnumerable<HtmlElement> Build(RequestContext context) =>
     [
         H.H1 [ title, " for ", context.UserName ],
         new Card("Settings") [ new LanguageBadge() ]

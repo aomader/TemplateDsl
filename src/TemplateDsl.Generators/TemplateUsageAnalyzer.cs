@@ -8,14 +8,15 @@ namespace TemplateDsl.Generators;
 
 /// <summary>
 /// Reports nodes and children brackets outside of Build, which the source generator never sees and so
-/// can't compile or check. Creating a template and rendering it stays allowed everywhere.
+/// can't compile or check, and templates converted to nodes there, which is only how Build places them. Creating a
+/// template, passing it as content and rendering it stays allowed everywhere.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class TemplateUsageAnalyzer : DiagnosticAnalyzer
 {
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
-        ImmutableArray.Create(Diagnostics.NodeOutsideBuild);
+        ImmutableArray.Create(Diagnostics.NodeOutsideBuild, Diagnostics.TemplateAsNode);
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)
@@ -30,6 +31,23 @@ public sealed class TemplateUsageAnalyzer : DiagnosticAnalyzer
             SyntaxKind.ObjectCreationExpression,
             SyntaxKind.ImplicitObjectCreationExpression,
             SyntaxKind.ElementAccessExpression);
+        context.RegisterOperationAction(AnalyzeConversion, OperationKind.Conversion);
+    }
+
+    /// <summary>A template's conversion to a node only exists so that Build can place it. Content is passed as content.</summary>
+    private static void AnalyzeConversion(OperationAnalysisContext context)
+    {
+        var conversion = (Microsoft.CodeAnalysis.Operations.IConversionOperation)context.Operation;
+
+        if (conversion.OperatorMethod is not { ContainingType: { } owner }
+            || !FormatReader.Implements(owner, FormatReader.Renderable)
+            || conversion.Syntax.IsMissing
+            || IsAllowedHere(context.ContainingSymbol, conversion.Syntax))
+        {
+            return;
+        }
+
+        context.ReportDiagnostic(Diagnostic.Create(Diagnostics.TemplateAsNode, conversion.Syntax.GetLocation(), conversion.Syntax.ToString()));
     }
 
     private static void Analyze(SyntaxNodeAnalysisContext context)
@@ -71,9 +89,11 @@ public sealed class TemplateUsageAnalyzer : DiagnosticAnalyzer
         }
     }
 
-    private static bool IsAllowedHere(SyntaxNodeAnalysisContext context)
+    private static bool IsAllowedHere(SyntaxNodeAnalysisContext context) => IsAllowedHere(context.ContainingSymbol, context.Node);
+
+    private static bool IsAllowedHere(ISymbol? containingSymbol, SyntaxNode node)
     {
-        var type = context.ContainingSymbol?.ContainingType;
+        var type = containingSymbol?.ContainingType;
 
         if (type is null)
         {
@@ -83,7 +103,7 @@ public sealed class TemplateUsageAnalyzer : DiagnosticAnalyzer
         // Templates derive from their format too, so this has to come first.
         if (FormatReader.Implements(type, FormatReader.Renderable))
         {
-            var method = context.Node.FirstAncestorOrSelf<MemberDeclarationSyntax>() as MethodDeclarationSyntax;
+            var method = node.FirstAncestorOrSelf<MemberDeclarationSyntax>() as MethodDeclarationSyntax;
 
             return method?.Identifier.ValueText is "Build" or "BuildAsync";
         }

@@ -1,26 +1,23 @@
-# TDSL002: Template must be a sealed class
+# TDSL002: Template can't be a ref struct
 
-A template with a `Build` method must be a `sealed` class. The generator implements its render method for exactly
-that class, so it can't be a struct or a class that others derive from. A record can't derive from the template base
-classes at all.
+A template converts to its format's node type, such as `HtmlElement`, so that it can be passed wherever content is
+expected, and the node holds on to it. A `ref struct` can't be held by anything that lives on the heap.
 
 ```csharp
-public partial class Greeting : HtmlTemplate         // TDSL002
+public ref partial struct Greeting : IHtmlTemplate          // TDSL002
 {
-    public override IEnumerable<HtmlElement> Build() => [H.P [ "Hi" ]];
+    public IEnumerable<HtmlElement> Build() => [H.P [ "Hi" ]];
 }
 ```
 
 ## Fix
 
-Seal the class. To share members between templates, put them in an abstract class without a `Build` method, which
-the templates derive from, as the `Page` class in the README's layout example does:
+Make it a class, a struct or a record. A small template, such as a row, can be a `readonly record struct`, which a
+parent renders without allocating it:
 
 ```csharp
-public abstract class Page : HtmlTemplate
+public readonly partial record struct Greeting(string Name) : IHtmlTemplate
 {
-    public abstract string Title { get; }
+    public IEnumerable<HtmlElement> Build() => [H.P [ "Hi ", Name ]];
 }
-
-public sealed partial class HomePage : Page { ... }
 ```

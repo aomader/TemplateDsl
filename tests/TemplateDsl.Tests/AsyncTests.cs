@@ -11,9 +11,9 @@ namespace Tests;
 
 public sealed record AsyncRow(string Name, int Size);
 
-public sealed partial class AwaitingTemplate(Task<string> value, bool flag = true) : AsyncHtmlTemplate
+public sealed partial class AwaitingTemplate(Task<string> value, bool flag = true) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken cancellationToken) =>
     [
         "before ",
         H.Div.Id(await value).Class(flag ? await value : null)
@@ -27,9 +27,9 @@ public sealed partial class AwaitingTemplate(Task<string> value, bool flag = tru
     ];
 }
 
-public sealed partial class AsyncStatements(Task<bool> flag, Task<string> name) : AsyncHtmlTemplate
+public sealed partial class AsyncStatements(Task<bool> flag, Task<string> name) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct)
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct)
     {
         var text = await name;
         const string Suffix = "!";
@@ -44,9 +44,9 @@ public sealed partial class AsyncStatements(Task<bool> flag, Task<string> name) 
     }
 }
 
-public sealed partial class SyncLocals(int count) : HtmlTemplate
+public sealed partial class SyncLocals(int count) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build()
+    public IEnumerable<HtmlElement> Build()
     {
         var label = $"count-{count}";
         var chip = new Chip(label);
@@ -61,21 +61,21 @@ public sealed partial class SyncLocals(int count) : HtmlTemplate
     }
 }
 
-public sealed partial class AsyncChip(string label) : AsyncHtmlTemplate
+public sealed partial class AsyncChip(string label) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
         [H.Div[await Task.Run(() => label, ct)]];
 }
 
-public sealed partial class AsyncPanel(Task<string> title) : AsyncHtmlTemplateWithChildren
+public sealed partial class AsyncPanel(Task<string> title) : IAsyncHtmlTemplate, IAcceptsChildren
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
         [H.Div.Class(await title)[Children]];
 }
 
-public sealed partial class AsyncComposition(IAsyncEnumerable<AsyncRow> rows, string[] names) : AsyncHtmlTemplate
+public sealed partial class AsyncComposition(IAsyncEnumerable<AsyncRow> rows, string[] names) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
         new Chip("sync child"),
         await new AsyncChip("async child"),
@@ -89,9 +89,9 @@ public sealed partial class AsyncComposition(IAsyncEnumerable<AsyncRow> rows, st
     ];
 }
 
-public sealed partial class TokenReader(TaskCompletionSource<CancellationToken> seen) : AsyncHtmlTemplate
+public sealed partial class TokenReader(TaskCompletionSource<CancellationToken> seen) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken myToken) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken myToken) =>
         [await Capture(myToken)];
 
     private Task<string> Capture(CancellationToken token)
@@ -101,9 +101,9 @@ public sealed partial class TokenReader(TaskCompletionSource<CancellationToken> 
     }
 }
 
-public sealed partial class FailingAfterOutput : AsyncHtmlTemplate
+public sealed partial class FailingAfterOutput : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
         ["sent", await Fail()];
 
     private static async Task<string> Fail()
@@ -113,9 +113,9 @@ public sealed partial class FailingAfterOutput : AsyncHtmlTemplate
     }
 }
 
-public sealed partial class StreamedRows(IAsyncEnumerable<string> rows) : AsyncHtmlTemplate
+public sealed partial class StreamedRows(IAsyncEnumerable<string> rows) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
         ["start ", await H.EachAsync(rows, row => H.Div[row]), " end"];
 }
 

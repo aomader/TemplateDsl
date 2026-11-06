@@ -5,9 +5,9 @@ using Xunit;
 
 namespace Tests;
 
-public sealed partial class AttrsPage(string value, string? optional, bool flag, int number) : HtmlTemplate
+public sealed partial class AttrsPage(string value, string? optional, bool flag, int number) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Id("a").Attr("data-const", "c&d").Attr("data-value", value).Attr("data-null", null).Attr("data-optional", optional),
         H.Div.Attr("data-hole", $"n-{number}").Attr("data-ternary", flag ? value : null).Attr("aria-label", "x") [ "child" ],
@@ -17,15 +17,15 @@ public sealed partial class AttrsPage(string value, string? optional, bool flag,
     ];
 }
 
-public sealed partial class AsyncAttrs(Task<string> value) : AsyncHtmlTemplate
+public sealed partial class AsyncAttrs(Task<string> value) : IAsyncHtmlTemplate
 {
-    public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
         [H.Div.Attr("data-v", await value) [ "x" ]];
 }
 
-public sealed partial class HiddenPage(bool flag) : HtmlTemplate
+public sealed partial class HiddenPage(bool flag) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build() =>
+    public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Hidden(flag).Id("d"),
         H.Div.Hidden(),
@@ -107,9 +107,9 @@ public class AttributeListTests
                 using TemplateDsl;
                 using TemplateDsl.Html;
 
-                public sealed partial class T(string model) : HtmlTemplate
+                public sealed partial class T(string model) : IHtmlTemplate
                 {
-                    public override IEnumerable<HtmlElement> Build() {{build}}
+                    public IEnumerable<HtmlElement> Build() {{build}}
                 }
                 """)],
             ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)

@@ -1,8 +1,8 @@
 namespace SampleApp;
 
-public sealed partial class HelloPage(string userName, bool isAdmin, int unreadMessages) : HtmlTemplate
+public sealed partial class HelloPage(string userName, bool isAdmin, int unreadMessages) : IHtmlTemplate
 {
-    public override IEnumerable<HtmlElement> Build()
+    public IEnumerable<HtmlElement> Build()
     {
         // An if statement can choose the whole output...
         if (isAdmin)
