@@ -1,0 +1,35 @@
+name: Bug report
+description: Something renders wrong, doesn't compile, or the generator fails.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: For a security problem, such as output that isn't escaped, please report it privately instead, as described in SECURITY.md.
+  - type: textarea
+    id: template
+    attributes:
+      label: Template
+      description: The smallest template that shows the problem, and how it's rendered.
+      render: csharp
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened
+      description: The output, or the full error with its ID, such as TDSL004.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: TemplateDsl packages, .NET SDK (dotnet --version), and the IDE if it's about the IDE.
+    validations:
+      required: true
