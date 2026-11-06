@@ -69,7 +69,8 @@ dotnet run tools/CheckCoverage.cs TestResults/coverage    # fails and lists the 
 
 The version of all packages is `Version` in `Directory.Build.props`, and they are always released together. The
 [release workflow](.github/workflows/release.yml) publishes the version on `main` when it has no Git tag yet, and then
-tags the commit with it. Merges that keep a released version publish nothing. A release, also of a preview, is one pull request:
+creates a GitHub release for it, with its section of `CHANGELOG.md` as the notes and the packages attached, which tags
+the commit. Merges that keep a released version publish nothing. A release, also of a preview, is one pull request:
 
 Run the release tool with the new version, in a branch for that pull request:
 
