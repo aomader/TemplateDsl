@@ -1,6 +1,4 @@
-using System.Collections.Concurrent;
 using System.IO.Pipelines;
-using System.Reflection;
 using Microsoft.AspNetCore.Http;
 
 namespace TemplateDsl.AspNetCore;
@@ -11,8 +9,6 @@ public static class TemplateResults
     /// <summary>Sent for a format that doesn't declare its content type.</summary>
     private const string DefaultContentType = "text/plain; charset=utf-8";
 
-    private static readonly ConcurrentDictionary<Type, string> ContentTypes = new();
-
     /// <summary>
     /// A result that renders this template: <c>=> new Page(items).ToResult()</c>. The Content-Type is the one its format
     /// declares, such as <c>text/html; charset=utf-8</c>, unless <paramref name="contentType"/> is given.
@@ -20,7 +16,7 @@ public static class TemplateResults
     public static TemplateResult ToResult(this ITemplateRenderable template, int? statusCode = null, string? contentType = null)
     {
         ArgumentNullException.ThrowIfNull(template);
-        return new TemplateResult(template, statusCode, contentType ?? GetContentType(template));
+        return new TemplateResult(template, statusCode, contentType ?? GetContentType<object>(template));
     }
 
     /// <summary>
@@ -33,7 +29,7 @@ public static class TemplateResults
     {
         ArgumentNullException.ThrowIfNull(template);
         ArgumentNullException.ThrowIfNull(context);
-        return new TemplateResult<TContext>(template, context, statusCode, contentType ?? GetContentType(template));
+        return new TemplateResult<TContext>(template, context, statusCode, contentType ?? GetContentType<TContext>(template));
     }
 
     /// <summary>Renders as content, which every template is, without or with the context it needs, and flushes.</summary>
@@ -55,22 +51,10 @@ public static class TemplateResults
     }
 
     /// <summary>
-    /// The content type of the format the template outputs, looked up once per template type. A renderable that isn't
-    /// a template, or a format that declares none, is sent as plain text.
+    /// The content type of the format the template outputs, which the generator writes into it, so that it needs no
+    /// reflection. A renderable that isn't a template, or a format that declares none, is sent as plain text.
     /// </summary>
-    private static string GetContentType(IRenderable template) =>
-        ContentTypes.GetOrAdd(template.GetType(), static type =>
-            type.GetInterfaces()
-                .Where(IsTemplateInterface)
-                .Select(template => template.GetGenericArguments()[0].GetCustomAttribute<TemplateFormatAttribute>())
-                .OfType<TemplateFormatAttribute>()
-                .Select(format => format.ContentType)
-                .FirstOrDefault()
-            ?? DefaultContentType);
-
-    private static bool IsTemplateInterface(Type type) =>
-        type.IsGenericType
-        && type.GetGenericTypeDefinition() is var definition
-        && (definition == typeof(ITemplate<>) || definition == typeof(IAsyncTemplate<>)
-            || definition == typeof(ITemplate<,>) || definition == typeof(IAsyncTemplate<,>));
+    private static string GetContentType<TContext>(IRenderable template)
+        where TContext : notnull =>
+        (template as IAsyncTemplateContent<TemplateNode, TContext>)?.__ContentType ?? DefaultContentType;
 }

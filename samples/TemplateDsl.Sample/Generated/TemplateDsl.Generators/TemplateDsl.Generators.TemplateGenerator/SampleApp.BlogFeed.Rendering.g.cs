@@ -29,6 +29,9 @@ partial class BlogFeed
     public static implicit operator global::FormatSamples.RssNode?(BlogFeed? template) => throw global::TemplateDsl.TemplateBuild.NotExecutable();
 
     [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    string? global::TemplateDsl.IAsyncTemplateContent<global::FormatSamples.RssNode, object>.__ContentType => "application/rss+xml; charset=utf-8";
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
     void global::TemplateDsl.ITemplateContent<global::FormatSamples.RssNode, object>.__RenderContent(global::System.Buffers.IBufferWriter<byte> writer, object context) => RenderTo(writer);
 
     [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]

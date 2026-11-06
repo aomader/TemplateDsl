@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <IsPackable>true</IsPackable>
+    <!-- Checked by the trim and AOT analyzers, so that apps can trim it and compile it to native code. -->
+    <IsAotCompatible>true</IsAotCompatible>
     <Description>Return TemplateDsl templates from ASP.NET Core minimal APIs and controllers, rendered as streaming UTF-8.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>

@@ -29,6 +29,9 @@ partial record struct DslStructButton
     public static implicit operator global::TemplateDsl.Html.HtmlElement(DslStructButton template) => throw global::TemplateDsl.TemplateBuild.NotExecutable();
 
     [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    string? global::TemplateDsl.IAsyncTemplateContent<global::TemplateDsl.Html.HtmlElement, object>.__ContentType => "text/html; charset=utf-8";
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
     void global::TemplateDsl.ITemplateContent<global::TemplateDsl.Html.HtmlElement, object>.__RenderContent(global::System.Buffers.IBufferWriter<byte> writer, object context) => RenderTo(writer);
 
     [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]

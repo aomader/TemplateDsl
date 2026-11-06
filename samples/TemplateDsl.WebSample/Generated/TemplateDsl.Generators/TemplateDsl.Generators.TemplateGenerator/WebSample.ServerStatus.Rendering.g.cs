@@ -23,5 +23,8 @@ partial class ServerStatus
 
 
     [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    string? global::TemplateDsl.IAsyncTemplateContent<global::TemplateDsl.Html.HtmlElement, object>.__ContentType => "text/html; charset=utf-8";
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
     global::System.Threading.Tasks.ValueTask global::TemplateDsl.IAsyncTemplateContent<global::TemplateDsl.Html.HtmlElement, object>.__RenderContentAsync(global::System.IO.Pipelines.PipeWriter writer, object context, global::System.Threading.CancellationToken cancellationToken) => __RenderAsync(writer, cancellationToken);
 }

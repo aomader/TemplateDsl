@@ -23,6 +23,7 @@ namespace TemplateDsl.Generators;
 /// <param name="Interfaces">The interface to add for children, for a template that takes them and whose base class isn't one already, or null.</param>
 /// <param name="AbstractBuild">The Build method to declare for an abstract template that doesn't declare it, or null.</param>
 /// <param name="HasConversion">Whether it gets a conversion to the format's node type, which only sync templates have.</param>
+/// <param name="ContentType">The HTTP Content-Type the format declares, or null.</param>
 /// <param name="Diagnostics">What is wrong with the template, if anything.</param>
 internal sealed record TemplateModel(
     string? Namespace,
@@ -41,6 +42,7 @@ internal sealed record TemplateModel(
     string? Interfaces,
     string? AbstractBuild,
     bool HasConversion,
+    string? ContentType,
     EquatableArray<DiagnosticInfo> Diagnostics);
 
 internal enum SegmentKind

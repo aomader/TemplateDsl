@@ -63,6 +63,14 @@ public interface IAsyncTemplateContent<out TNode, in TContext> : IRenderable
     [SuppressMessage("Naming", "CA1707", Justification = "The underscores keep generated members apart from a template's own.")]
     ValueTask __RenderContentAsync(PipeWriter writer, TContext context, CancellationToken cancellationToken) =>
         throw TemplateBuild.NotGenerated(this);
+
+    /// <summary>
+    /// Used by generated code: the HTTP Content-Type its format declares, such as <c>text/html; charset=utf-8</c>, or
+    /// null if it declares none. The generator writes it into every template, so that it needs no reflection.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [SuppressMessage("Naming", "CA1707", Justification = "The underscores keep generated members apart from a template's own.")]
+    string? __ContentType => null;
 }
 
 /// <summary>

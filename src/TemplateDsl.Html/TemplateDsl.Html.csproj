@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <IsPackable>true</IsPackable>
+    <!-- Checked by the trim and AOT analyzers, so that apps can trim it and compile it to native code. -->
+    <IsAotCompatible>true</IsAotCompatible>
     <Description>The HTML format for TemplateDsl: write HTML templates as plain C#, rendered as streaming UTF-8.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
 

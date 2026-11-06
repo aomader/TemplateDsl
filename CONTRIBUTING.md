@@ -14,7 +14,8 @@ dotnet run tools/GenerateHtmlElements.cs --check
 tests/PackageSmokeTest/run.sh            # packs the packages and uses them like a consumer would
 ```
 
-The smoke test catches what project references hide, such as a generator that doesn't reach consumers of a package.
+The smoke test catches what project references hide, such as a generator that doesn't reach consumers of a package. It
+also publishes an app trimmed, and as native code where `clang` is installed, as on CI, and runs it.
 
 The [CI workflow](.github/workflows/ci.yml) builds, tests, and checks generated HTML on Linux and Windows for every pull request; the package smoke test runs on Linux only.
 

@@ -112,6 +112,9 @@ partial class PostsJson
     public static implicit operator global::FormatSamples.JsonNode?(PostsJson? template) => throw global::TemplateDsl.TemplateBuild.NotExecutable();
 
     [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    string? global::TemplateDsl.IAsyncTemplateContent<global::FormatSamples.JsonNode, object>.__ContentType => "application/json; charset=utf-8";
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
     void global::TemplateDsl.ITemplateContent<global::FormatSamples.JsonNode, object>.__RenderContent(global::System.Buffers.IBufferWriter<byte> writer, object context) => RenderTo(writer);
 
     [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]

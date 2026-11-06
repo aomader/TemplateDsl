@@ -19,6 +19,8 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
   any HTML template that renders with that context, placed with `await content`. A sync template can be awaited too,
   and renders in one go.
 - TDSL009 reports a template converted to a node outside of `Build`, which is only how `Build` places it.
+- All packages support trimming and native AOT, checked by the trim and AOT analyzers and by a trimmed and a native
+  app in the package smoke test. `ToResult` gets the content type from the generated code instead of by reflection.
 - `RenderTo(writer)` also through an interface, such as `IHtmlTemplate`.
 
 ### Changed

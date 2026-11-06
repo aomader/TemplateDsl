@@ -27,12 +27,23 @@ for package in "$feed"/*.nupkg; do
     unzip -l "$package" | grep -E '\.dll$|\.nuspec$|README' | awk '{print "  " $4}'
 done
 
+# The packages come only from the local feed. nuget.org is there for what publishing trimmed or native needs, such as
+# the runtime packs, and can't provide TemplateDsl.
 cat > "$work/NuGet.config" <<EOF
 <configuration>
   <packageSources>
     <clear />
     <add key="local" value="$feed" />
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
   </packageSources>
+  <packageSourceMapping>
+    <packageSource key="local">
+      <package pattern="TemplateDsl*" />
+    </packageSource>
+    <packageSource key="nuget.org">
+      <package pattern="*" />
+    </packageSource>
+  </packageSourceMapping>
 </configuration>
 EOF
 
@@ -47,10 +58,21 @@ consume() {
 # Runs a consumer and checks both its output and its exit code: a consumer that prints the right output and fails
 # afterwards, such as with an exception, must fail the test too. In a command substitution passed as an argument,
 # bash would ignore the exit code, even with set -e.
+# Publishes a consumer trimmed or as native code, with every trim and AOT warning an error, and runs what it published.
+publish() {
+    local name="$1" mode="$2"
+    local copy="$work/$name-$mode"
+    cp -r "$repo/tests/PackageSmokeTest/$name" "$copy"
+    dotnet publish "$copy" -c Release --use-current-runtime --nologo -v quiet -o "$copy/out" \
+        --property:"$mode"=true --property:SelfContained=true \
+        --property:RestorePackagesPath="$packages" --property:RestoreConfigFile="$work/NuGet.config" --property:TemplateDslVersion="$version" >&2
+    "$copy/out/$name"
+}
+
 expect() {
     local description="$1" consumer="$2" expected="$3"
     local actual status=0
-    actual="$(consume "$consumer")" || status=$?
+    actual="$("${run:-consume}" "$consumer" ${mode:+"$mode"})" || status=$?
 
     if [ "$status" -ne 0 ] || [ "$actual" != "$expected" ]; then
         echo "FAILED: $description"
@@ -74,3 +96,14 @@ expect "core package alone supports a custom format" \
 expect "ASP.NET Core package renders a template as a result" \
     AspNetCoreConsumer \
     '201 text/html; charset=utf-8 <b>web</b>'
+
+native='<main><section><h2>t</h2>body<p>Hi Ann</p></section></main><div><i>slow</i></div> text/html; charset=utf-8 <main><section><h2>t</h2>body<p>Hi Ann</p></section></main>'
+
+run=publish mode=PublishTrimmed expect "a trimmed app renders templates, content and a web result" NativeConsumer "$native"
+
+# Native code needs a C compiler and linker, which CI has.
+if command -v clang > /dev/null; then
+    run=publish mode=PublishAot expect "a native app renders templates, content and a web result" NativeConsumer "$native"
+else
+    echo "skipped: a native app, as there is no clang to link it"
+fi
