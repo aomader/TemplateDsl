@@ -5,7 +5,7 @@ before you spend time on it. Report security problems privately, as described in
 
 ## Building and testing
 
-You need the .NET 10 SDK.
+You need the .NET 10 SDK, see `global.json`.
 
 ```sh
 dotnet build TemplateDsl.slnx            # warnings are errors
