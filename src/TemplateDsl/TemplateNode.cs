@@ -17,8 +17,11 @@ public static class TemplateBuild
         new("Build is compiled by the source generator and can't be executed. Use the generated render methods.");
 
     /// <summary>The error of a template without generated render methods, which only one that isn't partial lacks, and that is a compiler error.</summary>
-    public static InvalidOperationException NotGenerated(object? template) =>
-        new($"'{template?.GetType().Name}' has no render methods, which the source generator adds to templates that are declared partial.");
+    public static InvalidOperationException NotGenerated(object template)
+    {
+        ArgumentNullException.ThrowIfNull(template);
+        return new($"'{template.GetType().Name}' has no render methods, which the source generator adds to templates that are declared partial.");
+    }
 }
 
 /// <summary>
@@ -27,6 +30,7 @@ public static class TemplateBuild
 /// Like everything in Build, this is compiled by the source generator and never created.
 /// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010", Justification = "Its element type is object, so that each child goes to the Add method that takes it.")]
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710", Justification = "It is what brackets take, not a collection to use.")]
 public sealed class TemplateChildren<TNode> : System.Collections.IEnumerable

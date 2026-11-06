@@ -149,7 +149,33 @@ public class ChildrenBlockTests
     [Theory]
     [InlineData("{ var count = 0; yield return new Card() [ count++ ]; }", "'count' is assigned in the children of a template")]
     [InlineData("{ var pair = new { A = 1 }; yield return new Card() [ pair.A ]; }", "'pair' is used in the children of a template")]
+    [InlineData("{ var pairs = new[] { new { A = 1 } }; return [new Card() [ pairs.Length ]]; }", "'pairs' is used in the children of a template")]
+    [InlineData("{ var number = 1; ref var alias = ref number; return [new Card() [ alias ]]; }", "'alias' is used in the children of a template")]
+    [InlineData("{ System.Span<int> span = stackalloc int[1]; return [new Card() [ span[0] ]]; }", "'span' is used in the children of a template")]
+    [InlineData("{ ICard card = null!; return [card [ \"text\" ]]; }", "children can't be given to a template of the interface type 'ICard'")]
     public void What_children_can_only_get_a_copy_of_is_reported(string build, string message)
+    {
+        var (diagnostics, _) = RunGenerator(build);
+
+        var diagnostic = Assert.Single(diagnostics);
+        Assert.Equal("TDSL004", diagnostic.Id);
+        Assert.Contains(message, diagnostic.GetMessage(System.Globalization.CultureInfo.InvariantCulture));
+    }
+
+    [Theory]
+    [InlineData("{ var name = \"a\"; return [new Card() [ name ] [ name ], new Card() [ name, name ]]; }")]
+    [InlineData("{ var @class = \"a\"; return [new Card() [ @class ]]; }")]
+    [InlineData("{ var names = new[] { \"a\" }; return [new Card() [ names[0] ]]; }")]
+    [InlineData("{ dynamic value = 1; return [new Card() [ (string)value.ToString() ]]; }")]
+    public void Children_get_copies_of_the_variables_they_use(string build)
+    {
+        var (diagnostics, errors) = RunGenerator(build);
+
+        Assert.Empty(diagnostics);
+        Assert.Empty(errors);
+    }
+
+    private static (Diagnostic[] Diagnostics, string[] Errors) RunGenerator(string build)
     {
         var compilation = CSharpCompilation.Create(
             "Test",
@@ -158,6 +184,7 @@ public class ChildrenBlockTests
                 using TemplateDsl;
                 using TemplateDsl.Html;
 
+                public interface ICard : IHtmlTemplate, IAcceptsChildren;
                 public sealed partial class Card : IHtmlTemplate, IAcceptsChildren { public IEnumerable<HtmlElement> Build() => [H.Div [ Children ]]; }
                 public sealed partial class T : IHtmlTemplate { public IEnumerable<HtmlElement> Build() {{build}} }
                 """)],
@@ -166,10 +193,9 @@ public class ChildrenBlockTests
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
-        CSharpGeneratorDriver.Create(new TemplateGenerator()).RunGeneratorsAndUpdateCompilation(compilation, out _, out var diagnostics);
+        CSharpGeneratorDriver.Create(new TemplateGenerator()).RunGeneratorsAndUpdateCompilation(compilation, out var output, out var diagnostics);
 
-        var diagnostic = Assert.Single(diagnostics);
-        Assert.Equal("TDSL004", diagnostic.Id);
-        Assert.Contains(message, diagnostic.GetMessage(System.Globalization.CultureInfo.InvariantCulture));
+        var errors = output.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).Select(d => d.ToString()).ToArray();
+        return (diagnostics.ToArray(), errors);
     }
 }

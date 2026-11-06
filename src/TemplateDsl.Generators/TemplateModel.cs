@@ -97,7 +97,6 @@ internal enum SegmentKind
 /// <param name="IsInvariant">For formatted values: whether they use the invariant culture instead of the current one.</param>
 /// <param name="IsUtf8">For formatted values: whether they can format themselves as UTF-8.</param>
 /// <param name="IsSyncChild">For nested templates: whether this one renders in one go.</param>
-/// <param name="Pattern">For templates given children: the interface to give them through, if their type doesn't have the methods itself.</param>
 /// <param name="Captures">For children given to a template: the variables of Build they use, which their method gets.</param>
 /// <param name="TypeParameter">For content of a type parameter type: its name, to test for null without boxing a struct.</param>
 /// <param name="IsContent">For nested templates: whether this one is content of an interface or type parameter type, which may need a context or not.</param>
@@ -113,7 +112,6 @@ internal sealed record Segment(
     bool IsInvariant = false,
     bool IsUtf8 = false,
     bool IsSyncChild = false,
-    string? Pattern = null,
     EquatableArray<Capture>? Captures = null,
     bool ForwardsChildren = false,
     bool IsContent = false,

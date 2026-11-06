@@ -380,26 +380,6 @@ internal sealed class BuildTranslator(
     private bool IsStreaming(ExpressionSyntax template) =>
         FormatReader.IsAsyncTemplate(_semanticModel.GetTypeInfo(template, cancellationToken).Type!);
 
-    /// <summary>
-    /// The interface to give children to a template through, or null to call it directly. A class or struct has its
-    /// render methods itself, generated or inherited, but an interface or a type parameter only has them through the one
-    /// the generator adds. Without a context, it is the one for an object context. Only called for templates.
-    /// </summary>
-    private string? GetChildrenInterface(ExpressionSyntax template)
-    {
-        var type = _semanticModel.GetTypeInfo(template, cancellationToken).Type!;
-
-        if (type is not (ITypeParameterSymbol or INamedTypeSymbol { TypeKind: TypeKind.Interface }))
-        {
-            return null;
-        }
-
-        var context = FormatReader.Interfaces(type).FirstOrDefault(i => FormatReader.IsCoreType(i, FormatReader.ContextRenderable))?.TypeArguments[0];
-        var name = FormatReader.IsAsyncTemplate(type) ? "IChildrenRenderer" : "ISyncChildrenRenderer";
-
-        return $"global::TemplateDsl.{name}<{context?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) ?? "object"}>";
-    }
-
     private void WriteEach(InvocationExpressionSyntax invocation)
     {
         var isEachAsync = GetEachMethod(invocation)!.Name == "EachAsync";
@@ -999,6 +979,14 @@ internal sealed class BuildTranslator(
             return;
         }
 
+        // An interface only has brackets if it declares them, and not the methods that render the children it is given,
+        // which the generator adds to a class or struct. A type parameter constrained to one has them through that.
+        if (type is INamedTypeSymbol { TypeKind: TypeKind.Interface })
+        {
+            Report(brackets[0].ArgumentList.GetLocation(), $"children can't be given to a template of the interface type '{type.Name}'; give them to a class, a struct, or a type parameter constrained to one");
+            return;
+        }
+
         if (IsAsyncInSync(template))
         {
             return;
@@ -1017,7 +1005,6 @@ internal sealed class BuildTranslator(
             SegmentKind.TemplateWithChildrenStart,
             template.ToString(),
             PassContext: passContext,
-            Pattern: GetChildrenInterface(template),
             Captures: new EquatableArray<Capture>(captures),
             ForwardsChildren: forwardsChildren));
 
@@ -1047,34 +1034,26 @@ internal sealed class BuildTranslator(
 
         foreach (var argument in brackets.SelectMany(access => access.ArgumentList.Arguments))
         {
-            var flow = _semanticModel.AnalyzeDataFlow(argument.Expression);
+            // Children are expressions in the body of Build, which can always be analyzed.
+            var flow = _semanticModel.AnalyzeDataFlow(argument.Expression)!;
 
-            if (flow is not { Succeeded: true })
-            {
-                Report(argument.GetLocation(), $"'{argument}' can't be analyzed to give it to the template");
-                ok = false;
-                continue;
-            }
-
-            foreach (var variable in flow.WrittenInside.Except(flow.VariablesDeclared, SymbolEqualityComparer.Default).Where(IsCaptured))
+            foreach (var variable in Outside(flow.WrittenInside, flow))
             {
                 Report(argument.GetLocation(), $"'{variable.Name}' is assigned in the children of a template, which only get a copy of it");
                 ok = false;
             }
 
-            foreach (var variable in flow.ReadInside.Except(flow.VariablesDeclared, SymbolEqualityComparer.Default).Where(IsCaptured))
+            foreach (var variable in Outside(flow.ReadInside, flow))
             {
-                var (type, isRef) = variable switch
-                {
-                    ILocalSymbol local => (local.Type, local.IsRef),
-                    IParameterSymbol parameter => (parameter.Type, parameter.RefKind != RefKind.None),
-                    _ => (null, false),
-                };
-
-                if (type is null || !names.Add(variable.Name))
+                if (!names.Add(variable.Name))
                 {
                     continue;
                 }
+
+                // Children only read and write locals and parameters: a query's variables are inside a query, which isn't a child.
+                var (type, isRef) = variable is IParameterSymbol parameter
+                    ? (parameter.Type, parameter.RefKind != RefKind.None)
+                    : (((ILocalSymbol)variable).Type, ((ILocalSymbol)variable).IsRef);
 
                 if (isRef || type.IsRefLikeType || ContainsAnonymousType(type))
                 {
@@ -1095,18 +1074,19 @@ internal sealed class BuildTranslator(
     private static readonly SymbolDisplayFormat CaptureFormat =
         SymbolDisplayFormat.FullyQualifiedFormat.AddMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
 
+    /// <summary>The variables of Build that children use, which are declared outside of them.</summary>
+    private IEnumerable<ISymbol> Outside(ImmutableArray<ISymbol> variables, DataFlowAnalysis flow) =>
+        variables.Except(flow.VariablesDeclared, SymbolEqualityComparer.Default).Where(IsCaptured);
+
     /// <summary>
     /// Locals and lambda parameters, such as the item of Each. The template's own members, its primary constructor and
     /// the parameters of Build, which become the context and the token, are there for the children's method anyway.
     /// </summary>
-    private bool IsCaptured(ISymbol variable) => variable switch
-    {
-        ILocalSymbol => true,
-        IParameterSymbol parameter => !parameter.IsThis
+    private bool IsCaptured(ISymbol variable) =>
+        variable is not IParameterSymbol parameter
+        || (!parameter.IsThis
             && parameter.ContainingSymbol is not IMethodSymbol { MethodKind: MethodKind.Constructor }
-            && !SymbolEqualityComparer.Default.Equals(parameter.ContainingSymbol, _buildMethod),
-        _ => false,
-    };
+            && !SymbolEqualityComparer.Default.Equals(parameter.ContainingSymbol, _buildMethod));
 
     private static bool ContainsAnonymousType(ITypeSymbol type) => type switch
     {
@@ -1446,12 +1426,15 @@ internal sealed class BuildTranslator(
         type is ITypeParameterSymbol or INamedTypeSymbol { TypeKind: TypeKind.Interface }
         && FormatReader.Implements(type, FormatReader.AsyncContextContent);
 
-    /// <summary>The context content renders with, or null if it needs none, which is content for an object context.</summary>
-    private static ITypeSymbol? ContentContext(ITypeSymbol type) =>
-        FormatReader.Interfaces(type).FirstOrDefault(i => FormatReader.IsCoreType(i, FormatReader.AsyncContextContent))?.TypeArguments[1] is { } context
-        && context.SpecialType != SpecialType.System_Object
-            ? context
-            : null;
+    /// <summary>
+    /// The context content renders with, or null if it needs none, which is content for an object context. Only called
+    /// for content, which IsContent has found to have this interface.
+    /// </summary>
+    private static ITypeSymbol? ContentContext(ITypeSymbol type)
+    {
+        var context = FormatReader.Interfaces(type).First(i => FormatReader.IsCoreType(i, FormatReader.AsyncContextContent)).TypeArguments[1];
+        return context.SpecialType == SpecialType.System_Object ? null : context;
+    }
 
     private bool IsTemplate(ExpressionSyntax expression) =>
         _semanticModel.GetTypeInfo(expression, cancellationToken).Type is { } type

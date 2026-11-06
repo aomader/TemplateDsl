@@ -581,11 +581,11 @@ public sealed class TemplateGenerator : IIncrementalGenerator
     }
 
     /// <summary>
-    /// Tests that a nested template isn't null and puts it in a variable, typed as what has its render methods. A
-    /// pattern, because a struct can't be compared with null, and an interface or type parameter needs a cast.
+    /// Tests that a nested template isn't null and puts it in a variable. A pattern, because a struct can't be compared
+    /// with null.
     /// </summary>
     private static string Matches(Segment segment, string temporary) =>
-        $"({segment.Text}) is {segment.Pattern ?? "{ }"} {temporary}";
+        $"({segment.Text}) is {{ }} {temporary}";
 
 
     private static string ContextArgument(Segment segment) => segment.PassContext ? ", __context" : "";
