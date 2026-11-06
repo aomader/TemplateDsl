@@ -5,6 +5,8 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
 
 ## [Unreleased]
 
+## [0.1.0-preview.8] - 2026-11-06
+
 ### Added
 
 - Templates can be structs and records, such as a `readonly record struct` for a row, which a parent renders without
@@ -62,6 +64,7 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
 - `TemplateDsl.AspNetCore`: `ToResult()` to return a template from a minimal API endpoint or a controller action.
 - Diagnostics TDSL001 to TDSL008, documented in `docs/diagnostics`.
 
-[Unreleased]: https://github.com/aomader/TemplateDsl/compare/0.1.0-preview.2...HEAD
+[Unreleased]: https://github.com/aomader/TemplateDsl/compare/0.1.0-preview.8...HEAD
+[0.1.0-preview.8]: https://github.com/aomader/TemplateDsl/releases/tag/0.1.0-preview.8
 [0.1.0-preview.2]: https://github.com/aomader/TemplateDsl/releases/tag/0.1.0-preview.2
 [0.1.0-preview.1]: https://github.com/aomader/TemplateDsl/releases/tag/0.1.0-preview.1
