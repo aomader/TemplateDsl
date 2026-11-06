@@ -8,11 +8,11 @@
 TemplateDsl lets you write **HTML templates** as **plain C# classes**. A **source generator** compiles them into **render methods** that write **UTF-8 straight to the response**, so typos, wrong values and missing context **fail the build instead of a request**.
 
 - **Type-safe.** Typos, wrong attribute values and a missing context are compile errors, not runtime surprises.
-- **Fast.** Templates write UTF-8 straight to the output, with almost no allocations.
+- [**Fast.**](#performance) Templates write UTF-8 straight to the output, with down to zero allocations.
 - **Streaming.** Async templates send their output while they render.
 - **Composable.** Templates are classes you nest, pass around and reuse like any other code.
 - **Explicit, with little boilerplate.** Data comes through constructors, and logic is plain C#.
-- **Safe by default.** Everything is escaped unless you say so.
+- [**Safe by default.**](#security) Everything is escaped unless you say so.
 - **Trimming and native AOT.** Everything is generated at build time, with no reflection.
 
 ## Sneak peek
