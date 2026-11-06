@@ -1,7 +1,5 @@
-<h1>
-<img src="https://raw.githubusercontent.com/aomader/TemplateDsl/main/assets/icon.png" alt="" width="24" height="24">
-TemplateDsl
-</h1>
+![TemplateDsl logo](https://raw.githubusercontent.com/aomader/TemplateDsl/main/assets/icon.png)
+# TemplateDsl
 
 [![NuGet version](https://img.shields.io/nuget/v/TemplateDsl?label=NuGet)](https://www.nuget.org/packages/TemplateDsl/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
@@ -418,7 +416,7 @@ app.MapGet("/feed.xml", (Feed feed) => new FeedTemplate(feed).ToResult());   // 
   automatically. A project that doesn't want that removes it with `<Using Remove="TemplateDsl.AspNetCore" />`, and adds
   the `using` where it needs it.
 
-### Security
+## Security
 
 Every value is escaped, in text and in attributes, numbers and dates included. Only `H.Raw(...)` writes text as it is,
 so never pass it untrusted input. Escaping keeps a value inside the text or attribute it's in, but some places
