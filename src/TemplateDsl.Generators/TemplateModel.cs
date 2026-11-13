@@ -24,6 +24,7 @@ namespace TemplateDsl.Generators;
 /// <param name="AbstractBuild">The Build method to declare for an abstract template that doesn't declare it, or null.</param>
 /// <param name="HasConversion">Whether it gets a conversion to the format's node type, which only sync templates have.</param>
 /// <param name="ContentType">The HTTP Content-Type the format declares, or null.</param>
+/// <param name="Utf8Literals">Whether output that never changes is written as u8 literals, which only a release build does, because Hot Reload can't update a method with them twice.</param>
 /// <param name="Diagnostics">What is wrong with the template, if anything.</param>
 internal sealed record TemplateModel(
     string? Namespace,
@@ -43,6 +44,7 @@ internal sealed record TemplateModel(
     string? AbstractBuild,
     bool HasConversion,
     string? ContentType,
+    bool Utf8Literals,
     EquatableArray<DiagnosticInfo> Diagnostics);
 
 internal enum SegmentKind
