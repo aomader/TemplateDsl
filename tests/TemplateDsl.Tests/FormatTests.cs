@@ -112,7 +112,8 @@ public class FormatTests
             ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
                 .Split(Path.PathSeparator)
                 .Select(path => MetadataReference.CreateFromFile(path)),
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            // Release, as the generated code these tests look for is the one that ships, with u8 literals.
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release));
 
         CSharpGeneratorDriver.Create(new TemplateGenerator())
             .RunGeneratorsAndUpdateCompilation(compilation, out var output, out var diagnostics);

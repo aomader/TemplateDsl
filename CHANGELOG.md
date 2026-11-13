@@ -5,6 +5,12 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
 
 ## [Unreleased]
 
+### Fixed
+
+- Hot Reload, such as with `dotnet watch`, failed on the second change to a template with "The assembly update failed".
+  The runtime can't apply a second update to a method with `u8` literals, in plain C# too, so a debug build now writes
+  the fixed output of a template as strings, encoded as they are written. A release build still writes `u8` literals.
+
 ## [0.1.0-preview.8] - 2026-11-06
 
 ### Added

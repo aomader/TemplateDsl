@@ -22,16 +22,18 @@ public class GeneratorTests
             ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
                 .Split(Path.PathSeparator)
                 .Select(path => MetadataReference.CreateFromFile(path)),
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            // Release, as the generated code these tests look for is the one that ships, with u8 literals.
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release));
 
-    private static (string[] Generated, string[] DiagnosticIds, string[] CompileErrors) Run(params string[] sources)
+    private static (string[] Generated, string[] DiagnosticIds, string[] CompileErrors) Run(params string[] sources) =>
+        Run(CreateCompilation(sources), sources.Length);
+
+    private static (string[] Generated, string[] DiagnosticIds, string[] CompileErrors) Run(CSharpCompilation compilation, int sourceCount)
     {
-        var compilation = CreateCompilation(sources);
-
         CSharpGeneratorDriver.Create(new TemplateGenerator())
             .RunGeneratorsAndUpdateCompilation(compilation, out var output, out var diagnostics);
 
-        var generated = output.SyntaxTrees.Skip(sources.Length).Select(tree => tree.ToString()).ToArray();
+        var generated = output.SyntaxTrees.Skip(sourceCount).Select(tree => tree.ToString()).ToArray();
         var errors = output.GetDiagnostics()
             .Where(d => d.Severity == DiagnosticSeverity.Error)
             .Select(d => d.Id)
@@ -69,6 +71,24 @@ public class GeneratorTests
         Assert.Contains(
             """BuffersExtensions.Write(__writer, "<html><body><div></div></body></html>"u8);""",
             Assert.Single(generated));
+    }
+
+    [Fact]
+    public void A_debug_build_writes_literals_as_strings_which_hot_reload_can_update()
+    {
+        var debug = CreateCompilation(Template("""=> [H.Div.Attr("data-x", model)["text"]];"""))
+            .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Debug));
+
+        var (generated, diagnostics, errors) = Run(debug, sourceCount: 1);
+
+        Assert.Empty(diagnostics);
+        Assert.Empty(errors);
+        var source = Assert.Single(generated);
+        Assert.DoesNotContain("u8", source);
+        Assert.Contains("""global::System.MemoryExtensions.AsSpan("<div"), __writer);""", source);
+        Assert.Contains("""global::System.MemoryExtensions.AsSpan(" data-x=\""), __writer);""", source);
+        Assert.Contains("""global::System.MemoryExtensions.AsSpan("\""), __writer);""", source);
+        Assert.Contains("""global::System.MemoryExtensions.AsSpan(">text</div>"), __writer);""", source);
     }
 
     [Theory]

@@ -158,6 +158,7 @@ public sealed class TemplateGenerator : IIncrementalGenerator
             // A template that is a node already needs none, and C# doesn't allow one to a base class.
             HasConversion: !isDerived && !isAsync && !FormatReader.BaseTypes(symbol).Any(baseType => SymbolEqualityComparer.Default.Equals(baseType, format)),
             FormatReader.ReadContentType(format),
+            Utf8Literals: context.SemanticModel.Compilation.Options.OptimizationLevel == OptimizationLevel.Release,
             new EquatableArray<DiagnosticInfo>(diagnostics.ToArray()));
     }
 
@@ -393,7 +394,7 @@ public sealed class TemplateGenerator : IIncrementalGenerator
 
                 case SegmentKind.LoopEnd when state.IsAsync:
                     source.Append(indent).Append(Checkpoint).Append('\n');
-                    indent = EmitShared(source, segment, indent);
+                    indent = EmitShared(source, segment, indent, template.Utf8Literals);
                     break;
 
                 case SegmentKind.Template when segment.IsContent:
@@ -474,7 +475,7 @@ public sealed class TemplateGenerator : IIncrementalGenerator
                     break;
 
                 default:
-                    indent = EmitShared(source, segment, indent);
+                    indent = EmitShared(source, segment, indent, template.Utf8Literals);
                     break;
             }
         }
@@ -595,7 +596,7 @@ public sealed class TemplateGenerator : IIncrementalGenerator
     private static string ChildrenContext(Segment segment) => segment.PassContext ? "__context" : "null!";
 
     /// <summary>Emits what the sync and async forms have in common, and returns the new indentation.</summary>
-    internal static string EmitShared(StringBuilder source, Segment segment, string indent)
+    internal static string EmitShared(StringBuilder source, Segment segment, string indent, bool utf8Literals = true)
     {
         switch (segment.Kind)
         {
@@ -624,7 +625,7 @@ public sealed class TemplateGenerator : IIncrementalGenerator
                 return indent;
 
             case SegmentKind.Literal:
-                source.Append(indent).Append(LiteralWrite(segment.Text)).Append('\n');
+                source.Append(indent).Append(LiteralWrite(segment.Text, utf8Literals)).Append('\n');
                 return indent;
 
             case SegmentKind.Value:
@@ -654,9 +655,9 @@ public sealed class TemplateGenerator : IIncrementalGenerator
                 source.Append(indent).Append("{\n");
                 source.Append(indent).Append("    string? __value = ").Append(segment.Text).Append(";\n");
                 source.Append(indent).Append("    if (__value is not null)\n").Append(indent).Append("    {\n");
-                source.Append(indent).Append("        ").Append(LiteralWrite(segment.AttributePrefix!)).Append('\n');
+                source.Append(indent).Append("        ").Append(LiteralWrite(segment.AttributePrefix!, utf8Literals)).Append('\n');
                 source.Append(indent).Append("        ").Append(ValueWrite("__value", segment.EscapeMethod)).Append('\n');
-                source.Append(indent).Append("        ").Append(LiteralWrite(segment.AttributeSuffix!)).Append('\n');
+                source.Append(indent).Append("        ").Append(LiteralWrite(segment.AttributeSuffix!, utf8Literals)).Append('\n');
                 source.Append(indent).Append("    }\n").Append(indent).Append("}\n");
                 return indent;
 
@@ -806,8 +807,13 @@ public sealed class TemplateGenerator : IIncrementalGenerator
             """);
     }
 
-    private static string LiteralWrite(string text) =>
-        $"global::System.Buffers.BuffersExtensions.Write(__writer, {SymbolDisplay.FormatLiteral(text, quote: true)}u8);";
+    // A u8 literal is data of <PrivateImplementationDetails>, and Hot Reload fails on the second update of a method that
+    // has one: the runtime rejects it with "The assembly update failed", for plain C# too. So a debug build writes a
+    // string, encoded as it is written, and only a release build, which Hot Reload never updates, gets the literal.
+    private static string LiteralWrite(string text, bool utf8Literals) =>
+        utf8Literals
+            ? $"global::System.Buffers.BuffersExtensions.Write(__writer, {SymbolDisplay.FormatLiteral(text, quote: true)}u8);"
+            : ValueWrite(SymbolDisplay.FormatLiteral(text, quote: true), escapeMethod: null);
 
     private static string ValueWrite(string expression, string? escapeMethod) =>
         escapeMethod is null
