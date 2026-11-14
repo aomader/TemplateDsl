@@ -1,0 +1,17 @@
+namespace TemplateDsl.Html;
+
+/// <summary>
+/// The HTML elements: <c>Div.Id("main").Class("box") [ P [ "text" ], Br ]</c>. Attributes are chained and children
+/// follow in brackets. Import it with <c>using static TemplateDsl.Html.Elements;</c> to write elements without a prefix,
+/// or give it a short name with <c>using H = TemplateDsl.Html.Elements;</c> and write <c>H.Div</c>. The elements are
+/// generated from elements.txt, and <c>Each</c> and <c>EachAsync</c> by the source generator.
+/// </summary>
+[TemplateTags(typeof(HtmlElement))]
+public static partial class Elements
+{
+    /// <summary>Writes <paramref name="value"/> as text, escaped, like a plain string does.</summary>
+    public static Nodes.Text Text(string? value) => new();
+
+    /// <summary>Writes <paramref name="value"/> without escaping. Never use it with untrusted input.</summary>
+    public static Nodes.RawHtml Raw(string? value) => new();
+}
