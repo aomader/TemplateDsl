@@ -6,3 +6,6 @@ obj/
 TestResults/
 *.nupkg
 BenchmarkDotNet.Artifacts/
+
+# What source generators write with EmitCompilerGeneratedFiles, to look at. Each build writes it again.
+Generated/
