@@ -48,4 +48,13 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <!--
+    What the package gives the generator in buildTransitive/TemplateDsl.props. The projects here reference the generator
+    directly, so they get it here.
+  -->
+  <ItemGroup>
+    <CompilerVisibleProperty Include="RootNamespace" />
+    <CompilerVisibleProperty Include="TemplateDslTemplatesClass" />
+  </ItemGroup>
 </Project>

@@ -89,4 +89,31 @@ internal static class Diagnostics
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         helpLinkUri: HelpLink + "TDSL009.md");
+
+    public static readonly DiagnosticDescriptor InvalidTemplatesClass = new(
+        "TDSL010",
+        "The class of the template factories can't have its name",
+        "'{0}' can't be the class of the template factories, because {1}; set the MSBuild property TemplateDslTemplatesClass to another name, such as <TemplateDslTemplatesClass>App.Ui.Templates</TemplateDslTemplatesClass>",
+        Category,
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink + "TDSL010.md");
+
+    public static readonly DiagnosticDescriptor SameTemplateName = new(
+        "TDSL011",
+        "Templates with the same name get no factory",
+        "More than one template is named '{0}' ('{1}'), so none of them gets a factory in the class of the template factories; rename one, or create them with new",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink + "TDSL011.md");
+
+    public static readonly DiagnosticDescriptor ShadowedElement = new(
+        "TDSL012",
+        "A name of your own hides an element",
+        "'{0}' is {1} here, which hides the element '{0}'; write {2}.{0} for the element, or rename what hides it",
+        Category,
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink + "TDSL012.md");
 }

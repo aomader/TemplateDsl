@@ -14,4 +14,6 @@ ID, and the IDE links each one to its page here.
 | [TDSL007](TDSL007.md) | Template nodes can only be used in Build |
 | [TDSL008](TDSL008.md) | A nested template needs a context its parent doesn't have |
 | [TDSL009](TDSL009.md) | A template is only a node in Build |
-
+| [TDSL010](TDSL010.md) | The class of the template factories can't have its name |
+| [TDSL011](TDSL011.md) | Templates with the same name get no factory |
+| [TDSL012](TDSL012.md) | A name of your own hides an element |

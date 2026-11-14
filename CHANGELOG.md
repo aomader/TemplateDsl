@@ -5,6 +5,19 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
 
 ## [Unreleased]
 
+### Added
+
+- Templates can be created without `new`. The generator writes a factory for every template, named like it and with
+  the parameters of its constructors, into the static class `Templates` in the root namespace of the project. With
+  `using static App.Templates;`, a template is written `Card("Hello") [ ... ]`, and the type arguments of a generic
+  template are inferred. The class can be named with the MSBuild property `TemplateDslTemplatesClass`.
+- TDSL010 reports a name of the class of the template factories that is taken, such as by a folder `Templates`.
+- TDSL011 warns about templates with the same name, which get no factory.
+- TDSL012 explains the error of an element that a name of your own hides, such as `Title [ ... ]` in a template with a
+  `Title` property, or `Button [ ... ]` next to a template class `Button`, which C# reports without mentioning the element.
+  The translator leaves such an element out instead of reporting TDSL004 about what the name is, or copying the error
+  into the generated file. A type's name, as in `Footer [ ... ]`, is no longer taken for an instance of the template.
+
 ### Changed
 
 - **Breaking:** the static class of the HTML elements is called `Elements` instead of `H`, so that a project can choose

@@ -1,9 +1,10 @@
 using TemplateDsl.Html;
 using static TemplateDsl.Html.Elements;
+using static HtmlConsumer.Templates;
 
-Console.Write(new Page("you", ["one", "two"]).RenderToString());
-Console.Write(await new AsyncPage().RenderToStringAsync());
-Console.Write(new ContextParent().RenderToString("ctx"));
+Console.Write(Page("you", ["one", "two"]).RenderToString());
+Console.Write(await AsyncPage().RenderToStringAsync());
+Console.Write(ContextParent().RenderToString("ctx"));
 
 public sealed partial class Item(string label) : IHtmlTemplate
 {
@@ -17,7 +18,7 @@ public sealed partial class Page(string name, string[] items) : IHtmlTemplate
         Div.Class("card")
         [
             $"Hi <{name}>",
-            Each(items, item => new Item(item))
+            Each(items, item => Item(item))
         ]
     ];
 }
@@ -29,7 +30,7 @@ public sealed partial class SlowPart : IAsyncHtmlTemplate
 
 public sealed partial class AsyncPage : IAsyncHtmlTemplate
 {
-    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) => [Div [ await new SlowPart() ]];
+    public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) => [Div [ await SlowPart() ]];
 }
 
 public sealed partial class ContextChild : IHtmlTemplate<string>
@@ -39,5 +40,5 @@ public sealed partial class ContextChild : IHtmlTemplate<string>
 
 public sealed partial class ContextParent : IHtmlTemplate<string>
 {
-    public IEnumerable<HtmlElement> Build(string context) => [new ContextChild()];
+    public IEnumerable<HtmlElement> Build(string context) => [ContextChild()];
 }

@@ -5,7 +5,7 @@ public sealed partial class TodoList(IEnumerable<Todo> todos, TodoFilter filter)
     public IEnumerable<HtmlElement> Build() =>
     [
         Ul [
-            Each(todos, todo => new TodoItem(todo, filter))
+            Each(todos, todo => TodoItem(todo, filter))
         ]
     ];
 }

@@ -132,7 +132,7 @@ public class TemplateShapeTests
         CSharpGeneratorDriver.Create(new TemplateGenerator()).RunGeneratorsAndUpdateCompilation(Compile(source), out var output, out var diagnostics);
 
         return (
-            output.SyntaxTrees.Skip(1).Select(tree => tree.ToString()).ToArray(),
+            output.SyntaxTrees.Skip(1).Where(GeneratorTests.IsRenderFile).Select(tree => tree.ToString()).ToArray(),
             diagnostics.Select(d => d.Id).ToArray(),
             output.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).Select(d => d.Id).ToArray());
     }

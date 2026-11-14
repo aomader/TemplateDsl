@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using TodoSample;
-using TodoSample.Views;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<TodoStore>();
@@ -48,12 +47,12 @@ app.MapDelete("/todos/{id:int}", (HttpContext context, TodoStore store, int id, 
 
 app.MapGet("/todos/{id:int}", Results<TemplateResult, NotFound> (TodoStore store, int id, string? filter) =>
     store.Find(id) is { } todo
-        ? new TodoItem(todo, Urls.ParseFilter(filter)).ToResult()
+        ? TodoItem(todo, Urls.ParseFilter(filter)).ToResult()
         : TypedResults.NotFound());
 
 app.MapGet("/todos/{id:int}/edit", Results<TemplateResult, NotFound> (TodoStore store, int id, string? filter) =>
     store.Find(id) is { } todo
-        ? new TodoEditor(todo, Urls.ParseFilter(filter)).ToResult()
+        ? TodoEditor(todo, Urls.ParseFilter(filter)).ToResult()
         : TypedResults.NotFound());
 
 app.MapPut("/todos/{id:int}", async Task<Results<TemplateResult, NotFound>> (HttpContext context, TodoStore store, int id, string? filter) =>
@@ -67,12 +66,12 @@ app.MapPut("/todos/{id:int}", async Task<Results<TemplateResult, NotFound>> (Htt
 
     if (title.Length == 0)
     {
-        return new TodoEditor(todo, Urls.ParseFilter(filter), title, "A todo needs a title.")
+        return TodoEditor(todo, Urls.ParseFilter(filter), title, "A todo needs a title.")
             .ToResult(statusCode: StatusCodes.Status422UnprocessableEntity);
     }
 
     return store.Rename(id, title) is { } renamed
-        ? new TodoItem(renamed, Urls.ParseFilter(filter)).ToResult()
+        ? TodoItem(renamed, Urls.ParseFilter(filter)).ToResult()
         : TypedResults.NotFound();
 });
 
@@ -84,10 +83,10 @@ static TemplateResult App(HttpContext context, TodoStore store, string? filter, 
 {
     context.Response.Headers.Vary = "HX-Request-Type";
 
-    var todoApp = new TodoApp(store.GetAll(), Urls.ParseFilter(filter), error);
+    var todoApp = TodoApp(store.GetAll(), Urls.ParseFilter(filter), error);
     var isPartial = context.Request.Headers["HX-Request-Type"] == "partial";
 
-    return (isPartial ? (IHtmlTemplate)todoApp : new Layout(todoApp))
+    return (isPartial ? (IHtmlTemplate)todoApp : Layout(todoApp))
         .ToResult(statusCode: error is null ? null : StatusCodes.Status422UnprocessableEntity);
 }
 

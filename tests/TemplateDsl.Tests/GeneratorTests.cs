@@ -26,6 +26,9 @@ public class GeneratorTests
             // Release, as the generated code these tests look for is the one that ships, with u8 literals.
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release));
 
+    /// <summary>A file with the render methods of a template, which is what these tests look at, rather than the template factories.</summary>
+    internal static bool IsRenderFile(SyntaxTree tree) => !tree.FilePath.EndsWith(".Factories.g.cs", StringComparison.Ordinal);
+
     private static (string[] Generated, string[] DiagnosticIds, string[] CompileErrors) Run(params string[] sources) =>
         Run(CreateCompilation(sources), sources.Length);
 
@@ -34,7 +37,7 @@ public class GeneratorTests
         CSharpGeneratorDriver.Create(new TemplateGenerator())
             .RunGeneratorsAndUpdateCompilation(compilation, out var output, out var diagnostics);
 
-        var generated = output.SyntaxTrees.Skip(sourceCount).Select(tree => tree.ToString()).ToArray();
+        var generated = output.SyntaxTrees.Skip(sourceCount).Where(IsRenderFile).Select(tree => tree.ToString()).ToArray();
         var errors = output.GetDiagnostics()
             .Where(d => d.Severity == DiagnosticSeverity.Error)
             .Select(d => d.Id)
@@ -644,7 +647,7 @@ public class GeneratorTests
 
         var result = CSharpGeneratorDriver.Create(new TemplateGenerator()).RunGenerators(compilation).GetRunResult();
 
-        Assert.EndsWith("My.App.T.Rendering.g.cs", Assert.Single(result.GeneratedTrees).FilePath);
+        Assert.EndsWith("My.App.T.Rendering.g.cs", Assert.Single(result.GeneratedTrees, IsRenderFile).FilePath);
     }
 
     [Theory]

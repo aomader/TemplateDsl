@@ -14,3 +14,6 @@ TDSL006 | TemplateDsl | Error | Invalid format declaration
 TDSL007 | TemplateDsl | Error | Template nodes can only be used in Build
 TDSL008 | TemplateDsl | Error | A nested template needs a context its parent doesn't have
 TDSL009 | TemplateDsl | Error | A template is only a node in Build
+TDSL010 | TemplateDsl | Error | The class of the template factories can't have its name
+TDSL011 | TemplateDsl | Warning | Templates with the same name get no factory
+TDSL012 | TemplateDsl | Error | A name of your own hides an element

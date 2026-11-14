@@ -53,11 +53,17 @@ public class RepositoryCompilationTests
         var compilation = CSharpCompilation.Create(name, trees, references,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
 
-        CSharpGeneratorDriver.Create([new FormatGenerator().AsSourceGenerator(), new TemplateGenerator().AsSourceGenerator()], parseOptions: parseOptions)
+        // The namespace of the template factories, which the build takes from the project, as RootNamespace or the name.
+        var properties = new BuildProperties(new Dictionary<string, string>
+        {
+            ["RootNamespace"] = project.Descendants("RootNamespace").FirstOrDefault()?.Value ?? name,
+        });
+
+        CSharpGeneratorDriver.Create([new FormatGenerator().AsSourceGenerator(), new TemplateGenerator().AsSourceGenerator()], parseOptions: parseOptions, optionsProvider: properties)
             .RunGeneratorsAndUpdateCompilation(compilation, out var output, out var generatorDiagnostics);
 
         var diagnostics = await output
-            .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new TemplateUsageAnalyzer(), new AsyncBuildSuppressor()))
+            .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new TemplateUsageAnalyzer(), new ShadowedElementAnalyzer(), new AsyncBuildSuppressor()))
             .GetAllDiagnosticsAsync();
 
         var errors = generatorDiagnostics.Concat(diagnostics)
@@ -75,7 +81,9 @@ public class RepositoryCompilationTests
         string.Concat(ImplicitUsings.Select(name => $"global using {name};\n"))
         + string.Concat(project.Descendants("Using").Select(item => item.Attribute("Alias") is { } alias
             ? $"global using {alias.Value} = {item.Attribute("Include")!.Value};\n"
-            : $"global using {item.Attribute("Include")!.Value};\n"));
+            : item.Attribute("Static")?.Value == "true"
+                ? $"global using static {item.Attribute("Include")!.Value};\n"
+                : $"global using {item.Attribute("Include")!.Value};\n"));
 
     private static string Repository([CallerFilePath] string file = "") =>
         Path.GetFullPath(Path.Combine(Path.GetDirectoryName(file)!, "..", ".."));
