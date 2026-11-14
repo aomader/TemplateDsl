@@ -11,7 +11,8 @@ public class GeneratorTests
         using System.Collections.Generic;
         using TemplateDsl;
         using TemplateDsl.Html;
-        using TemplateDsl.Html.Elements;
+        using H = TemplateDsl.Html.Elements;
+        using TemplateDsl.Html.Nodes;
 
         """;
 
@@ -378,7 +379,7 @@ public class GeneratorTests
     [InlineData("{ var div = H.Div; return [div]; }")]
     [InlineData("=> [Helper()]; private static HtmlElement Helper() => H.Div;")]
     [InlineData("=> [model.Length > 0 ? Helper() : H.Div]; private static HtmlElement Helper() => H.Div;")]
-    [InlineData("=> [default(TemplateDsl.Html.Elements.Div)];")]
+    [InlineData("=> [default(TemplateDsl.Html.Nodes.Div)];")]
     [InlineData("=> [.. new HtmlElement[] { H.Div }];")]
     [InlineData("""{ do { yield return "x"; } while (false); }""")]
     [InlineData("=> [H.Div[H.Each(model, c => { return H.Div; })]];")]

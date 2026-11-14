@@ -13,7 +13,7 @@ public sealed partial class LanguageBadge : IHtmlTemplate<IHasLanguage>
 {
     public IEnumerable<HtmlElement> Build(IHasLanguage context) =>
     [
-        H.Span.Class("language") [ context.Language ]
+        Span.Class("language") [ context.Language ]
     ];
 }
 
@@ -22,7 +22,7 @@ public sealed partial class ContextPage(string title) : IHtmlTemplate<RequestCon
 {
     public IEnumerable<HtmlElement> Build(RequestContext context) =>
     [
-        H.H1 [ title, " for ", context.UserName ],
+        H1 [ title, " for ", context.UserName ],
         new Card("Settings") [ new LanguageBadge() ]
     ];
 }

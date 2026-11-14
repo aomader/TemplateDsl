@@ -7,12 +7,12 @@ using global::RazorSlices;
 namespace Benchmarks.Slices
 {
     /// <summary>
-    /// Static proxy for the Razor Slice defined in <c>Slices\SliceButton.cshtml</c>.
+    /// Static proxy for the Razor Slice defined in <c>Slices/SliceButton.cshtml</c>.
     /// </summary>
     public sealed partial class SliceButton : global::RazorSlices.IRazorSliceProxy<global::Benchmarks.Slices.SliceButtonModel>
     {
         /// <summary>
-        /// Creates a new instance of the Razor Slice defined in <c>Slices\SliceButton.cshtml</c> with the given model.
+        /// Creates a new instance of the Razor Slice defined in <c>Slices/SliceButton.cshtml</c> with the given model.
         /// </summary>
         public static global::RazorSlices.RazorSlice<global::Benchmarks.Slices.SliceButtonModel> Create(global::Benchmarks.Slices.SliceButtonModel model) =>
             global::RazorSlices.RazorSliceFactory.Create(model, static model => new global::AspNetCoreGeneratedDocument.Slices_SliceButton { Model = model });
@@ -25,12 +25,12 @@ namespace Benchmarks.Slices
 namespace Benchmarks.Slices
 {
     /// <summary>
-    /// Static proxy for the Razor Slice defined in <c>Slices\SliceCard.cshtml</c>.
+    /// Static proxy for the Razor Slice defined in <c>Slices/SliceCard.cshtml</c>.
     /// </summary>
     public sealed partial class SliceCard : global::RazorSlices.IRazorSliceProxy<global::Benchmarks.Slices.SliceCardModel>
     {
         /// <summary>
-        /// Creates a new instance of the Razor Slice defined in <c>Slices\SliceCard.cshtml</c> with the given model.
+        /// Creates a new instance of the Razor Slice defined in <c>Slices/SliceCard.cshtml</c> with the given model.
         /// </summary>
         public static global::RazorSlices.RazorSlice<global::Benchmarks.Slices.SliceCardModel> Create(global::Benchmarks.Slices.SliceCardModel model) =>
             global::RazorSlices.RazorSliceFactory.Create(model, static model => new global::AspNetCoreGeneratedDocument.Slices_SliceCard { Model = model });
@@ -43,12 +43,12 @@ namespace Benchmarks.Slices
 namespace Benchmarks.Slices
 {
     /// <summary>
-    /// Static proxy for the Razor Slice defined in <c>Slices\SliceDashboard.cshtml</c>.
+    /// Static proxy for the Razor Slice defined in <c>Slices/SliceDashboard.cshtml</c>.
     /// </summary>
     public sealed partial class SliceDashboard : global::RazorSlices.IRazorSliceProxy<global::Benchmarks.Layouts.Dashboard>
     {
         /// <summary>
-        /// Creates a new instance of the Razor Slice defined in <c>Slices\SliceDashboard.cshtml</c> with the given model.
+        /// Creates a new instance of the Razor Slice defined in <c>Slices/SliceDashboard.cshtml</c> with the given model.
         /// </summary>
         public static global::RazorSlices.RazorSlice<global::Benchmarks.Layouts.Dashboard> Create(global::Benchmarks.Layouts.Dashboard model) =>
             global::RazorSlices.RazorSliceFactory.Create(model, static model => new global::AspNetCoreGeneratedDocument.Slices_SliceDashboard { Model = model });
@@ -61,12 +61,12 @@ namespace Benchmarks.Slices
 namespace Benchmarks.Slices
 {
     /// <summary>
-    /// Static proxy for the Razor Slice defined in <c>Slices\SliceLargePage.cshtml</c>.
+    /// Static proxy for the Razor Slice defined in <c>Slices/SliceLargePage.cshtml</c>.
     /// </summary>
     public sealed partial class SliceLargePage : global::RazorSlices.IRazorSliceProxy<global::System.Int32[]>
     {
         /// <summary>
-        /// Creates a new instance of the Razor Slice defined in <c>Slices\SliceLargePage.cshtml</c> with the given model.
+        /// Creates a new instance of the Razor Slice defined in <c>Slices/SliceLargePage.cshtml</c> with the given model.
         /// </summary>
         public static global::RazorSlices.RazorSlice<global::System.Int32[]> Create(global::System.Int32[] model) =>
             global::RazorSlices.RazorSliceFactory.Create(model, static model => new global::AspNetCoreGeneratedDocument.Slices_SliceLargePage { Model = model });
@@ -79,12 +79,12 @@ namespace Benchmarks.Slices
 namespace Benchmarks.Slices
 {
     /// <summary>
-    /// Static proxy for the Razor Slice defined in <c>Slices\SliceLargeRow.cshtml</c>.
+    /// Static proxy for the Razor Slice defined in <c>Slices/SliceLargeRow.cshtml</c>.
     /// </summary>
     public sealed partial class SliceLargeRow : global::RazorSlices.IRazorSliceProxy<global::System.Int32>
     {
         /// <summary>
-        /// Creates a new instance of the Razor Slice defined in <c>Slices\SliceLargeRow.cshtml</c> with the given model.
+        /// Creates a new instance of the Razor Slice defined in <c>Slices/SliceLargeRow.cshtml</c> with the given model.
         /// </summary>
         public static global::RazorSlices.RazorSlice<global::System.Int32> Create(global::System.Int32 model) =>
             global::RazorSlices.RazorSliceFactory.Create(model, static model => new global::AspNetCoreGeneratedDocument.Slices_SliceLargeRow { Model = model });
@@ -97,12 +97,12 @@ namespace Benchmarks.Slices
 namespace Benchmarks.Slices
 {
     /// <summary>
-    /// Static proxy for the Razor Slice defined in <c>Slices\SliceLayout.cshtml</c>.
+    /// Static proxy for the Razor Slice defined in <c>Slices/SliceLayout.cshtml</c>.
     /// </summary>
     public sealed partial class SliceLayout : global::RazorSlices.IRazorSliceProxy<global::Benchmarks.Slices.SliceLayoutModel>
     {
         /// <summary>
-        /// Creates a new instance of the Razor Slice defined in <c>Slices\SliceLayout.cshtml</c> with the given model.
+        /// Creates a new instance of the Razor Slice defined in <c>Slices/SliceLayout.cshtml</c> with the given model.
         /// </summary>
         public static global::RazorSlices.RazorSlice<global::Benchmarks.Slices.SliceLayoutModel> Create(global::Benchmarks.Slices.SliceLayoutModel model) =>
             global::RazorSlices.RazorSliceFactory.Create(model, static model => new global::AspNetCoreGeneratedDocument.Slices_SliceLayout { Model = model });
@@ -115,12 +115,12 @@ namespace Benchmarks.Slices
 namespace Benchmarks.Slices
 {
     /// <summary>
-    /// Static proxy for the Razor Slice defined in <c>Slices\SlicePage.cshtml</c>.
+    /// Static proxy for the Razor Slice defined in <c>Slices/SlicePage.cshtml</c>.
     /// </summary>
     public sealed partial class SlicePage : global::RazorSlices.IRazorSliceProxy<global::Benchmarks.Slices.SlicePageModel>
     {
         /// <summary>
-        /// Creates a new instance of the Razor Slice defined in <c>Slices\SlicePage.cshtml</c> with the given model.
+        /// Creates a new instance of the Razor Slice defined in <c>Slices/SlicePage.cshtml</c> with the given model.
         /// </summary>
         public static global::RazorSlices.RazorSlice<global::Benchmarks.Slices.SlicePageModel> Create(global::Benchmarks.Slices.SlicePageModel model) =>
             global::RazorSlices.RazorSliceFactory.Create(model, static model => new global::AspNetCoreGeneratedDocument.Slices_SlicePage { Model = model });
@@ -133,12 +133,12 @@ namespace Benchmarks.Slices
 namespace Benchmarks.Slices
 {
     /// <summary>
-    /// Static proxy for the Razor Slice defined in <c>Slices\SliceRow.cshtml</c>.
+    /// Static proxy for the Razor Slice defined in <c>Slices/SliceRow.cshtml</c>.
     /// </summary>
     public sealed partial class SliceRow : global::RazorSlices.IRazorSliceProxy<global::Benchmarks.Layouts.Row>
     {
         /// <summary>
-        /// Creates a new instance of the Razor Slice defined in <c>Slices\SliceRow.cshtml</c> with the given model.
+        /// Creates a new instance of the Razor Slice defined in <c>Slices/SliceRow.cshtml</c> with the given model.
         /// </summary>
         public static global::RazorSlices.RazorSlice<global::Benchmarks.Layouts.Row> Create(global::Benchmarks.Layouts.Row model) =>
             global::RazorSlices.RazorSliceFactory.Create(model, static model => new global::AspNetCoreGeneratedDocument.Slices_SliceRow { Model = model });

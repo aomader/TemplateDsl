@@ -6,9 +6,9 @@ Outside of `Build` there is nothing that would do that, so a node created there 
 ```csharp
 public sealed partial class Page : IHtmlTemplate
 {
-    private static HtmlElement Header() => H.Header [ H.H1 [ "Title" ] ];   // TDSL007
+    private static HtmlElement Banner() => Header [ H1 [ "Title" ] ];   // TDSL007
 
-    public IEnumerable<HtmlElement> Build() => [Header()];
+    public IEnumerable<HtmlElement> Build() => [Banner()];
 }
 ```
 
@@ -17,13 +17,13 @@ public sealed partial class Page : IHtmlTemplate
 Create a template for the part, which can be used anywhere a node can:
 
 ```csharp
-public sealed partial class Header : IHtmlTemplate
+public sealed partial class Banner : IHtmlTemplate
 {
-    public IEnumerable<HtmlElement> Build() => [H.Header [ H.H1 [ "Title" ] ]];
+    public IEnumerable<HtmlElement> Build() => [Header [ H1 [ "Title" ] ]];
 }
 
 public sealed partial class Page : IHtmlTemplate
 {
-    public IEnumerable<HtmlElement> Build() => [new Header()];
+    public IEnumerable<HtmlElement> Build() => [new Banner()];
 }
 ```

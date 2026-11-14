@@ -8,15 +8,15 @@ public sealed partial class TodoItem(Todo todo, TodoFilter filter) : IHtmlTempla
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Li.Id($"todo-{todo.Id}") [
-            H.Label.Class(todo.Done ? "done" : null) [
-                H.InputCheckbox.Checked(todo.Done).Attr("hx-post", Urls.Toggle(todo.Id, filter)),
+        Li.Id($"todo-{todo.Id}") [
+            Label.Class(todo.Done ? "done" : null) [
+                InputCheckbox.Checked(todo.Done).Attr("hx-post", Urls.Toggle(todo.Id, filter)),
                 " ",
                 todo.Title
             ],
-            H.Button.Type("button").Class("edit")
+            Button.Type("button").Class("edit")
                 .Attr("hx-get", Urls.Edit(todo.Id, filter)).Attr("hx-target", "closest li").Attr("hx-swap", "outerHTML") [ "Edit" ],
-            H.Button.Type("button").Attr("hx-delete", Urls.Todo(todo.Id, filter)).Attr("aria-label", $"Delete {todo.Title}") [ "×" ]
+            Button.Type("button").Attr("hx-delete", Urls.Todo(todo.Id, filter)).Attr("aria-label", $"Delete {todo.Title}") [ "×" ]
         ]
     ];
 }

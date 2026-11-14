@@ -169,6 +169,7 @@ public class LayoutTests
         using System.Threading.Tasks;
         using TemplateDsl;
         using TemplateDsl.Html;
+        using H = TemplateDsl.Html.Elements;
         using FormatSamples;
 
         """;

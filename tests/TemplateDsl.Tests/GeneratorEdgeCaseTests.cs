@@ -48,7 +48,7 @@ public sealed partial class AwaitInLoopHeader(Task<int[]> numbers) : IAsyncHtmlT
 
 public class GeneratorEdgeCaseTests
 {
-    private const string Usings = "using System; using System.Collections.Generic; using System.Threading; using System.Threading.Tasks; using TemplateDsl; using TemplateDsl.Html;\n";
+    private const string Usings = "using System; using System.Collections.Generic; using System.Threading; using System.Threading.Tasks; using TemplateDsl; using TemplateDsl.Html; using H = TemplateDsl.Html.Elements;\n";
 
     /// <summary>A minimal format whose factories take attributes as parameters.</summary>
     private const string Format = """

@@ -2,7 +2,7 @@ namespace TemplateDsl.Html;
 
 /// <summary>
 /// HTML content: any sync HTML template that needs no context. It is the type for content passed to a layout or a slot,
-/// <c>Layout(IHtmlContent content)</c>, which places it in brackets: <c>H.Main [ content ]</c>. A template that needs a
+/// <c>Layout(IHtmlContent content)</c>, which places it in brackets: <c>Main [ content ]</c>. A template that needs a
 /// context is a compiler error where it is passed. For a layout with a context, it is <see cref="IHtmlContent{TContext}"/>.
 /// </summary>
 public interface IHtmlContent : IHtmlContent<object>, IAsyncHtmlContent;
@@ -10,7 +10,7 @@ public interface IHtmlContent : IHtmlContent<object>, IAsyncHtmlContent;
 /// <summary>
 /// HTML content that renders with a <typeparamref name="TContext"/>: any sync HTML template that needs no context, that
 /// context, or less of it. It is the type for content passed to a layout or a slot that has that context,
-/// <c>Layout(IHtmlContent&lt;PageContext&gt; content)</c>, which places it in brackets: <c>H.Main [ content ]</c>. A
+/// <c>Layout(IHtmlContent&lt;PageContext&gt; content)</c>, which places it in brackets: <c>Main [ content ]</c>. A
 /// template that needs another context is a compiler error where it is passed.
 /// </summary>
 public interface IHtmlContent<in TContext> : ITemplateContent<HtmlElement, TContext>, IAsyncHtmlContent<TContext>
@@ -19,7 +19,7 @@ public interface IHtmlContent<in TContext> : ITemplateContent<HtmlElement, TCont
 /// <summary>
 /// HTML content for an async template, which places it with <c>await</c>: any HTML template, sync or async, that needs no
 /// context. It is the type for content of an async layout that may host a sync or an async page,
-/// <c>Layout(IAsyncHtmlContent content)</c>, which places it with <c>H.Main [ await content ]</c>. For a layout with a
+/// <c>Layout(IAsyncHtmlContent content)</c>, which places it with <c>Main [ await content ]</c>. For a layout with a
 /// context, it is <see cref="IAsyncHtmlContent{TContext}"/>.
 /// </summary>
 public interface IAsyncHtmlContent : IAsyncHtmlContent<object>;
@@ -28,7 +28,7 @@ public interface IAsyncHtmlContent : IAsyncHtmlContent<object>;
 /// HTML content for an async template, which places it with <c>await</c>: any HTML template, sync or async, that renders
 /// with a <typeparamref name="TContext"/>, because it needs it, less of it, or none. It is the type for content of an
 /// async layout with that context that may host a sync or an async page,
-/// <c>Layout(IAsyncHtmlContent&lt;PageContext&gt; content)</c>, which places it with <c>H.Main [ await content ]</c>.
+/// <c>Layout(IAsyncHtmlContent&lt;PageContext&gt; content)</c>, which places it with <c>Main [ await content ]</c>.
 /// </summary>
 public interface IAsyncHtmlContent<in TContext> : IAsyncTemplateContent<HtmlElement, TContext>
     where TContext : notnull;

@@ -28,19 +28,19 @@ public sealed class OrderRepository
 
 public sealed partial class OrderRow(Order order) : IHtmlTemplate
 {
-    public IEnumerable<HtmlElement> Build() => [ H.Div.Id($"order-{order.Id}").Class("order") [ order.Product ] ];
+    public IEnumerable<HtmlElement> Build() => [ Div.Id($"order-{order.Id}").Class("order") [ order.Product ] ];
 }
 
 public sealed partial class OrdersPage(OrderRepository repository, int userId) : IAsyncHtmlTemplate
 {
     public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
-        H.Html [
-            H.Body [
-                H.Div.Class("header") [ "Sent right away, before anything is awaited" ],
-                H.Div.Class("user") [ await repository.GetUserNameAsync(userId, ct) ],
+        Html [
+            Body [
+                Div.Class("header") [ "Sent right away, before anything is awaited" ],
+                Div.Class("user") [ await repository.GetUserNameAsync(userId, ct) ],
                 new Card("Orders") [
-                    await H.EachAsync(repository.StreamOrders(userId, ct), order => new OrderRow(order))
+                    await EachAsync(repository.StreamOrders(userId, ct), order => new OrderRow(order))
                 ],
                 new Button("Done")
             ]

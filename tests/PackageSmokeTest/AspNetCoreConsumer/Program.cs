@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using TemplateDsl.Html;
+using static TemplateDsl.Html.Elements;
 
 // No web server needed: the result writes to the response of any HttpContext.
 var context = new DefaultHttpContext();
@@ -12,5 +13,5 @@ Console.Write($"{context.Response.StatusCode} {context.Response.ContentType} {En
 
 public sealed partial class Hello(string name) : IHtmlTemplate
 {
-    public IEnumerable<HtmlElement> Build() => [H.B [ name ]];
+    public IEnumerable<HtmlElement> Build() => [B [ name ]];
 }

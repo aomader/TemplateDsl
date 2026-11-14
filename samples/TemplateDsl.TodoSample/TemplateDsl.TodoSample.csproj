@@ -17,6 +17,8 @@
   <ItemGroup>
     <Using Include="TemplateDsl" />
     <Using Include="TemplateDsl.Html" />
+    <!-- The elements without a prefix: Div [ ... ] instead of Elements.Div [ ... ]. -->
+    <Using Include="TemplateDsl.Html.Elements" Static="true" />
     <Using Include="TemplateDsl.AspNetCore" />
   </ItemGroup>
 

@@ -183,6 +183,7 @@ public class ChildrenBlockTests
                 using System.Collections.Generic;
                 using TemplateDsl;
                 using TemplateDsl.Html;
+                using H = TemplateDsl.Html.Elements;
 
                 public interface ICard : IHtmlTemplate, IAcceptsChildren;
                 public sealed partial class Card : IHtmlTemplate, IAcceptsChildren { public IEnumerable<HtmlElement> Build() => [H.Div [ Children ]]; }

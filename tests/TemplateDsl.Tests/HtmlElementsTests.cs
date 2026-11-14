@@ -88,6 +88,7 @@ public class HtmlElementsTests
             using System.Collections.Generic;
             using TemplateDsl;
             using TemplateDsl.Html;
+            using H = TemplateDsl.Html.Elements;
 
             public sealed partial class T : IHtmlTemplate
             {
@@ -130,7 +131,8 @@ public class HtmlElementsTests
                 using System.Collections.Generic;
                 using TemplateDsl;
                 using TemplateDsl.Html;
-                using TemplateDsl.Html.Elements;
+                using H = TemplateDsl.Html.Elements;
+                using TemplateDsl.Html.Nodes;
 
                 public sealed partial class T : IHtmlTemplate
                 {

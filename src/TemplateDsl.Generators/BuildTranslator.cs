@@ -1449,7 +1449,7 @@ internal sealed class BuildTranslator(
         ResolveChain(access.Expression) is { Node.IsText: false };
 
     /// <summary>
-    /// Reads <c>H.Div.Id("a").Class("b")</c>. Only the start is looked up: the methods after it can be generated
+    /// Reads <c>Div.Id("a").Class("b")</c>. Only the start is looked up: the methods after it can be generated
     /// in this same compilation, which this generator can't see. Build is also compiled, so wrong uses still fail.
     /// </summary>
     private NodeChain? ResolveChain(ExpressionSyntax syntax)

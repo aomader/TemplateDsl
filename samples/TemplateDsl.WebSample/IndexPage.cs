@@ -32,7 +32,7 @@ public sealed partial class ServerStatus : IAsyncHtmlTemplate
 {
     public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
-        H.Div.Class("status") [ await Entries.LoadServerStatusAsync(ct) ]
+        Div.Class("status") [ await Entries.LoadServerStatusAsync(ct) ]
     ];
 }
 
@@ -45,17 +45,17 @@ public sealed partial class IndexPage(IAsyncEnumerable<string> items) : Page
 
     public override async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
-        H.P [ "This text arrived first. The status below takes a second, and then the entries appear one by one." ],
+        P [ "This text arrived first. The status below takes a second, and then the entries appear one by one." ],
         await new ServerStatus(),
-        H.Ul [
-            await H.EachAsync(items, item => H.Li [ item ])
+        Ul [
+            await EachAsync(items, item => Li [ item ])
         ],
-        H.P [ "All entries have been sent." ],
-        H.P [ "dont do that" ]
+        P [ "All entries have been sent." ],
+        P [ "dont do that" ]
     ];
 }
 
 public sealed partial class IndexHead : IHtmlTemplate
 {
-    public IEnumerable<HtmlElement> Build() => [H.Meta.Name("description").Content("A streaming sample")];
+    public IEnumerable<HtmlElement> Build() => [Meta.Name("description").Content("A streaming sample")];
 }
