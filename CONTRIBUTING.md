@@ -32,7 +32,7 @@ dotnet run tools/CheckCoverage.cs TestResults/coverage    # fails and lists the 
 - The generators mostly run inside the compiler, where they can't be measured. `RepositoryCompilationTests` runs
   them over the HTML format and the tests, as the build does, so that their coverage counts.
 - What only exists for `Build`, which is compiled and never runs, is marked `[ExcludeFromCodeCoverage]`: the elements,
-  the factories in `H`, and the members the format generator adds for type-checking. New ones get the attribute too.
+  the factories in `Elements`, and the members the format generator adds for type-checking. New ones get the attribute too.
 - Branch coverage is reported but not enforced. `--branches` lists the branches no test takes. The few left are
   compiler machinery, such as the paths of `await` in a `finally`, or null checks of Roslyn APIs that are kept against
   crashes in the IDE.

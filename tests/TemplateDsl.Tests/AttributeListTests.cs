@@ -106,6 +106,7 @@ public class AttributeListTests
                 using System.Collections.Generic;
                 using TemplateDsl;
                 using TemplateDsl.Html;
+                using H = TemplateDsl.Html.Elements;
 
                 public sealed partial class T(string model) : IHtmlTemplate
                 {

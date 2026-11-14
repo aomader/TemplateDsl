@@ -20,21 +20,21 @@ public readonly partial record struct DslStructMainLayout<TPage, THead>(TPage Pa
 {
     public IEnumerable<HtmlElement> Build()
     {
-        yield return H.Raw("<!DOCTYPE html>");
-        yield return H.Html.Lang("en") [
-            H.Head [
-                H.Meta.Charset("utf-8"),
-                H.Title [ Page.Title ],
-                H.Meta.Name("description").Content(Page.Description),
+        yield return Raw("<!DOCTYPE html>");
+        yield return Html.Lang("en") [
+            Head [
+                Meta.Charset("utf-8"),
+                Title [ Page.Title ],
+                Meta.Name("description").Content(Page.Description),
                 Page.Head
             ],
-            H.Body [
-                H.Header.Class("top") [
-                    H.A.Href("/") [ "Home" ],
-                    H.A.Href("/about") [ "About" ]
+            Body [
+                Header.Class("top") [
+                    A.Href("/") [ "Home" ],
+                    A.Href("/about") [ "About" ]
                 ],
-                H.Main.Class("content") [ Page ],
-                H.Footer [ "Static footer" ]
+                Main.Class("content") [ Page ],
+                Footer [ "Static footer" ]
             ]
         ];
     }
@@ -42,7 +42,7 @@ public readonly partial record struct DslStructMainLayout<TPage, THead>(TPage Pa
 
 public readonly partial record struct DslStructDashboardHead : IHtmlTemplate
 {
-    public IEnumerable<HtmlElement> Build() => [H.Link.Rel("stylesheet").Href("/dashboard.css")];
+    public IEnumerable<HtmlElement> Build() => [Link.Rel("stylesheet").Href("/dashboard.css")];
 }
 
 public readonly partial record struct DslStructDashboardPage(Dashboard Data) : IDslStructLayoutPage<DslStructDashboardHead>
@@ -55,16 +55,16 @@ public readonly partial record struct DslStructDashboardPage(Dashboard Data) : I
 
     public IEnumerable<HtmlElement> Build()
     {
-        yield return H.H1 [ $"Hello {Data.UserName}" ];
+        yield return H1 [ $"Hello {Data.UserName}" ];
 
         if (Data.IsAdmin)
         {
-            yield return H.P.Class("admin") [ "You are an administrator" ];
+            yield return P.Class("admin") [ "You are an administrator" ];
         }
 
-        yield return H.Table [
-            H.Tbody [
-                H.Each(Data.Rows, row => new DslStructRow(row))
+        yield return Table [
+            Tbody [
+                Each(Data.Rows, row => new DslStructRow(row))
             ]
         ];
     }
@@ -74,9 +74,9 @@ public readonly partial record struct DslStructRow(Row Row) : IHtmlTemplate
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Tr.Class(Row.Active ? "active" : null) [
-            H.Td [ Row.Name ],
-            H.Td [ $"{Row.Count}" ]
+        Tr.Class(Row.Active ? "active" : null) [
+            Td [ Row.Name ],
+            Td [ $"{Row.Count}" ]
         ]
     ];
 }

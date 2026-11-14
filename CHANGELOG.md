@@ -5,6 +5,15 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking:** the static class of the HTML elements is called `Elements` instead of `H`, so that a project can choose
+  how to write them. `using static TemplateDsl.Html.Elements;` imports them without a prefix, as in `Div [ ... ]`, which
+  the README and the samples do. Code written for `H` keeps compiling unchanged with `using H = TemplateDsl.Html.Elements;`,
+  or for the whole project with `<Using Include="TemplateDsl.Html.Elements" Alias="H" />`.
+- **Breaking:** the classes of the element nodes, such as `Div` and `Text`, are in the namespace `TemplateDsl.Html.Nodes`
+  instead of `TemplateDsl.Html.Elements`. Templates don't name them, so this only matters for code that does.
+
 ### Fixed
 
 - Hot Reload, such as with `dotnet watch`, failed on the second change to a template with "The assembly update failed".

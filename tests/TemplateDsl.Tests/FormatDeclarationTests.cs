@@ -10,7 +10,7 @@ namespace Tests;
 /// </summary>
 public class FormatDeclarationTests
 {
-    private static readonly Type Tag = typeof(Elements.HtmlTag<>);
+    private static readonly Type Tag = typeof(Nodes.HtmlTag<>);
 
     [Fact]
     public void The_html_tags_belong_to_the_html_format()
@@ -24,7 +24,7 @@ public class FormatDeclarationTests
         var format = typeof(HtmlElement).GetCustomAttribute<TemplateFormatAttribute>()!;
         var rules = typeof(HtmlElement).GetCustomAttributes<EscapeAttribute>().ToDictionary(rule => rule.Context, rule => rule.Replacements);
 
-        Assert.Equal((typeof(Elements.Text), true, ValueCulture.Current), (format.TextNode, format.FormatsValues, format.TextCulture));
+        Assert.Equal((typeof(Nodes.Text), true, ValueCulture.Current), (format.TextNode, format.FormatsValues, format.TextCulture));
         Assert.Equal(["&", "&amp;", "<", "&lt;", ">", "&gt;"], rules["text"]);
         Assert.Equal(["&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&#39;"], rules["attribute"]);
     }
@@ -32,7 +32,7 @@ public class FormatDeclarationTests
     [Fact]
     public void Text_nodes_say_how_they_are_written()
     {
-        var html = typeof(Elements.Text).GetCustomAttribute<TextNodeAttribute>()!;
+        var html = typeof(Nodes.Text).GetCustomAttribute<TextNodeAttribute>()!;
         var json = typeof(JsonString).GetCustomAttribute<TextNodeAttribute>()!;
 
         Assert.Equal(("", "", "text"), (html.Prefix, html.Suffix, html.Escape));
@@ -42,7 +42,7 @@ public class FormatDeclarationTests
     [Fact]
     public void Nodes_say_what_surrounds_their_children()
     {
-        var div = typeof(Elements.Div).GetCustomAttribute<NodeAttribute>()!;
+        var div = typeof(Nodes.Div).GetCustomAttribute<NodeAttribute>()!;
         var array = typeof(JsonArray).GetCustomAttribute<NodeAttribute>()!;
 
         Assert.Equal(("<div", ">", "</div>", false, null), (div.Start, div.Body, div.End, div.IsVoid, div.Separator));
@@ -55,9 +55,9 @@ public class FormatDeclarationTests
         var id = Attribute(Tag, "Id");
         var title = Attribute(Tag, "Title");
         var @class = Attribute(Tag, "Class");
-        var min = Attribute(typeof(Elements.NumberInput), "Min");
-        var step = Attribute(typeof(Elements.NumberInput), "Step");
-        var month = Attribute(typeof(Elements.MonthInput), "Min");
+        var min = Attribute(typeof(Nodes.NumberInput), "Min");
+        var step = Attribute(typeof(Nodes.NumberInput), "Step");
+        var month = Attribute(typeof(Nodes.MonthInput), "Min");
 
         Assert.Equal((" id=\"", "\"", "attribute"), (id.Prefix, id.Suffix, id.Escape));
         Assert.Equal(ValueCulture.Current, title.Culture);

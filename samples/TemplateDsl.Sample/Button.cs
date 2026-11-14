@@ -12,7 +12,7 @@ public sealed partial class Button(string label) : IHtmlTemplate
 
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Div.Class(Kind == ButtonKind.Primary ? "btn btn-primary" : "btn btn-secondary") [
+        Div.Class(Kind == ButtonKind.Primary ? "btn btn-primary" : "btn btn-secondary") [
             label
         ]
     ];

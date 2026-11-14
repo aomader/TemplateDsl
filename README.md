@@ -18,15 +18,18 @@ TemplateDsl lets you write **HTML templates** as **plain C# classes**. A **sourc
 ## Sneak peek
 
 ```csharp
+// The HTML elements, without a prefix
+using static TemplateDsl.Html.Elements;
+
 // A simple component
-public readonly partial record struct OrderRow(Order Order) : IHtmlTemplate
+public readonly partial struct OrderRow(Order order) : IHtmlTemplate
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Tr.Class(Order.IsLate ? "late" : null) [
-            H.Td [ Order.Id ],
-            H.Td [ Order.Product ],
-            H.Td [ H.Time.DateTime(Order.Due) [ Order.Due ] ]
+        Tr.Class(order.IsLate ? "late" : null) [
+            Td [ order.Id ],
+            Td [ order.Product ],
+            Td [ Time.DateTime(order.Due) [ order.Due ] ]
         ]
     ];
 }
@@ -39,12 +42,12 @@ public sealed partial class OrdersPage(IAsyncEnumerable<Order> orders) : IAsyncH
         var title = $"Orders of {context.UserName}";
         
         return [
-            H.Raw("<!DOCTYPE html>"),
-            H.Html [
-                H.Head [ H.Title [ title ] ],
-                H.Body [
-                    H.H1 [ title ],
-                    H.Table [ await H.EachAsync(orders, order => new OrderRow(order)) ]
+            Raw("<!DOCTYPE html>"),
+            Html [
+                Head [ Title [ title ] ],
+                Body [
+                    H1 [ title ],
+                    Table [ await EachAsync(orders, order => new OrderRow(order)) ]
                 ]
             ]
         ];
@@ -77,17 +80,18 @@ dotnet add package TemplateDsl.Html --prerelease
 dotnet add package TemplateDsl.AspNetCore --prerelease
 ```
 
-2. Write a template as a `partial` class, struct or record that implements `IHtmlTemplate` or `IAsyncHtmlTemplate`, and implement its `Build` or `BuildAsync` method. The generator adds the rest. Use the static class `H` from the `TemplateDsl.Html` namespace to write elements, attributes and children.
+2. Write a template as a `partial` class, struct or record that implements `IHtmlTemplate` or `IAsyncHtmlTemplate`, and implement its `Build` or `BuildAsync` method. The generator adds the rest. The elements are in the static class `Elements`, which `using static` imports, so that they need no prefix.
 
 ```csharp
 using TemplateDsl.Html;
+using static TemplateDsl.Html.Elements;
 
 public sealed partial class TodoList(IEnumerable<Todo> todos) : IHtmlTemplate
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Ul [
-            H.Each(todos, todo => H.Li [ todo.Text ])
+        Ul [
+            Each(todos, todo => Li [ todo.Text ])
         ]
     ];
 }
@@ -125,21 +129,38 @@ The following packages are published to NuGet and may be installed with, e.g., `
 
 ### Templates and elements
 
-Elements live in the static class `H`, so autocomplete lists them after `H.` and they never clash with the
-lowercase parameters of a template. Attributes are chained in the order they should appear, and children go in
-brackets, which end the chain:
+Elements live in the static class `Elements` of `TemplateDsl.Html`. Attributes are chained in the order they should
+appear, and children go in brackets, which end the chain:
 
 ```csharp
-H.Div.Id("main").Class("card") [
-    H.H2 [ title ],
-    H.P [ "Some text" ]
+Div.Id("main").Class("card") [
+    H2 [ title ],
+    P [ "Some text" ]
 ]
 ```
 
 All standard HTML elements are available. Like all C# methods, their names are PascalCase, so they never clash with
-keywords: `H.Object`, `.Class(...)` and `.For(...)`. Attributes of several words are cased like their DOM property, as in
-`.TabIndex(...)`, `.ReadOnly()` and `.ColSpan(...)`. Elements like `H.Br` and `H.Img.Src(url)` have no children, and the
-doctype is written with `H.Raw("<!DOCTYPE html>")`.
+keywords: `Object`, `.Class(...)` and `.For(...)`. Attributes of several words are cased like their DOM property, as in
+`.TabIndex(...)`, `.ReadOnly()` and `.ColSpan(...)`. Elements like `Br` and `Img.Src(url)` have no children, and the
+doctype is written with `Raw("<!DOCTYPE html>")`.
+
+How elements are written is up to you, per file or for the whole project:
+
+```csharp
+using static TemplateDsl.Html.Elements;   // Div [ ... ], as in this README and the samples
+using H = TemplateDsl.Html.Elements;      // H.Div [ ... ]: a prefix, so autocomplete lists all elements after H.
+```
+
+```xml
+<!-- The same for the whole project, in the .csproj -->
+<ItemGroup>
+  <Using Include="TemplateDsl.Html.Elements" Static="true" />
+</ItemGroup>
+```
+
+Without a prefix, your own names win: in a template with a `Title` property, `Title` is that property, and the element
+is written `Elements.Title` there. The same goes for a template class named like an element, such as `Button`. Element
+names are PascalCase and parameters camelCase, so a parameter such as `title` never gets in the way.
 
 Nodes and children brackets can only be used inside `Build`, so that everything is checked and compiled. Templates
 must be `partial` and not nested in another type. What the generator can't compile is a
@@ -152,12 +173,12 @@ attribute out. Attributes without their own method use `.Attr`, whose name must 
 dynamic:
 
 ```csharp
-H.Div.Id("main").Hidden(isHidden).Attr("data-user-id", userId).Attr("aria-label", "Profile") [
+Div.Id("main").Hidden(isHidden).Attr("data-user-id", userId).Attr("aria-label", "Profile") [
     title
 ]
 ```
 
-Attributes take what makes sense for them. `.ColSpan(2)` and `.TabIndex(0)` take an `int`, `H.Meter.Value(0.5)` a
+Attributes take what makes sense for them. `.ColSpan(2)` and `.TabIndex(0)` take an `int`, `Meter.Value(0.5)` a
 `double`, and `.Draggable(true)` writes `draggable="true"`. `.Class(...)`, `.Href(...)` and most others take only
 strings, while `.Id(...)`, `.Title(...)`, `.DateTime(...)` and `.Value(...)` on an input also take numbers and dates.
 For a value their type doesn't allow, `.Attr("colspan", "{{columns}}")` still works on the typed ones.
@@ -165,27 +186,27 @@ For a value their type doesn't allow, `.Attr("colspan", "{{columns}}")` still wo
 Inputs come in a variant per type, which takes only what HTML allows for it, with values of the right type:
 
 ```csharp
-H.InputNumber.Name("qty").Min(0).Max(10).Step(0.5).Value(quantity)   // any number: int, double, decimal
-H.InputDate.Name("due").Min(today).Value(order.Due)                  // DateOnly: value="2026-11-02"
-H.InputEmail.Name("mail").Placeholder("you@example.com").Required()
-H.InputCheckbox.Name("done").Checked(todo.Done)
-H.InputCheckbox.Min(3)                                                // compile error: no min on a checkbox
+InputNumber.Name("qty").Min(0).Max(10).Step(0.5).Value(quantity)   // any number: int, double, decimal
+InputDate.Name("due").Min(today).Value(order.Due)                  // DateOnly: value="2026-11-02"
+InputEmail.Name("mail").Placeholder("you@example.com").Required()
+InputCheckbox.Name("done").Checked(todo.Done)
+InputCheckbox.Min(3)                                                // compile error: no min on a checkbox
 ```
 
-`H.Input` itself stays as loose as HTML: it has every attribute of an input, and its type is an enum, as in
-`H.Input.Type(InputType.Week)`, for when the type is only known at runtime. `InputType.DatetimeLocal` is written as
+`Input` itself stays as loose as HTML: it has every attribute of an input, and its type is an enum, as in
+`Input.Type(InputType.Week)`, for when the type is only known at runtime. `InputType.DatetimeLocal` is written as
 `datetime-local`.
 
-Numbers, dates, `Guid`s and `char`s can be used directly, as in `H.P [ count ]` and `.Attr("data-id", id)`. They are
+Numbers, dates, `Guid`s and `char`s can be used directly, as in `P [ count ]` and `.Attr("data-id", id)`. They are
 written without creating a string, escaped, and null leaves them out. For a specific format, use interpolation, as in
 `$"{price:F2}"`. A `bool` is not text, so write it with `$"{flag}"` or a word of your choice.
 
 Their culture depends on who reads them, also inside an interpolated string:
 
 ```csharp
-H.Div.Style($"width:{ratio}%").Attr("data-price", price) [   // width:1.5%, data-price="1.5": for programs, always invariant
+Div.Style($"width:{ratio}%").Attr("data-price", price) [   // width:1.5%, data-price="1.5": for programs, always invariant
     price,                                                   // 1,5: text for people, in the current culture
-    H.Img.Alt($"Costs {price}")                              // Costs 1,5: an attribute for people
+    Img.Alt($"Costs {price}")                              // Costs 1,5: an attribute for people
 ]
 ```
 
@@ -202,10 +223,10 @@ A string is never reformatted, so `.Value(price.ToString("C"))` and `string.Crea
 `for`, `while`, ternaries and `switch` expressions, in which each branch is output:
 
 ```csharp
-H.Div [
+Div [
     order.Status switch
     {
-        Status.Paid => H.Span.Class("ok") [ "Paid" ],
+        Status.Paid => Span.Class("ok") [ "Paid" ],
         Status.Open when order.IsLate => new LateNotice(order),
         Status.Open => order.Total,
         _ => null
@@ -213,9 +234,9 @@ H.Div [
 ]
 ```
 
-Lists are written with `H.Each(items, item => ...)`, and async sequences with `await H.EachAsync(items, ...)`.
+Lists are written with `Each(items, item => ...)`, and async sequences with `await EachAsync(items, ...)`.
 
-Nodes can only be part of the output. A variable or a statement can't hold one, so `var title = H.H1;` is an error, and
+Nodes can only be part of the output. A variable or a statement can't hold one, so `var title = H1;` is an error, and
 a template or a method returning a string is what to use instead.
 
 ### Components and layouts
@@ -228,21 +249,21 @@ public sealed partial class Card(string title) : IHtmlTemplate, IAcceptsChildren
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Div.Class("card") [
-            H.Div.Class("title") [ title ],
-            H.Div.Class("body") [ Children ]
+        Div.Class("card") [
+            Div.Class("title") [ title ],
+            Div.Class("body") [ Children ]
         ]
     ];
 }
 
-new Card("Hello") [ "Some text", H.Div [ "nested" ] ]
+new Card("Hello") [ "Some text", Div [ "nested" ] ]
 ```
 
 A template is a class, a struct or a record. A small one, such as a row, can be a `readonly record struct`, which a
 parent renders without allocating it, as do `RenderToString` and `RenderToAsync`. Children given in brackets are
 written without allocating either. A class doesn't have to be sealed: one derived from it can override `Build` or the
 members it uses. In a struct, C# doesn't let a lambda use its members, so a struct loops with `foreach` and
-`yield return` instead of `H.Each` where it needs them.
+`yield return` instead of `Each` where it needs them.
 
 Content, such as what a layout wraps, is passed as `IHtmlContent<TContext>`: any HTML template that renders with that
 context, because it needs it, less of it, or none. Without a context, it is `IHtmlContent`. Brackets take it like any
@@ -254,7 +275,7 @@ public sealed partial class Layout(string title, IHtmlContent<PageContext> conte
 {
     public IEnumerable<HtmlElement> Build(PageContext context) =>
     [
-        H.Html [ H.Head [ H.Title [ title ] ], H.Body [ H.Main [ content ], sidebar ] ]
+        Html [ Head [ Title [ title ] ], Body [ Main [ content ], sidebar ] ]
     ];
 }
 
@@ -265,9 +286,9 @@ Which type to take depends on whether the template taking the content has a cont
 
 | The template taking content | Takes content as | And places it with |
 |-----------------------------|------------------|--------------------|
-| has no context | `IHtmlContent`: content that needs no context | `H.Main [ content ]` |
-| has context `PageContext` | `IHtmlContent<PageContext>`: no context, that one, or less of it | `H.Main [ content ]` |
-| is async, and the content may be too | `IAsyncHtmlContent`, or `IAsyncHtmlContent<PageContext>` with a context | `H.Main [ await content ]` |
+| has no context | `IHtmlContent`: content that needs no context | `Main [ content ]` |
+| has context `PageContext` | `IHtmlContent<PageContext>`: no context, that one, or less of it | `Main [ content ]` |
+| is async, and the content may be too | `IAsyncHtmlContent`, or `IAsyncHtmlContent<PageContext>` with a context | `Main [ await content ]` |
 
 A type parameter works too, as in `Layout<TContent>(TContent content) where TContent : IHtmlContent<PageContext>`, and
 renders a struct without boxing it. A template only converts to `HtmlElement` inside `Build`, where that places it,
@@ -277,12 +298,12 @@ Templates can be generic. A value of a type parameter isn't a node, so the templ
 for it, such as a `Func<TItem, string>` or a template per item:
 
 ```csharp
-public sealed partial class Table<TItem>(IEnumerable<TItem> items, Func<TItem, IHtmlTemplate> row) : IHtmlTemplate
+public sealed partial class ItemTable<TItem>(IEnumerable<TItem> items, Func<TItem, IHtmlTemplate> row) : IHtmlTemplate
 {
-    public IEnumerable<HtmlElement> Build() => [H.Table [ H.Tbody [ H.Each(items, item => row(item)) ] ]];
+    public IEnumerable<HtmlElement> Build() => [Table [ Tbody [ Each(items, item => row(item)) ] ]];
 }
 
-new Table<Order>(orders, order => new OrderRow(order))
+new ItemTable<Order>(orders, order => new OrderRow(order))
 ```
 
 Children in brackets need the template's own type, because each template has its own brackets.
@@ -300,14 +321,14 @@ public sealed partial class HomePage(User user) : Page
 {
     public override string Title => $"Hello {user.Name}";
 
-    public override IEnumerable<HtmlElement> Build() => [H.H1 [ Title ]];
+    public override IEnumerable<HtmlElement> Build() => [H1 [ Title ]];
 }
 
 public sealed partial class MainLayout(Page page) : IHtmlTemplate
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Html [ H.Head [ H.Title [ page.Title ] ], H.Body [ H.Main [ page ] ] ]
+        Html [ Head [ Title [ page.Title ] ], Body [ Main [ page ] ] ]
     ];
 }
 
@@ -330,7 +351,7 @@ public sealed partial class SaveButton : IHtmlTemplate<IHasStrings>
 {
     public IEnumerable<HtmlElement> Build(IHasStrings context) =>
     [
-        H.Button.Type("submit") [ context.Strings.Save ]
+        Button.Type("submit") [ context.Strings.Save ]
     ];
 }
 
@@ -338,7 +359,7 @@ public sealed partial class SettingsPage : IHtmlTemplate<PageContext>
 {
     public IEnumerable<HtmlElement> Build(PageContext context) =>
     [
-        H.H1 [ context.User.Name ],
+        H1 [ context.User.Name ],
         new Card("Settings") [ new SaveButton() ]
     ];
 }
@@ -370,12 +391,12 @@ public sealed partial class Export(List<Row> rows) : IAsyncHtmlTemplate
 {
     public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
-        H.Table [ H.Each(rows, row => new RowView(row)) ]
+        Table [ Each(rows, row => new RowView(row)) ]
     ];
 }
 ```
 
-Async content is awaited like anything else in C#: `await H.EachAsync(items, ...)` and `await new SlowPart()`, also
+Async content is awaited like anything else in C#: `await EachAsync(items, ...)` and `await new SlowPart()`, also
 through an interface, as in `await page` for an `IAsyncHtmlContent<PageContext> page`, which takes a sync page too.
 Only an async template can do that, so a layout that may host an async page should be one. Forgetting the `await`, or using
 it in a sync template, is an ordinary compile error.
@@ -418,7 +439,7 @@ app.MapGet("/feed.xml", (Feed feed) => new FeedTemplate(feed).ToResult());   // 
 
 ## Security
 
-Every value is escaped, in text and in attributes, numbers and dates included. Only `H.Raw(...)` writes text as it is,
+Every value is escaped, in text and in attributes, numbers and dates included. Only `Raw(...)` writes text as it is,
 so never pass it untrusted input. Escaping keeps a value inside the text or attribute it's in, but some places
 interpret what they hold, and there untrusted input needs more than escaping:
 
@@ -426,11 +447,11 @@ interpret what they hold, and there untrusted input needs more than escaping:
   runs code. Only allow the schemes you expect, such as `https:`, or relative URLs.
 - **Code and styles**: event handler attributes such as `.Attr("onclick", ...)`, `.Style(...)`, and the contents of
   `<script>` and `<style>`.
-- **Markup and redirects**: `H.Iframe.Srcdoc(...)` is a whole HTML document, and the content of
+- **Markup and redirects**: `Iframe.Srcdoc(...)` is a whole HTML document, and the content of
   `<meta http-equiv="refresh">` holds a URL.
 
 Text in `<script>` is escaped like any other text. That keeps it from closing the element, but it also changes `<` and
-`&` in code. For data in a script, `H.Raw(JsonSerializer.Serialize(data))` is safe with System.Text.Json's default
+`&` in code. For data in a script, `Raw(JsonSerializer.Serialize(data))` is safe with System.Text.Json's default
 encoder, which writes `<`, `>` and `&` as `\u003C` and the like. A relaxed encoder such as `UnsafeRelaxedJsonEscaping`
 isn't.
 

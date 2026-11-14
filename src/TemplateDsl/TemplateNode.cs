@@ -25,7 +25,7 @@ public static class TemplateBuild
 }
 
 /// <summary>
-/// The children in brackets, such as <c>H.Div [ "text", H.Span, new Row(), page ]</c>: nodes, text and values of the
+/// The children in brackets, such as <c>Div [ "text", Span, new Row(), page ]</c>: nodes, text and values of the
 /// format, and its sync templates of any type, also an interface such as a layout's content, or a type parameter.
 /// Like everything in Build, this is compiled by the source generator and never created.
 /// </summary>

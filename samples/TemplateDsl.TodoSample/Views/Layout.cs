@@ -21,16 +21,16 @@ public sealed partial class Layout(IHtmlContent app) : IHtmlTemplate
 
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Raw("<!DOCTYPE html>"),
-        H.Html.Lang("en") [
-            H.Head [
-                H.Meta.Charset("utf-8"),
-                H.Meta.Name("viewport").Content("width=device-width, initial-scale=1"),
-                H.Title [ "Todos" ],
-                H.Style [ H.Raw(Styles) ],
-                H.Script.Src("https://cdn.jsdelivr.net/npm/htmx.org@4.0.0/dist/htmx.min.js").Integrity("sha384-BvJpBiO8Kh31EqtJe5DRIeWrHWnCGkwytKs9NKFi86Hhw96dEqdEMzZDeK9iEGTc").CrossOrigin("anonymous")
+        Raw("<!DOCTYPE html>"),
+        Html.Lang("en") [
+            Head [
+                Meta.Charset("utf-8"),
+                Meta.Name("viewport").Content("width=device-width, initial-scale=1"),
+                Title [ "Todos" ],
+                Style [ Raw(Styles) ],
+                Script.Src("https://cdn.jsdelivr.net/npm/htmx.org@4.0.0/dist/htmx.min.js").Integrity("sha384-BvJpBiO8Kh31EqtJe5DRIeWrHWnCGkwytKs9NKFi86Hhw96dEqdEMzZDeK9iEGTc").CrossOrigin("anonymous")
             ],
-            H.Body [ app ]
+            Body [ app ]
         ]
     ];
 }

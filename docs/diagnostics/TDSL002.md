@@ -6,7 +6,7 @@ expected, and the node holds on to it. A `ref struct` can't be held by anything 
 ```csharp
 public ref partial struct Greeting : IHtmlTemplate          // TDSL002
 {
-    public IEnumerable<HtmlElement> Build() => [H.P [ "Hi" ]];
+    public IEnumerable<HtmlElement> Build() => [P [ "Hi" ]];
 }
 ```
 
@@ -18,6 +18,6 @@ parent renders without allocating it:
 ```csharp
 public readonly partial record struct Greeting(string Name) : IHtmlTemplate
 {
-    public IEnumerable<HtmlElement> Build() => [H.P [ "Hi ", Name ]];
+    public IEnumerable<HtmlElement> Build() => [P [ "Hi ", Name ]];
 }
 ```

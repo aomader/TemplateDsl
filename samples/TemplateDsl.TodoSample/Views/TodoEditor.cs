@@ -8,14 +8,14 @@ public sealed partial class TodoEditor(Todo todo, TodoFilter filter, string? tit
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Li.Id($"todo-{todo.Id}").Class("editing").Attr("hx-target:inherited", "closest li").Attr("hx-swap:inherited", "outerHTML") [
-            H.Form.Autocomplete("off").Attr("hx-put", Urls.Todo(todo.Id, filter)) [
-                H.InputText.Name("title").Value(title ?? todo.Title).Attr("aria-label", "Title").Autofocus()
+        Li.Id($"todo-{todo.Id}").Class("editing").Attr("hx-target:inherited", "closest li").Attr("hx-swap:inherited", "outerHTML") [
+            Form.Autocomplete("off").Attr("hx-put", Urls.Todo(todo.Id, filter)) [
+                InputText.Name("title").Value(title ?? todo.Title).Attr("aria-label", "Title").Autofocus()
                     .Attr("hx-get", Urls.Todo(todo.Id, filter)).Attr("hx-trigger", "keyup[key=='Escape']"),
-                H.Button [ "Save" ],
-                H.Button.Type("button").Class("cancel").Attr("hx-get", Urls.Todo(todo.Id, filter)) [ "Cancel" ]
+                Button [ "Save" ],
+                Button.Type("button").Class("cancel").Attr("hx-get", Urls.Todo(todo.Id, filter)) [ "Cancel" ]
             ],
-            error is not null ? H.P.Class("error").Role("alert") [ error ] : null
+            error is not null ? P.Class("error").Role("alert") [ error ] : null
         ]
     ];
 }

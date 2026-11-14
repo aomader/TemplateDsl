@@ -197,6 +197,7 @@ public class ContextTests
                 using System.Collections.Generic;
                 using TemplateDsl;
                 using TemplateDsl.Html;
+                using H = TemplateDsl.Html.Elements;
 
                 public class A;
                 public class SubA : A;

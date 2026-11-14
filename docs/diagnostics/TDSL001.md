@@ -7,7 +7,7 @@ away with this one.
 ```csharp
 public sealed class Greeting : IHtmlTemplate          // TDSL001
 {
-    public IEnumerable<HtmlElement> Build() => [H.P [ "Hi" ]];
+    public IEnumerable<HtmlElement> Build() => [P [ "Hi" ]];
 }
 ```
 

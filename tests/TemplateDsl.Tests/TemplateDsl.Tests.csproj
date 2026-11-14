@@ -15,7 +15,9 @@
     <Using Include="TemplateDsl" />
     <Using Include="TemplateDsl.Html" />
     <Using Include="TemplateDsl.AspNetCore" />
-    <Using Include="TemplateDsl.Html.Elements" Alias="Elements" />
+    <Using Include="TemplateDsl.Html.Nodes" Alias="Nodes" />
+    <!-- The tests write the elements as H.Div, as code from before they were renamed does with this alias. -->
+    <Using Include="TemplateDsl.Html.Elements" Alias="H" />
   </ItemGroup>
 
   <ItemGroup>

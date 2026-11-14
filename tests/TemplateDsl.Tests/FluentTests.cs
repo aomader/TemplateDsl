@@ -45,6 +45,7 @@ public class FluentTests
                 using System.Collections.Generic;
                 using TemplateDsl;
                 using TemplateDsl.Html;
+                using H = TemplateDsl.Html.Elements;
 
                 public sealed partial class T : IHtmlTemplate
                 {

@@ -14,7 +14,8 @@ public class UsageRuleTests
         using System.Threading.Tasks;
         using TemplateDsl;
         using TemplateDsl.Html;
-        using TemplateDsl.Html.Elements;
+        using H = TemplateDsl.Html.Elements;
+        using TemplateDsl.Html.Nodes;
 
         public sealed partial class Box : IHtmlTemplate, IAcceptsChildren
         {

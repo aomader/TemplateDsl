@@ -4,7 +4,7 @@ public sealed partial class DslButton(string label, bool primary = true) : IHtml
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Div.Class(primary ? "btn btn-primary" : "btn btn-secondary")[label]
+        Div.Class(primary ? "btn btn-primary" : "btn btn-secondary")[label]
     ];
 }
 
@@ -12,15 +12,15 @@ public sealed partial class DslCard(string title, string summary, int count) : I
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Div.Id($"card-{title}").Class(count > 0 ? "card active" : "card")
+        Div.Id($"card-{title}").Class(count > 0 ? "card active" : "card")
         [
-            H.Div.Class("card-title")[title],
-            H.Div.Class("card-body")
+            Div.Class("card-title")[title],
+            Div.Class("card-body")
             [
                 summary,
-                H.Div.Class("count")[$"{count} items"]
+                Div.Class("count")[$"{count} items"]
             ],
-            H.Div.Class("card-actions")
+            Div.Class("card-actions")
             [
                 new DslButton("Open"),
                 new DslButton("Share", primary: false),
@@ -34,32 +34,32 @@ public sealed partial class DslPage(string userName, bool isAdmin, int unread) :
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Html
+        Html
         [
-            H.Body
+            Body
             [
-                H.Div.Id($"user-{userName}").Class(isAdmin ? "page admin" : "page")
+                Div.Id($"user-{userName}").Class(isAdmin ? "page admin" : "page")
                 [
-                    H.Div.Class("header")
+                    Div.Class("header")
                     [
                         $"Hello {userName}",
-                        unread > 0 ? H.Div.Class("unread")[$"{unread} unread"] : "No new messages"
+                        unread > 0 ? Div.Class("unread")[$"{unread} unread"] : "No new messages"
                     ],
-                    H.Div.Class("nav")
+                    Div.Class("nav")
                     [
-                        H.Div.Class("nav-item")["Home"],
-                        H.Div.Class("nav-item")["Projects"],
-                        H.Div.Class("nav-item")["Settings"],
-                        isAdmin ? H.Div.Class("nav-item")["Admin"] : null
+                        Div.Class("nav-item")["Home"],
+                        Div.Class("nav-item")["Projects"],
+                        Div.Class("nav-item")["Settings"],
+                        isAdmin ? Div.Class("nav-item")["Admin"] : null
                     ],
-                    H.Div.Class("cards")
+                    Div.Class("cards")
                     [
                         new DslCard("Inbox", $"Messages for {userName}", unread),
                         new DslCard("Tasks", "Things to do", 3),
                         new DslCard("Files", "Recent documents", 0),
                         new DslCard("Teams", "People you work with", 7)
                     ],
-                    H.Div.Class("footer")["Static footer text"]
+                    Div.Class("footer")["Static footer text"]
                 ]
             ]
         ]
@@ -71,33 +71,33 @@ public sealed partial class DslAsyncPage(string userName, bool isAdmin, int unre
 {
     public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
-        H.Html
+        Html
         [
-            H.Body
+            Body
             [
-                H.Div.Id($"user-{userName}").Class(isAdmin ? "page admin" : "page")
+                Div.Id($"user-{userName}").Class(isAdmin ? "page admin" : "page")
                 [
-                    H.Div.Class("header")
+                    Div.Class("header")
                     [
                         "Hello ",
                         await Task.FromResult(userName),
-                        unread > 0 ? H.Div.Class("unread")[$"{unread} unread"] : "No new messages"
+                        unread > 0 ? Div.Class("unread")[$"{unread} unread"] : "No new messages"
                     ],
-                    H.Div.Class("nav")
+                    Div.Class("nav")
                     [
-                        H.Div.Class("nav-item")["Home"],
-                        H.Div.Class("nav-item")["Projects"],
-                        H.Div.Class("nav-item")["Settings"],
-                        isAdmin ? H.Div.Class("nav-item")["Admin"] : null
+                        Div.Class("nav-item")["Home"],
+                        Div.Class("nav-item")["Projects"],
+                        Div.Class("nav-item")["Settings"],
+                        isAdmin ? Div.Class("nav-item")["Admin"] : null
                     ],
-                    H.Div.Class("cards")
+                    Div.Class("cards")
                     [
                         new DslCard("Inbox", $"Messages for {userName}", unread),
                         new DslCard("Tasks", "Things to do", 3),
                         new DslCard("Files", "Recent documents", 0),
                         new DslCard("Teams", "People you work with", 7)
                     ],
-                    H.Div.Class("footer")["Static footer text"]
+                    Div.Class("footer")["Static footer text"]
                 ]
             ]
         ]
@@ -108,7 +108,7 @@ public sealed partial class DslLargeRow(int number) : IHtmlTemplate
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Tr [ H.Td [ number ], H.Td.Class("name") [ "Row name" ] ]
+        Tr [ Td [ number ], Td.Class("name") [ "Row name" ] ]
     ];
 }
 
@@ -117,7 +117,7 @@ public sealed partial class DslLargePage(int[] rows) : IHtmlTemplate
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Table [ H.Each(rows, row => new DslLargeRow(row)) ]
+        Table [ Each(rows, row => new DslLargeRow(row)) ]
     ];
 }
 
@@ -126,6 +126,6 @@ public sealed partial class DslLargeAsyncPage(int[] rows) : IAsyncHtmlTemplate
 {
     public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
-        H.Table [ H.Each(rows, row => new DslLargeRow(row)) ]
+        Table [ Each(rows, row => new DslLargeRow(row)) ]
     ];
 }

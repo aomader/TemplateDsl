@@ -13,21 +13,21 @@ public sealed partial class DslMainLayout(DslLayoutPage page) : IHtmlTemplate
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Raw("<!DOCTYPE html>"),
-        H.Html.Lang("en") [
-            H.Head [
-                H.Meta.Charset("utf-8"),
-                H.Title [ page.Title ],
-                H.Meta.Name("description").Content(page.Description),
+        Raw("<!DOCTYPE html>"),
+        Html.Lang("en") [
+            Head [
+                Meta.Charset("utf-8"),
+                Title [ page.Title ],
+                Meta.Name("description").Content(page.Description),
                 page.Head
             ],
-            H.Body [
-                H.Header.Class("top") [
-                    H.A.Href("/") [ "Home" ],
-                    H.A.Href("/about") [ "About" ]
+            Body [
+                Header.Class("top") [
+                    A.Href("/") [ "Home" ],
+                    A.Href("/about") [ "About" ]
                 ],
-                H.Main.Class("content") [ page ],
-                H.Footer [ "Static footer" ]
+                Main.Class("content") [ page ],
+                Footer [ "Static footer" ]
             ]
         ]
     ];
@@ -35,7 +35,7 @@ public sealed partial class DslMainLayout(DslLayoutPage page) : IHtmlTemplate
 
 public sealed partial class DslDashboardHead : IHtmlTemplate
 {
-    public IEnumerable<HtmlElement> Build() => [H.Link.Rel("stylesheet").Href("/dashboard.css")];
+    public IEnumerable<HtmlElement> Build() => [Link.Rel("stylesheet").Href("/dashboard.css")];
 }
 
 public sealed partial class DslDashboardPage(Dashboard data) : DslLayoutPage
@@ -48,16 +48,16 @@ public sealed partial class DslDashboardPage(Dashboard data) : DslLayoutPage
 
     public override IEnumerable<HtmlElement> Build()
     {
-        yield return H.H1 [ $"Hello {data.UserName}" ];
+        yield return H1 [ $"Hello {data.UserName}" ];
 
         if (data.IsAdmin)
         {
-            yield return H.P.Class("admin") [ "You are an administrator" ];
+            yield return P.Class("admin") [ "You are an administrator" ];
         }
 
-        yield return H.Table [
-            H.Tbody [
-                H.Each(data.Rows, row => new DslRow(row))
+        yield return Table [
+            Tbody [
+                Each(data.Rows, row => new DslRow(row))
             ]
         ];
     }
@@ -67,9 +67,9 @@ public sealed partial class DslRow(Row row) : IHtmlTemplate
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Tr.Class(row.Active ? "active" : null) [
-            H.Td [ row.Name ],
-            H.Td [ $"{row.Count}" ]
+        Tr.Class(row.Active ? "active" : null) [
+            Td [ row.Name ],
+            Td [ $"{row.Count}" ]
         ]
     ];
 }

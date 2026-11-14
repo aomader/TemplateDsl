@@ -9,9 +9,9 @@ public sealed partial class HelloPage(string userName, bool isAdmin, int unreadM
         {
             return
             [
-                H.Html [
-                    H.Body [
-                        H.Div.Id($"admin-{userName}").Class("admin").Attr("data-role", "admin") [
+                Html [
+                    Body [
+                        Div.Id($"admin-{userName}").Class("admin").Attr("data-role", "admin") [
                             $"Administrator {userName} at {DateTime.UtcNow}",
                             new Card("Admin tools") [
                                 new Button("Save"),
@@ -27,14 +27,14 @@ public sealed partial class HelloPage(string userName, bool isAdmin, int unreadM
         // ...and ternaries can choose attributes, text and elements inside of it.
         return
         [
-            H.Html [
-                H.Body [
-                    H.Div.Id($"user-{userName}").Class(unreadMessages > 0 ? "user has-unread" : "user") [
+            Html [
+                Body [
+                    Div.Id($"user-{userName}").Class(unreadMessages > 0 ? "user has-unread" : "user") [
                         $"Hello {userName}! ",
                         unreadMessages > 0
-                            ? H.Div.Class("unread") [ $"{unreadMessages} unread messages" ]
+                            ? Div.Class("unread") [ $"{unreadMessages} unread messages" ]
                             : "No new messages",
-                        H.Div.Hidden(unreadMessages == 0).Attr("aria-label", "Message list") [ "Messages" ]
+                        Div.Hidden(unreadMessages == 0).Attr("aria-label", "Message list") [ "Messages" ]
                     ]
                 ]
             ]

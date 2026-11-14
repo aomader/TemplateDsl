@@ -17,9 +17,9 @@ public sealed partial class Card(string title) : IHtmlTemplate, IAcceptsChildren
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Div.Class("card") [
-            H.Div.Class("card-title") [ title ],
-            H.Div.Class("card-body") [ Children ]
+        Div.Class("card") [
+            Div.Class("card-title") [ title ],
+            Div.Class("card-body") [ Children ]
         ]
     ];
 }

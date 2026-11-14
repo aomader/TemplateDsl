@@ -20,7 +20,7 @@ brackets like any template, and the context is checked when it compiles:
 ```csharp
 public sealed partial class Layout(IHtmlContent<PageContext> content) : IHtmlTemplate<PageContext>
 {
-    public IEnumerable<HtmlElement> Build(PageContext context) => [H.Html [ H.Body [ H.Main [ content ] ] ]];
+    public IEnumerable<HtmlElement> Build(PageContext context) => [Html [ Body [ Main [ content ] ] ]];
 }
 
 var page = new Layout(new HomePage());

@@ -10,7 +10,7 @@ public readonly partial record struct Badge(string Text, bool Highlighted = fals
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Span.Class(Highlighted ? "badge badge-highlight" : "badge") [ Text ]
+        Span.Class(Highlighted ? "badge badge-highlight" : "badge") [ Text ]
     ];
 }
 
@@ -19,10 +19,10 @@ public readonly partial record struct ProductRow(Product Product) : IHtmlTemplat
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Tr [
-            H.Td [ Product.Name ],
-            H.Td [ $"{Product.Price:F2}" ],
-            H.Td [ Product.Stock > 0 ? new Badge($"{Product.Stock} left") : new Badge("sold out", Highlighted: true) ]
+        Tr [
+            Td [ Product.Name ],
+            Td [ $"{Product.Price:F2}" ],
+            Td [ Product.Stock > 0 ? new Badge($"{Product.Stock} left") : new Badge("sold out", Highlighted: true) ]
         ]
     ];
 }
@@ -32,8 +32,8 @@ public readonly partial record struct Panel(string Heading) : IHtmlTemplate, IAc
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.Section.Class("panel") [
-            H.H2 [ Heading ],
+        Section.Class("panel") [
+            H2 [ Heading ],
             Children
         ]
     ];
@@ -41,17 +41,17 @@ public readonly partial record struct Panel(string Heading) : IHtmlTemplate, IAc
 
 /// <summary>
 /// A struct page. C# doesn't let a lambda in a struct use its members, such as <c>Products</c> or <c>Title</c>, so
-/// where a loop needs them, it is a <c>foreach</c> instead of <c>H.Each</c>. A lambda that only uses its own
+/// where a loop needs them, it is a <c>foreach</c> instead of <c>Each</c>. A lambda that only uses its own
 /// parameter, as below, is fine.
 /// </summary>
 public readonly partial record struct ProductPage(string Title, Product[] Products) : IHtmlTemplate
 {
     public IEnumerable<HtmlElement> Build()
     {
-        yield return H.H1 [ Title ];
+        yield return H1 [ Title ];
 
         yield return new Panel("All products") [
-            H.Table [ H.Each(Products, product => new ProductRow(product)) ]
+            Table [ Each(Products, product => new ProductRow(product)) ]
         ];
 
         foreach (var product in Products)

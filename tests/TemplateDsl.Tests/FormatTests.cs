@@ -40,6 +40,7 @@ public class FormatTests
         using System.Collections.Generic;
         using TemplateDsl;
         using TemplateDsl.Html;
+        using H = TemplateDsl.Html.Elements;
 
         """;
 
@@ -108,7 +109,7 @@ public class FormatTests
     {
         var compilation = CSharpCompilation.Create(
             "Test",
-            [CSharpSyntaxTree.ParseText("using System.Collections.Generic; using TemplateDsl; using TemplateDsl.Html; using TemplateDsl.Html.Elements;\n" + source)],
+            [CSharpSyntaxTree.ParseText("using System.Collections.Generic; using TemplateDsl; using TemplateDsl.Html; using TemplateDsl.Html.Nodes; using H = TemplateDsl.Html.Elements;\n" + source)],
             ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
                 .Split(Path.PathSeparator)
                 .Select(path => MetadataReference.CreateFromFile(path)),

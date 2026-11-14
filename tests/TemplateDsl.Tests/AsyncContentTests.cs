@@ -99,6 +99,7 @@ public class AsyncContentTests
                 using System.Threading.Tasks;
                 using TemplateDsl;
                 using TemplateDsl.Html;
+                using H = TemplateDsl.Html.Elements;
 
                 public sealed record A;
                 public sealed record B;

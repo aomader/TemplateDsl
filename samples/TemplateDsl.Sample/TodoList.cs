@@ -7,7 +7,7 @@ public sealed partial class TodoList(IEnumerable<TodoItem> items) : IHtmlTemplat
     public IEnumerable<HtmlElement> Build() =>
     [
         new Card("Todos") [
-            H.Each(items, item => H.Div.Class(item.Done ? "todo done" : "todo") [ item.Title ]),
+            Each(items, item => Div.Class(item.Done ? "todo done" : "todo") [ item.Title ]),
             new Button("Add")
         ]
     ];

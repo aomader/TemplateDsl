@@ -66,7 +66,7 @@ public sealed class TemplateUsageAnalyzer : DiagnosticAnalyzer
 
         switch (context.Node)
         {
-            // H.Div, or Div with a using static. The name in H.Div is part of the member access.
+            // Elements.Div, or Div with a using static. The name in Elements.Div is part of the member access.
             case MemberAccessExpressionSyntax or IdentifierNameSyntax:
                 return (context.Node.Parent is not MemberAccessExpressionSyntax { Name: var name } || name != context.Node)
                     && model.GetSymbolInfo(context.Node, context.CancellationToken).Symbol is IPropertySymbol property

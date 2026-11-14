@@ -16,16 +16,16 @@ public sealed partial class MainLayout(Page page) : IAsyncHtmlTemplate
 {
     public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
-        H.Raw("<!DOCTYPE html>"),
-        H.Html.Lang("en") [
-            H.Head [
-                H.Meta.Charset("utf-8"),
-                H.Title [ page.Title ],
+        Raw("<!DOCTYPE html>"),
+        Html.Lang("en") [
+            Head [
+                Meta.Charset("utf-8"),
+                Title [ page.Title ],
                 page.Head
             ],
-            H.Body [
-                H.Header [ H.H1 [ page.Title ] ],
-                H.Main [ await page ]
+            Body [
+                Header [ H1 [ page.Title ] ],
+                Main [ await page ]
             ]
         ]
     ];
@@ -35,10 +35,10 @@ public sealed partial class PlainLayout(Page page) : IAsyncHtmlTemplate
 {
     public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
-        H.Raw("<!DOCTYPE html>"),
-        H.Html.Lang("en") [
-            H.Head [ H.Title [ page.Title ] ],
-            H.Body [ await page ]
+        Raw("<!DOCTYPE html>"),
+        Html.Lang("en") [
+            Head [ Title [ page.Title ] ],
+            Body [ await page ]
         ]
     ];
 }

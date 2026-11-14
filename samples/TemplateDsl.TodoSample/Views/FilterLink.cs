@@ -5,7 +5,7 @@ public sealed partial class FilterLink(TodoFilter filter, TodoFilter current) : 
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        H.A.Href(Urls.Page(filter)).Class(filter == current ? "current" : null)
+        A.Href(Urls.Page(filter)).Class(filter == current ? "current" : null)
             .Attr("hx-get", Urls.Page(filter)).Attr("hx-push-url", "true") [ filter.ToString() ]
     ];
 }

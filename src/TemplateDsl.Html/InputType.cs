@@ -1,9 +1,9 @@
 namespace TemplateDsl.Html;
 
 /// <summary>
-/// The types of <c>&lt;input&gt;</c>, for <c>H.Input.Type(...)</c> when the type is only known at runtime. Each is
+/// The types of <c>&lt;input&gt;</c>, for <c>Input.Type(...)</c> when the type is only known at runtime. Each is
 /// written in lowercase, with a dash between words: <see cref="DatetimeLocal"/> is <c>datetime-local</c>. When the
-/// type is known while writing the template, <c>H.InputEmail</c> and the like take only what that type allows.
+/// type is known while writing the template, <c>InputEmail</c> and the like take only what that type allows.
 /// </summary>
 public enum InputType
 {
