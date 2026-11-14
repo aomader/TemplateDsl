@@ -20,6 +20,8 @@ TemplateDsl lets you write **HTML templates** as **plain C# classes**. A **sourc
 ```csharp
 // The HTML elements, without a prefix
 using static TemplateDsl.Html.Elements;
+// The templates of this project, without new
+using static App.Templates;
 
 // A simple component
 public readonly partial struct OrderRow(Order order) : IHtmlTemplate
@@ -47,7 +49,7 @@ public sealed partial class OrdersPage(IAsyncEnumerable<Order> orders) : IAsyncH
                 Head [ Title [ title ] ],
                 Body [
                     H1 [ title ],
-                    Table [ await EachAsync(orders, order => new OrderRow(order)) ]
+                    Table [ await EachAsync(orders, order => OrderRow(order)) ]
                 ]
             ]
         ];
@@ -62,7 +64,7 @@ services.AddScoped<PageContext>(sp =>
 
 // Return the page from a minimal API endpoint, with the context injected from the services
 app.MapGet("/orders", (OrderStore store, [FromServices] PageContext context) =>
-    new OrdersPage(store.StreamAll()).ToResult(context));
+    OrdersPage(store.StreamAll()).ToResult(context));
 ```
 
 ## Getting started
@@ -85,6 +87,8 @@ dotnet add package TemplateDsl.AspNetCore --prerelease
 ```csharp
 using TemplateDsl.Html;
 using static TemplateDsl.Html.Elements;
+// The templates of this project, without new
+using static App.Templates;
 
 public sealed partial class TodoList(IEnumerable<Todo> todos) : IHtmlTemplate
 {
@@ -160,7 +164,8 @@ using H = TemplateDsl.Html.Elements;      // H.Div [ ... ]: a prefix, so autocom
 
 Without a prefix, your own names win: in a template with a `Title` property, `Title` is that property, and the element
 is written `Elements.Title` there. The same goes for a template class named like an element, such as `Button`. Element
-names are PascalCase and parameters camelCase, so a parameter such as `title` never gets in the way.
+names are PascalCase and parameters camelCase, so a parameter such as `title` never gets in the way. Where a name of
+your own hides an element, [TDSL012](https://github.com/aomader/TemplateDsl/blob/main/docs/diagnostics/TDSL012.md) says so next to the error of C#.
 
 Nodes and children brackets can only be used inside `Build`, so that everything is checked and compiled. Templates
 must be `partial` and not nested in another type. What the generator can't compile is a
@@ -335,6 +340,41 @@ public sealed partial class MainLayout(Page page) : IHtmlTemplate
 IHtmlTemplate view = user.IsAdmin ? new AdminLayout(page) : new MainLayout(page);
 var html = view.RenderToString();
 ```
+
+### Creating templates without new
+
+For every template, the generator writes a factory named like it, with the same parameters as its constructor, into the
+static class `Templates` in the root namespace of the project. Imported with `using static`, templates are created like
+elements are written:
+
+```csharp
+using static TemplateDsl.Html.Elements;
+using static App.Templates;
+
+public sealed partial class OrdersPage(List<Order> orders) : IHtmlTemplate
+{
+    public IEnumerable<HtmlElement> Build() =>
+    [
+        Card("Orders") [                                    // new Card("Orders")
+            Table [ Each(orders, order => OrderRow(order)) ]
+        ],
+        ItemTable(orders, order => OrderRow(order))         // new ItemTable<Order>(...): the type argument is inferred
+    ];
+}
+
+app.MapGet("/orders", (OrderStore store) => OrdersPage(store.All()).ToResult());
+```
+
+- Optional and named parameters work as with the constructor, and a struct template is still not boxed.
+- `new` still works, and is what an object initializer needs, as in `new Button("Save") { Kind = ButtonKind.Primary }`.
+- `using T = App.Templates;` writes them with a prefix instead: `T.Card("Orders")`. Inside a generic template whose type
+  parameter is named `T`, that is the type parameter, so another alias is the safer choice.
+- Templates of a library come with its own class, imported the same way, as in `using static MyLibrary.Templates;`.
+- Two templates with the same name get no factory, which [TDSL011](https://github.com/aomader/TemplateDsl/blob/main/docs/diagnostics/TDSL011.md)
+  reports. A method of the template that is named like a factory wins over it.
+- To name the class differently, set `<TemplateDslTemplatesClass>Views</TemplateDslTemplatesClass>` in the project file,
+  which [TDSL010](https://github.com/aomader/TemplateDsl/blob/main/docs/diagnostics/TDSL010.md) asks for if
+  `Templates` is taken, such as by a folder of that name.
 
 ### Context
 

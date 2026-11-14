@@ -5,4 +5,13 @@
     <Using Include="TemplateDsl" />
   </ItemGroup>
 
+  <!--
+    What the generator reads: the namespace of the class with the template factories, Templates, and the name of that
+    class, if the project sets another one with <TemplateDslTemplatesClass>App.Ui.Templates</TemplateDslTemplatesClass>.
+  -->
+  <ItemGroup>
+    <CompilerVisibleProperty Include="RootNamespace" />
+    <CompilerVisibleProperty Include="TemplateDslTemplatesClass" />
+  </ItemGroup>
+
 </Project>

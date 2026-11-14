@@ -41,6 +41,43 @@ public sealed class TemplateGenerator : IIncrementalGenerator
                 ctx.AddSource(GetHintName(template), Emit(template));
             }
         });
+
+        // The factories, which go in one class for the whole project. Settings and factories compare by value, so the
+        // class is only written again when a template's constructors, its name or the settings change.
+        var factories = context.SyntaxProvider
+            .CreateSyntaxProvider(
+                predicate: static (node, _) =>
+                    node is ClassDeclarationSyntax or StructDeclarationSyntax or RecordDeclarationSyntax
+                    && ((TypeDeclarationSyntax)node).BaseList is not null,
+                transform: static (ctx, cancellationToken) => ReadFactory(ctx, cancellationToken))
+            .Where(static factory => factory is not null)
+            .Collect();
+
+        var settings = context.AnalyzerConfigOptionsProvider
+            .Combine(context.CompilationProvider)
+            .Select(static (pair, _) => TemplateFactories.ReadSettings(pair.Left.GlobalOptions, pair.Right));
+
+        context.RegisterSourceOutput(factories.Combine(settings), static (ctx, pair) =>
+        {
+            if (TemplateFactories.Emit(pair.Right, pair.Left!, ctx.ReportDiagnostic) is { } source)
+            {
+                ctx.AddSource($"{pair.Right.FullName}.Factories.g.cs", source);
+            }
+        });
+    }
+
+    /// <summary>The factories of a template, read once for a type, from the declaration that implements the interface.</summary>
+    private static FactoryModel? ReadFactory(GeneratorSyntaxContext context, CancellationToken cancellationToken)
+    {
+        var symbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(context.Node, cancellationToken)!;
+        var declaration = symbol.DeclaringSyntaxReferences
+            .Select(reference => reference.GetSyntax(cancellationToken))
+            .OfType<TypeDeclarationSyntax>()
+            .First(d => d.BaseList is not null);
+
+        return declaration.SyntaxTree == context.Node.SyntaxTree && declaration.Span == context.Node.Span
+            ? TemplateFactories.Read(symbol, declaration, cancellationToken)
+            : null;
     }
 
     private static TemplateModel? Analyze(GeneratorSyntaxContext context, CancellationToken cancellationToken)

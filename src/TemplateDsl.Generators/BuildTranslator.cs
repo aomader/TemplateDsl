@@ -352,7 +352,7 @@ internal sealed class BuildTranslator(
 
         FlushIfAwaits(template);
 
-        var templateType = _semanticModel.GetTypeInfo(template, cancellationToken).Type!;
+        var templateType = TemplateTypeOf(template)!;
         var isContent = IsContent(templateType);
         var typeParameter = isContent && templateType is ITypeParameterSymbol parameter ? parameter.Name : null;
 
@@ -378,7 +378,7 @@ internal sealed class BuildTranslator(
 
     /// <summary>Only called for templates, which <see cref="IsTemplate"/> has found to have a type.</summary>
     private bool IsStreaming(ExpressionSyntax template) =>
-        FormatReader.IsAsyncTemplate(_semanticModel.GetTypeInfo(template, cancellationToken).Type!);
+        FormatReader.IsAsyncTemplate(TemplateTypeOf(template)!);
 
     private void WriteEach(InvocationExpressionSyntax invocation)
     {
@@ -519,6 +519,11 @@ internal sealed class BuildTranslator(
             return;
         }
 
+        if (FailsAsHiddenElement(outermost))
+        {
+            return;
+        }
+
         if (IsString(outermost))
         {
             WriteStringChild(outermost);
@@ -585,11 +590,15 @@ internal sealed class BuildTranslator(
 
         if (chain is null)
         {
-            Report(outermost.GetLocation(), LooksLikeUnresolvedEach(outermost)
-                ? $"'{outermost}' can only be used if the factory class of this format is in another project"
-                : SymbolEqualityComparer.Default.Equals(_semanticModel.GetTypeInfo(outermost, cancellationToken).Type, format)
-                    ? $"'{outermost}' is a {format.Name}, which Build can only place if it is written there; pass content as a template, such as an IHtmlContent or IHtmlContent<TContext> parameter"
-                    : $"'{outermost}' is not a template node");
+            if (!HidesElement(outermost))
+            {
+                Report(outermost.GetLocation(), LooksLikeUnresolvedEach(outermost)
+                    ? $"'{outermost}' can only be used if the factory class of this format is in another project"
+                    : SymbolEqualityComparer.Default.Equals(_semanticModel.GetTypeInfo(outermost, cancellationToken).Type, format)
+                        ? $"'{outermost}' is a {format.Name}, which Build can only place if it is written there; pass content as a template, such as an IHtmlContent or IHtmlContent<TContext> parameter"
+                        : $"'{outermost}' is not a template node");
+            }
+
             return;
         }
 
@@ -970,12 +979,16 @@ internal sealed class BuildTranslator(
 
     private void WriteTemplateWithChildren(ExpressionSyntax template, List<ElementAccessExpressionSyntax> brackets)
     {
-        var type = _semanticModel.GetTypeInfo(template, cancellationToken).Type!;
+        var type = TemplateTypeOf(template)!;
 
         if (!FormatReader.Implements(type, FormatReader.AcceptsChildren))
         {
-            Report(brackets[0].ArgumentList.GetLocation(),
-                $"template '{type.Name}' does not accept children; it would have to implement a template interface with children");
+            if (!HidesElement(template))
+            {
+                Report(brackets[0].ArgumentList.GetLocation(),
+                    $"template '{type.Name}' does not accept children; it would have to implement a template interface with children");
+            }
+
             return;
         }
 
@@ -1394,7 +1407,7 @@ internal sealed class BuildTranslator(
     {
         // Only called for templates, which IsTemplate has found to have a type: a class, an interface, which can be the
         // context interface itself, or a type parameter constrained to a template.
-        var type = _semanticModel.GetTypeInfo(template, cancellationToken).Type!;
+        var type = TemplateTypeOf(template)!;
         var needed = IsContent(type)
             ? ContentContext(type)
             : FormatReader.Interfaces(type)
@@ -1403,7 +1416,11 @@ internal sealed class BuildTranslator(
 
         passContext = needed is not null;
 
-        if (needed is null || (contextType is not null && compilation.HasImplicitConversion(contextType, needed)))
+        // A template with type parameters, created by a factory without type arguments, can need a context that
+        // depends on them, which only C# knows. It gets the context, and C# checks it.
+        if (needed is null
+            || (contextType is not null && compilation.HasImplicitConversion(contextType, needed))
+            || (type is INamedTypeSymbol { IsGenericType: true, IsDefinition: true } && DependsOnTypeParameter(needed)))
         {
             return true;
         }
@@ -1436,9 +1453,89 @@ internal sealed class BuildTranslator(
         return context.SpecialType == SpecialType.System_Object ? null : context;
     }
 
-    private bool IsTemplate(ExpressionSyntax expression) =>
-        _semanticModel.GetTypeInfo(expression, cancellationToken).Type is { } type
-        && FormatReader.Implements(type, FormatReader.Renderable);
+    /// <summary>Whether a context names a type parameter, such as <c>TContext</c> or <c>List&lt;TContext&gt;</c>. A context is a type argument, so it is never a pointer.</summary>
+    private static bool DependsOnTypeParameter(ITypeSymbol type) => type switch
+    {
+        ITypeParameterSymbol => true,
+        IArrayTypeSymbol array => DependsOnTypeParameter(array.ElementType),
+        _ => type is INamedTypeSymbol named && named.TypeArguments.Any(DependsOnTypeParameter),
+    };
+
+    private bool IsTemplate(ExpressionSyntax expression) => TemplateTypeOf(expression) is not null;
+
+    /// <summary>
+    /// Brackets or a call that fail because a name of the app's own hides the element, as in <c>Title [ Title ]</c> with a
+    /// property <c>Title</c>, whose indexer takes a number. C# and TDSL012 report it, and a copy of it in the render method
+    /// would be the same error again, in the generated file. Only where the generator sees what C# sees: a template's
+    /// brackets and a factory of this project are written by the generator, so they fail here even where they work.
+    /// </summary>
+    private bool FailsAsHiddenElement(ExpressionSyntax element) =>
+        _semanticModel.GetOperation(element, cancellationToken) is Microsoft.CodeAnalysis.Operations.IInvalidOperation
+        && element switch
+        {
+            ElementAccessExpressionSyntax access => !IsTemplate(access.Expression),
+            InvocationExpressionSyntax => TemplateTypeOf(element) is null,
+            _ => false,
+        }
+        && HidesElement(element);
+
+    /// <summary>
+    /// Whether an element starts with a name of the app's own that hides an imported element of the same name, as in
+    /// <c>Footer [ ... ]</c> next to a template class <c>Footer</c>. C# reports the error, and TDSL012 says which name
+    /// hides the element, so an error of the translator about what the name is instead would only add confusion.
+    /// </summary>
+    private bool HidesElement(ExpressionSyntax element)
+    {
+        var start = element;
+
+        while (true)
+        {
+            switch (start)
+            {
+                case ElementAccessExpressionSyntax access:
+                    start = access.Expression;
+                    continue;
+
+                case InvocationExpressionSyntax invocation:
+                    start = invocation.Expression;
+                    continue;
+
+                case MemberAccessExpressionSyntax member:
+                    start = member.Expression;
+                    continue;
+            }
+
+            return start is IdentifierNameSyntax identifier
+                && ShadowedElementAnalyzer.FindHiddenElement(_semanticModel, identifier, cancellationToken) is not null;
+        }
+    }
+
+    /// <summary>
+    /// The type of a template, or null for something else. A factory of this project, as in <c>Card("Hello")</c>, is
+    /// written by this generator, so C# can't resolve a call of it here: it is found by its name, as the template it creates.
+    /// </summary>
+    private ITypeSymbol? TemplateTypeOf(ExpressionSyntax expression)
+    {
+        var type = _semanticModel.GetTypeInfo(expression, cancellationToken).Type;
+
+        // A type's name has the type, but isn't a template: Footer in Footer [ ... ] names the class, where C# wants a
+        // value, which it reports. Its symbol is then only a candidate, which isn't a value.
+        var info = _semanticModel.GetSymbolInfo(expression, cancellationToken);
+
+        if (info.CandidateReason == CandidateReason.NotAValue && info.CandidateSymbols.FirstOrDefault() is ITypeSymbol)
+        {
+            return null;
+        }
+
+        if (type is not null and not IErrorTypeSymbol)
+        {
+            return FormatReader.Implements(type, FormatReader.Renderable) ? type : null;
+        }
+
+        return expression is InvocationExpressionSyntax invocation
+            ? TemplateFactories.FindTemplate(_semanticModel, invocation, cancellationToken)
+            : null;
+    }
 
     /// <summary>
     /// A node's brackets are generated, and so is a template's conversion to a node, so binding may fail

@@ -39,10 +39,10 @@ public sealed partial class Slot<TPart>(TPart part) : IHtmlTemplate
 /// <summary>Puts children in brackets into a generic template that takes children.</summary>
 public sealed partial class PageWithBox<TItem>(TItem item) : IHtmlTemplate
 {
-    public IEnumerable<HtmlElement> Build() => [new Box<TItem>(item) [ "inner" ]];
+    public IEnumerable<HtmlElement> Build() => [new ItemBox<TItem>(item) [ "inner" ]];
 }
 
-public sealed partial class Box<TItem>(TItem item) : IHtmlTemplate, IAcceptsChildren
+public sealed partial class ItemBox<TItem>(TItem item) : IHtmlTemplate, IAcceptsChildren
 {
     public IEnumerable<HtmlElement> Build() => [H.Div.Title($"{item}") [ Children ]];
 }

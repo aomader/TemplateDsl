@@ -18,9 +18,9 @@ public sealed partial class TodoApp(Todo[] todos, TodoFilter filter, string? err
     [
         Div.Id("app").Attr("hx-target:inherited", "#app").Attr("hx-swap:inherited", "outerHTML") [
             H1 [ "Todos" ],
-            new NewTodoForm(filter, error),
-            new TodoList(Visible, filter),
-            new TodoFooter(todos, filter)
+            NewTodoForm(filter, error),
+            TodoList(Visible, filter),
+            TodoFooter(todos, filter)
         ]
     ];
 }

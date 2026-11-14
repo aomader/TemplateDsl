@@ -116,7 +116,7 @@ public class HtmlElementsTests
             return node.Start + node.Body + node.End;
         }));
 
-        Assert.Contains(SymbolDisplay.FormatLiteral(expected, quote: true), output.SyntaxTrees.Last().ToString());
+        Assert.Contains(SymbolDisplay.FormatLiteral(expected, quote: true), output.SyntaxTrees.Last(GeneratorTests.IsRenderFile).ToString());
     }
 
     [Theory]

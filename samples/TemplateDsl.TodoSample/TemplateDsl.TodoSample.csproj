@@ -19,6 +19,8 @@
     <Using Include="TemplateDsl.Html" />
     <!-- The elements without a prefix: Div [ ... ] instead of Elements.Div [ ... ]. -->
     <Using Include="TemplateDsl.Html.Elements" Static="true" />
+    <!-- The templates of this project without new: TodoItem(todo, filter) instead of new TodoItem(todo, filter). -->
+    <Using Include="TodoSample.Templates" Static="true" />
     <Using Include="TemplateDsl.AspNetCore" />
   </ItemGroup>
 

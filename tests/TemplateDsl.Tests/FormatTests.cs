@@ -122,7 +122,7 @@ public class FormatTests
         return (
             diagnostics.Select(d => d.Id).ToArray(),
             output.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).Select(d => d.Id).ToArray(),
-            output.SyntaxTrees.Skip(1).Select(tree => tree.ToString()).ToArray());
+            output.SyntaxTrees.Skip(1).Where(GeneratorTests.IsRenderFile).Select(tree => tree.ToString()).ToArray());
     }
 
     [Fact]
