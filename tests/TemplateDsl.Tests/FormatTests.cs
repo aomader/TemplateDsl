@@ -44,7 +44,10 @@ public class FormatTests
 
         """;
 
-    private static string[] RunFormatGenerator(out string[] generated, string source)
+    private static string[] RunFormatGenerator(out string[] generated, string source) =>
+        RunFormatGeneratorWithMessages(out generated, source).Select(d => d.Id).ToArray();
+
+    private static Diagnostic[] RunFormatGeneratorWithMessages(out string[] generated, string source)
     {
         var compilation = CSharpCompilation.Create(
             "Test",
@@ -57,7 +60,7 @@ public class FormatTests
         var result = CSharpGeneratorDriver.Create(new FormatGenerator()).RunGenerators(compilation).GetRunResult();
 
         generated = result.GeneratedTrees.Select(tree => tree.ToString()).ToArray();
-        return result.Diagnostics.Select(d => d.Id).ToArray();
+        return result.Diagnostics.ToArray();
     }
 
     [Fact]
@@ -156,14 +159,24 @@ public class FormatTests
     }
 
     [Theory]
-    [InlineData("""[TemplateFormat(typeof(string))] [Escape("a b", "x", "y")] public partial class F : TemplateNode;""")]
-    [InlineData("""[TemplateFormat(typeof(string))] [Escape("a", "x")] public partial class F : TemplateNode;""")]
-    [InlineData("""[TemplateFormat(typeof(string))] [Escape("a", "xx", "y")] public partial class F : TemplateNode;""")]
-    public void Invalid_escape_rules_are_reported(string source)
+    [InlineData("""[Escape("a b", "x", "y")]""", "a b")]   // a name that can't be used in code
+    [InlineData("""[Escape("a", "x")]""", "a")]             // a character without its replacement
+    [InlineData("""[Escape("a", "xx", "y")]""", "a")]       // more than a single character to replace
+    public void Invalid_escape_rules_are_reported(string rule, string context)
     {
-        var diagnostics = RunFormatGenerator(out var generated, source);
+        // A proper text node, so that the rule is what is wrong, not the format.
+        var diagnostics = RunFormatGeneratorWithMessages(out var generated, $$"""
+            [TemplateFormat(typeof(FText))]
+            {{rule}}
+            public abstract partial class F : TemplateNode;
 
-        Assert.Equal("TDSL006", Assert.Single(diagnostics));
+            [TextNode]
+            public sealed partial class FText : F;
+            """);
+
+        var diagnostic = Assert.Single(diagnostics);
+        Assert.Equal("TDSL006", diagnostic.Id);
+        Assert.Contains($"has an invalid escape rule '{context}'", diagnostic.GetMessage(System.Globalization.CultureInfo.InvariantCulture));
         Assert.Empty(generated);
     }
 
