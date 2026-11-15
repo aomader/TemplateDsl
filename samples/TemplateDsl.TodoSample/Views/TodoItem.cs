@@ -16,7 +16,7 @@ public sealed partial class TodoItem(Todo todo, TodoFilter filter) : IHtmlTempla
             ],
             Button.Type("button").Class("edit")
                 .Attr("hx-get", Urls.Edit(todo.Id, filter)).Attr("hx-target", "closest li").Attr("hx-swap", "outerHTML") [ "Edit" ],
-            Button.Type("button").Attr("hx-delete", Urls.Todo(todo.Id, filter)).Attr("aria-label", $"Delete {todo.Title}") [ "×" ]
+            Button.Type("button").Attr("hx-delete", Urls.Todo(todo.Id, filter)).AriaLabel($"Delete {todo.Title}") [ "×" ]
         ]
     ];
 }

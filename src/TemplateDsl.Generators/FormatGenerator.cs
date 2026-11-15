@@ -427,7 +427,7 @@ public sealed class FormatGenerator : IIncrementalGenerator
             source.Append($"{anyNumber}    {Excluded}\n{start}<TValue>(TValue? value) {AnyNumber} => {NotExecutable};\n\n");
         }
 
-        if (attribute is { Kind: AttributeKind.Typed, AlsoText: true })
+        if (attribute is { Kind: AttributeKind.Typed or AttributeKind.Enum or AttributeKind.TrueFalse, AlsoText: true })
         {
             source.Append($"{documentation}    {Excluded}\n{start}(string? value) => {NotExecutable};\n\n");
         }

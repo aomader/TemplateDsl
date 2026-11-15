@@ -44,7 +44,7 @@ public sealed partial class NamedAttrArguments(string value) : IHtmlTemplate
 
 public sealed partial class NumberForPeople(double value) : IHtmlTemplate
 {
-    public IEnumerable<HtmlElement> Build() => [H.Div.Attr("aria-label", value).Attr("data-value", value)];
+    public IEnumerable<HtmlElement> Build() => [H.Div.AriaLabel(value).Attr("data-value", value)];
 }
 
 public sealed partial class NullConstants : IHtmlTemplate

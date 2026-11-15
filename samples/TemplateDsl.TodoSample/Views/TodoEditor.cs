@@ -10,12 +10,12 @@ public sealed partial class TodoEditor(Todo todo, TodoFilter filter, string? tit
     [
         Li.Id($"todo-{todo.Id}").Class("editing").Attr("hx-target:inherited", "closest li").Attr("hx-swap:inherited", "outerHTML") [
             Form.Autocomplete("off").Attr("hx-put", Urls.Todo(todo.Id, filter)) [
-                InputText.Name("title").Value(title ?? todo.Title).Attr("aria-label", "Title").Autofocus()
+                InputText.Name("title").Value(title ?? todo.Title).AriaLabel("Title").Autofocus()
                     .Attr("hx-get", Urls.Todo(todo.Id, filter)).Attr("hx-trigger", "keyup[key=='Escape']"),
                 Button [ "Save" ],
                 Button.Type("button").Class("cancel").Attr("hx-get", Urls.Todo(todo.Id, filter)) [ "Cancel" ]
             ],
-            error is not null ? P.Class("error").Role("alert") [ error ] : null
+            error is not null ? P.Class("error").Role(Role.Alert) [ error ] : null
         ]
     ];
 }

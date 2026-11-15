@@ -34,7 +34,7 @@ public sealed partial class HelloPage(string userName, bool isAdmin, int unreadM
                         unreadMessages > 0
                             ? Div.Class("unread") [ $"{unreadMessages} unread messages" ]
                             : "No new messages",
-                        Div.Hidden(unreadMessages == 0).Attr("aria-label", "Message list") [ "Messages" ]
+                        Div.Hidden(unreadMessages == 0).AriaLabel("Message list") [ "Messages" ]
                     ]
                 ]
             ]

@@ -87,7 +87,20 @@ public class FormatDeclarationTests
         var list = Tag.GetMethod("Attr", [typeof(string), typeof(string)])!.GetCustomAttribute<AttrListAttribute>()!;
 
         Assert.Equal((" ", "=\"", "\"", "attribute"), (list.Before, list.BetweenNameAndValue, list.After, list.Escape));
-        Assert.Contains("aria-label", list.CurrentCultureNames!);
+
+        // The ARIA attributes for people of WAI-ARIA 1.2, such as aria-label, have methods of their own. These are of 1.3.
+        Assert.Equal(["aria-braillelabel", "aria-brailleroledescription", "aria-colindextext", "aria-rowindextext"], list.CurrentCultureNames!);
+    }
+
+    [Fact]
+    public void Aria_attributes_have_methods_and_a_list_for_the_others()
+    {
+        var aria = Tag.GetMethod("Aria", [typeof(string), typeof(string)])!.GetCustomAttribute<AttrListAttribute>()!;
+
+        Assert.Equal(("aria-", true, true), (aria.NamePrefix, aria.TrueFalse, aria.LowercaseNames));
+        Assert.Contains("aria-braillelabel", aria.CurrentCultureNames!);
+        Assert.Equal(ValueCulture.Current, Attribute(Tag, "AriaLabel").Culture);
+        Assert.Equal(ValueCulture.Invariant, Attribute(Tag, "AriaValueNow").Culture);
     }
 
     private static AttrAttribute Attribute(Type type, string method) =>

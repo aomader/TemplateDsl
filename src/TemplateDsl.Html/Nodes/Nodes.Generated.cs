@@ -34,8 +34,8 @@ public abstract partial class HtmlTag<TElement> : HtmlElement where TElement : H
     public partial TElement Dir(string? value);
 
     /// <summary>The <c>role</c> attribute.</summary>
-    [Attr(" role=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement Role(string? value);
+    [Attr(" role=\"", "\"", Escape = "attribute", AlsoText = true)]
+    public partial TElement Role(Role? value);
 
     /// <summary>The <c>slot</c> attribute.</summary>
     [Attr(" slot=\"", "\"", Escape = "attribute", TextOnly = true)]
@@ -85,8 +85,196 @@ public abstract partial class HtmlTag<TElement> : HtmlElement where TElement : H
     [Attr(" autofocus", "")]
     public partial TElement Autofocus(bool? value = true);
 
+    /// <summary>The <c>aria-activedescendant</c> attribute.</summary>
+    [Attr(" aria-activedescendant=\"", "\"", Escape = "attribute", TextOnly = true)]
+    public partial TElement AriaActiveDescendant(string? value);
+
+    /// <summary>The <c>aria-atomic</c> attribute.</summary>
+    [Attr(" aria-atomic=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaAtomic(bool? value);
+
+    /// <summary>The <c>aria-autocomplete</c> attribute.</summary>
+    [Attr(" aria-autocomplete=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaAutoComplete(AriaAutoComplete? value);
+
+    /// <summary>The <c>aria-busy</c> attribute.</summary>
+    [Attr(" aria-busy=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaBusy(bool? value);
+
+    /// <summary>The <c>aria-checked</c> attribute.</summary>
+    [Attr(" aria-checked=\"", "\"", Escape = "attribute", AlsoText = true)]
+    public partial TElement AriaChecked(bool? value);
+
+    /// <summary>The <c>aria-colcount</c> attribute.</summary>
+    [Attr(" aria-colcount=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaColCount(int? value);
+
+    /// <summary>The <c>aria-colindex</c> attribute.</summary>
+    [Attr(" aria-colindex=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaColIndex(int? value);
+
+    /// <summary>The <c>aria-colspan</c> attribute.</summary>
+    [Attr(" aria-colspan=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaColSpan(int? value);
+
+    /// <summary>The <c>aria-controls</c> attribute.</summary>
+    [Attr(" aria-controls=\"", "\"", Escape = "attribute", TextOnly = true)]
+    public partial TElement AriaControls(string? value);
+
+    /// <summary>The <c>aria-current</c> attribute.</summary>
+    [Attr(" aria-current=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaCurrent(AriaCurrent? value);
+
+    /// <summary>The <c>aria-describedby</c> attribute.</summary>
+    [Attr(" aria-describedby=\"", "\"", Escape = "attribute", TextOnly = true)]
+    public partial TElement AriaDescribedBy(string? value);
+
+    /// <summary>The <c>aria-description</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
+    [Attr(" aria-description=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
+    public partial TElement AriaDescription(string? value);
+
+    /// <summary>The <c>aria-details</c> attribute.</summary>
+    [Attr(" aria-details=\"", "\"", Escape = "attribute", TextOnly = true)]
+    public partial TElement AriaDetails(string? value);
+
+    /// <summary>The <c>aria-disabled</c> attribute.</summary>
+    [Attr(" aria-disabled=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaDisabled(bool? value);
+
+    /// <summary>The <c>aria-errormessage</c> attribute.</summary>
+    [Attr(" aria-errormessage=\"", "\"", Escape = "attribute", TextOnly = true)]
+    public partial TElement AriaErrorMessage(string? value);
+
+    /// <summary>The <c>aria-expanded</c> attribute.</summary>
+    [Attr(" aria-expanded=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaExpanded(bool? value);
+
+    /// <summary>The <c>aria-flowto</c> attribute.</summary>
+    [Attr(" aria-flowto=\"", "\"", Escape = "attribute", TextOnly = true)]
+    public partial TElement AriaFlowTo(string? value);
+
+    /// <summary>The <c>aria-haspopup</c> attribute.</summary>
+    [Attr(" aria-haspopup=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaHasPopup(AriaHasPopup? value);
+
+    /// <summary>The <c>aria-hidden</c> attribute.</summary>
+    [Attr(" aria-hidden=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaHidden(bool? value);
+
+    /// <summary>The <c>aria-invalid</c> attribute.</summary>
+    [Attr(" aria-invalid=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaInvalid(AriaInvalid? value);
+
+    /// <summary>The <c>aria-keyshortcuts</c> attribute.</summary>
+    [Attr(" aria-keyshortcuts=\"", "\"", Escape = "attribute", TextOnly = true)]
+    public partial TElement AriaKeyShortcuts(string? value);
+
+    /// <summary>The <c>aria-label</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
+    [Attr(" aria-label=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
+    public partial TElement AriaLabel(string? value);
+
+    /// <summary>The <c>aria-labelledby</c> attribute.</summary>
+    [Attr(" aria-labelledby=\"", "\"", Escape = "attribute", TextOnly = true)]
+    public partial TElement AriaLabelledBy(string? value);
+
+    /// <summary>The <c>aria-level</c> attribute.</summary>
+    [Attr(" aria-level=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaLevel(int? value);
+
+    /// <summary>The <c>aria-live</c> attribute.</summary>
+    [Attr(" aria-live=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaLive(AriaLive? value);
+
+    /// <summary>The <c>aria-modal</c> attribute.</summary>
+    [Attr(" aria-modal=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaModal(bool? value);
+
+    /// <summary>The <c>aria-multiline</c> attribute.</summary>
+    [Attr(" aria-multiline=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaMultiLine(bool? value);
+
+    /// <summary>The <c>aria-multiselectable</c> attribute.</summary>
+    [Attr(" aria-multiselectable=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaMultiSelectable(bool? value);
+
+    /// <summary>The <c>aria-orientation</c> attribute.</summary>
+    [Attr(" aria-orientation=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaOrientation(AriaOrientation? value);
+
+    /// <summary>The <c>aria-owns</c> attribute.</summary>
+    [Attr(" aria-owns=\"", "\"", Escape = "attribute", TextOnly = true)]
+    public partial TElement AriaOwns(string? value);
+
+    /// <summary>The <c>aria-placeholder</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
+    [Attr(" aria-placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
+    public partial TElement AriaPlaceholder(string? value);
+
+    /// <summary>The <c>aria-posinset</c> attribute.</summary>
+    [Attr(" aria-posinset=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaPosInSet(int? value);
+
+    /// <summary>The <c>aria-pressed</c> attribute.</summary>
+    [Attr(" aria-pressed=\"", "\"", Escape = "attribute", AlsoText = true)]
+    public partial TElement AriaPressed(bool? value);
+
+    /// <summary>The <c>aria-readonly</c> attribute.</summary>
+    [Attr(" aria-readonly=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaReadOnly(bool? value);
+
+    /// <summary>The <c>aria-relevant</c> attribute.</summary>
+    [Attr(" aria-relevant=\"", "\"", Escape = "attribute", TextOnly = true)]
+    public partial TElement AriaRelevant(string? value);
+
+    /// <summary>The <c>aria-required</c> attribute.</summary>
+    [Attr(" aria-required=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaRequired(bool? value);
+
+    /// <summary>The <c>aria-roledescription</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
+    [Attr(" aria-roledescription=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
+    public partial TElement AriaRoleDescription(string? value);
+
+    /// <summary>The <c>aria-rowcount</c> attribute.</summary>
+    [Attr(" aria-rowcount=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaRowCount(int? value);
+
+    /// <summary>The <c>aria-rowindex</c> attribute.</summary>
+    [Attr(" aria-rowindex=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaRowIndex(int? value);
+
+    /// <summary>The <c>aria-rowspan</c> attribute.</summary>
+    [Attr(" aria-rowspan=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaRowSpan(int? value);
+
+    /// <summary>The <c>aria-selected</c> attribute.</summary>
+    [Attr(" aria-selected=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaSelected(bool? value);
+
+    /// <summary>The <c>aria-setsize</c> attribute.</summary>
+    [Attr(" aria-setsize=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaSetSize(int? value);
+
+    /// <summary>The <c>aria-sort</c> attribute.</summary>
+    [Attr(" aria-sort=\"", "\"", Escape = "attribute")]
+    public partial TElement AriaSort(AriaSort? value);
+
+    /// <summary>The <c>aria-valuemax</c> attribute.</summary>
+    [Attr(" aria-valuemax=\"", "\"", Escape = "attribute", AnyNumber = true)]
+    public partial TElement AriaValueMax(double? value);
+
+    /// <summary>The <c>aria-valuemin</c> attribute.</summary>
+    [Attr(" aria-valuemin=\"", "\"", Escape = "attribute", AnyNumber = true)]
+    public partial TElement AriaValueMin(double? value);
+
+    /// <summary>The <c>aria-valuenow</c> attribute.</summary>
+    [Attr(" aria-valuenow=\"", "\"", Escape = "attribute", AnyNumber = true)]
+    public partial TElement AriaValueNow(double? value);
+
+    /// <summary>The <c>aria-valuetext</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
+    [Attr(" aria-valuetext=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
+    public partial TElement AriaValueText(string? value);
+
     /// <summary>An attribute without its own method, such as <c>data-id</c>. The name must be a constant.</summary>
-    [AttrList(Before = " ", BetweenNameAndValue = "=\"", After = "\"", Escape = "attribute", CurrentCultureNames = new[] { "aria-label", "aria-description", "aria-placeholder", "aria-roledescription", "aria-valuetext" })]
+    [AttrList(Before = " ", BetweenNameAndValue = "=\"", After = "\"", Escape = "attribute", CurrentCultureNames = new[] { "aria-braillelabel", "aria-brailleroledescription", "aria-colindextext", "aria-rowindextext" })]
     public partial TElement Attr(string name, string? value);
 
     /// <summary>
@@ -96,6 +284,14 @@ public abstract partial class HtmlTag<TElement> : HtmlElement where TElement : H
     /// </summary>
     [AttrList(Before = " ", BetweenNameAndValue = "=\"", After = "\"", Escape = "attribute", NamePrefix = "data-", TrueFalse = true, LowercaseNames = true)]
     public partial TElement Data(string name, string? value);
+
+    /// <summary>
+    /// An ARIA attribute without its own method, such as one of a newer version of WAI-ARIA, whose name follows
+    /// <c>aria-</c>: <c>.Aria("braillelabel", label)</c> writes <c>aria-braillelabel</c>. The name must be a constant in
+    /// lowercase. A bool is written as true or false. Null leaves the attribute out.
+    /// </summary>
+    [AttrList(Before = " ", BetweenNameAndValue = "=\"", After = "\"", Escape = "attribute", NamePrefix = "aria-", TrueFalse = true, LowercaseNames = true, CurrentCultureNames = new[] { "aria-braillelabel", "aria-brailleroledescription", "aria-colindextext", "aria-rowindextext" })]
+    public partial TElement Aria(string name, string? value);
 }
 
 /// <summary>The <c>&lt;html&gt;</c> element.</summary>

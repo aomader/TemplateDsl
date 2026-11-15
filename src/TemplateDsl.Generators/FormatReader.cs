@@ -362,7 +362,17 @@ internal static class FormatReader
     public static bool IsValidAttributeName(string name) =>
         name.Length > 0 && name.All(c => !char.IsControl(c) && " \"'=<>/`".IndexOf(c) < 0);
 
-    /// <summary>How an enum member is written: <c>DatetimeLocal</c> becomes <c>datetime-local</c>.</summary>
+    /// <summary>
+    /// How an enum member is written: what its <c>[EnumMember(Value = "...")]</c> says, as for an ARIA role such as
+    /// <c>alertdialog</c>, which is one word, or else its name in lowercase with a dash between words.
+    /// </summary>
+    public static string GetEnumText(IFieldSymbol member) =>
+        member.GetAttributes()
+            .FirstOrDefault(attribute => attribute.AttributeClass?.ToDisplayString() == "System.Runtime.Serialization.EnumMemberAttribute")?
+            .NamedArguments.FirstOrDefault(argument => argument.Key == "Value").Value.Value as string
+        ?? GetEnumText(member.Name);
+
+    /// <summary>How an enum member's name is written: <c>DatetimeLocal</c> becomes <c>datetime-local</c>.</summary>
     public static string GetEnumText(string memberName)
     {
         var text = new StringBuilder();

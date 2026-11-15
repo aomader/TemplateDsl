@@ -181,7 +181,7 @@ without their own method use `.Attr`. Their names must be constants, while the v
 writes a `bool` as `true` or `false`:
 
 ```csharp
-Div.Id("main").Hidden(isHidden).Data("user-id", userId).Attr("aria-label", "Profile") [
+Div.Id("main").Hidden(isHidden).Data("user-id", userId).AriaLabel("Profile") [
     title
 ]
 ```
@@ -190,6 +190,21 @@ Attributes take what makes sense for them. `.ColSpan(2)` and `.TabIndex(0)` take
 `double`, and `.Draggable(true)` writes `draggable="true"`. `.Class(...)`, `.Href(...)` and most others take only
 strings, while `.Id(...)`, `.Title(...)`, `.DateTime(...)` and `.Value(...)` on an input also take numbers and dates.
 For a value their type doesn't allow, `.Attr("colspan", "{{columns}}")` still works on the typed ones.
+
+ARIA attributes have methods too, with the types WAI-ARIA 1.2 gives them. Booleans are the words `true` and `false`,
+which mean something in ARIA, unlike the presence of `hidden`, and tokens are enums:
+
+```csharp
+Button.AriaExpanded(isOpen).AriaControls("menu").AriaHasPopup(AriaHasPopup.Menu) [ "Menu" ]
+Div.Role(Role.AlertDialog).AriaModal(true).AriaLabelledBy("title")   // role="alertdialog"
+Li.AriaCurrent(AriaCurrent.Page)
+Span.Role(Role.Checkbox).AriaChecked("mixed")                        // true, false, or mixed
+Div.Role(Role.ProgressBar).AriaValueNow(progress).AriaValueMax(1)
+```
+
+`.Role(...)` also takes a string, for a role of another specification. `.Aria("braillelabel", label)` writes an ARIA
+attribute without a method, such as one of a newer version. `.Attr` writes one that has a method only with a value its
+type doesn't take, such as a placeholder for a framework in the browser in `.Attr("aria-expanded", "{{open}}")`.
 
 Inputs come in a variant per type, which takes only what HTML allows for it, with values of the right type:
 

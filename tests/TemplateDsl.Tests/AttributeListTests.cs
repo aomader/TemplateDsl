@@ -10,7 +10,7 @@ public sealed partial class AttrsPage(string value, string? optional, bool flag,
     public IEnumerable<HtmlElement> Build() =>
     [
         H.Div.Id("a").Attr("data-const", "c&d").Attr("data-value", value).Attr("data-null", null).Attr("data-optional", optional),
-        H.Div.Attr("data-hole", $"n-{number}").Attr("data-ternary", flag ? value : null).Attr("aria-label", "x") [ "child" ],
+        H.Div.Attr("data-hole", $"n-{number}").Attr("data-ternary", flag ? value : null).AriaLabel("x") [ "child" ],
         H.Div.Class("k").Attr("hx-get", "/x"),
         H.Div,
         H.Div
