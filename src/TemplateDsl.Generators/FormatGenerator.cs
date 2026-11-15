@@ -172,6 +172,20 @@ public sealed class FormatGenerator : IIncrementalGenerator
             {
                 return Invalid(context, $"'{symbol.Name}' has an invalid escape rule '{rule.Context}': it needs a name usable in code and pairs of a single character and its replacement");
             }
+
+            if (rule.Writer is not null && replacements.Length > 0)
+            {
+                return Invalid(context, $"'{symbol.Name}' has an escape rule '{rule.Context}' with both a writer and replacements; the writer writes the whole text, so it takes no replacements");
+            }
+        }
+
+        // The writer is called by generated code, which needs it to have the method of ITextWriter.
+        foreach (var writer in symbol.GetAttributes().Where(attribute => attribute.AttributeClass?.Name == "EscapeAttribute").Select(FormatReader.ReadEscapeWriter))
+        {
+            if (writer is not null && !FormatReader.Implements(writer, "ITextWriter"))
+            {
+                return Invalid(context, $"'{symbol.Name}' names '{writer.Name}' as the writer of an escape rule, but it doesn't implement ITextWriter");
+            }
         }
 
         return null;
@@ -314,16 +328,23 @@ public sealed class FormatGenerator : IIncrementalGenerator
         foreach (var rule in format.Rules)
         {
             var replacements = rule.Replacements.ToArray();
-            var characters = string.Concat(Enumerable.Range(0, replacements.Length / 2).Select(i => replacements[i * 2]));
 
-            source.Append("    private static readonly global::System.Buffers.SearchValues<char> __Special_").Append(rule.Context)
-                .Append(" = global::System.Buffers.SearchValues.Create(").Append(Quote(characters)).Append(");\n\n");
+            // A writer may change the characters it names, and without them, any: no character can be skipped then.
+            var characters = rule.Writer is null
+                ? string.Concat(Enumerable.Range(0, replacements.Length / 2).Select(i => replacements[i * 2]))
+                : rule.Changes;
+
+            if (rule.Writer is null)
+            {
+                source.Append("    private static readonly global::System.Buffers.SearchValues<char> __Special_").Append(rule.Context)
+                    .Append(" = global::System.Buffers.SearchValues.Create(").Append(Quote(characters!)).Append(");\n\n");
+            }
 
             // As UTF-8 bytes, if they are all ASCII. Otherwise a formatted value is checked as characters.
             source.Append("    /// <summary>The characters of the '").Append(rule.Context).Append("' rule as UTF-8 bytes, or null if they aren't all ASCII. Used by generated code.</summary>\n");
             source.Append("    ").Append(Hidden).Append('\n');
             source.Append("    public static readonly global::System.Buffers.SearchValues<byte>? __SpecialBytes_").Append(rule.Context).Append(" = ")
-                .Append(characters.All(c => c < 128)
+                .Append(characters is not null && characters.All(c => c < 128)
                     ? "global::System.Buffers.SearchValues.Create(" + string.Join(", ", characters.Select(c => "(byte)" + (int)c)) + ")"
                     : "null")
                 .Append(";\n\n");
@@ -341,6 +362,14 @@ public sealed class FormatGenerator : IIncrementalGenerator
 
             source.Append("    /// <summary>Writes <paramref name=\"rest\"/> as UTF-8, escaped according to the '").Append(rule.Context).Append("' rule. Used by generated code.</summary>\n");
             source.Append("    ").Append(Hidden).Append('\n');
+
+            if (rule.Writer is not null)
+            {
+                source.Append("    public static void __WriteEscaped_").Append(rule.Context).Append("(global::System.ReadOnlySpan<char> rest, ").Append(BufferWriter).Append(" writer) =>\n");
+                source.Append("        ").Append(rule.Writer).Append(".Write(rest, writer);\n\n");
+                continue;
+            }
+
             source.Append("    public static void __WriteEscaped_").Append(rule.Context).Append("(global::System.ReadOnlySpan<char> rest, ").Append(BufferWriter).Append(" writer)\n    {\n");
             source.Append("        while (true)\n        {\n");
             source.Append("            var index = global::System.MemoryExtensions.IndexOfAny(rest, __Special_").Append(rule.Context).Append(");\n\n");

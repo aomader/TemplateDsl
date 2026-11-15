@@ -62,7 +62,19 @@ internal sealed record NodeInfo(
     AttributeListInfo? AttributeList = null,
     bool IsVoid = false);
 
-internal sealed record EscapeRule(string Context, EquatableArray<string> Replacements);
+/// <param name="Context">The name that nodes and attributes refer to the rule by.</param>
+/// <param name="Replacements">Pairs of a single character and the text that replaces it.</param>
+/// <param name="Writer">The class that writes the text instead, fully qualified, for a rule that depends on more than a single character.</param>
+/// <param name="Changes">For a writer: the characters it can change, or null if that isn't known.</param>
+internal sealed record EscapeRule(string Context, EquatableArray<string> Replacements, string? Writer = null, string? Changes = null)
+{
+    /// <summary>
+    /// Whether a constant can be escaped while compiling. A writer only runs while rendering, so constant text goes to
+    /// it then, unless it has none of the characters the writer changes.
+    /// </summary>
+    public bool EscapesWhileCompiling(string value) =>
+        Writer is null || (Changes is not null && value.IndexOfAny(Changes.ToCharArray()) < 0);
+}
 
 /// <summary>Reads the format attributes, from source or from a referenced assembly alike.</summary>
 internal static class FormatReader
@@ -168,8 +180,14 @@ internal static class FormatReader
             .Where(attribute => IsAttribute(attribute, "EscapeAttribute") && attribute.ConstructorArguments.Length == 2)
             .Select(attribute => new EscapeRule(
                 (string)attribute.ConstructorArguments[0].Value!,
-                new EquatableArray<string>(attribute.ConstructorArguments[1].Values.Select(value => (string)value.Value!).ToArray())))
+                new EquatableArray<string>(attribute.ConstructorArguments[1].Values.Select(value => (string)value.Value!).ToArray()),
+                ReadEscapeWriter(attribute)?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                GetNamed(attribute, "Changes")))
             .ToArray();
+
+    /// <summary>The class an escape rule names to write its text, if it names one.</summary>
+    public static INamedTypeSymbol? ReadEscapeWriter(AttributeData attribute) =>
+        attribute.NamedArguments.FirstOrDefault(argument => argument.Key == "Writer").Value.Value as INamedTypeSymbol;
 
     /// <summary>The node that plain strings become in <paramref name="format"/>.</summary>
     public static ITypeSymbol? ReadTextNode(ITypeSymbol format) =>

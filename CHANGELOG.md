@@ -12,6 +12,12 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
   `using static App.Templates;`, a template is written `Card("Hello") [ ... ]`, and the type arguments of a generic
   template are inferred. The class can be named with the MSBuild property `TemplateDslTemplatesClass`.
 - `Doctype` writes `<!DOCTYPE html>`, as in `[Doctype, Html [ ... ]]`, instead of `Raw("<!DOCTYPE html>")`.
+- `Comment(text)` writes an HTML comment whose text can't end or break it. A browser doesn't decode escaped characters
+  in a comment, so instead of escaping, the text gets a zero-width space where it would be dangerous, such as at `--`
+  or a leading `>`, and is written as it is everywhere else.
+- An escape rule can name a writer, a class implementing `ITextWriter`, for text that single replacements can't
+  escape: `[Escape("comment", Writer = typeof(CommentText), Changes = "->")]`. It gets the whole text, also of an
+  interpolated string, and constant text without the characters it changes is still written while compiling.
 - TDSL010 reports a name of the class of the template factories that is taken, such as by a folder `Templates`.
 - TDSL011 warns about templates with the same name, which get no factory.
 - TDSL012 explains the error of an element that a name of your own hides, such as `Title [ ... ]` in a template with a
@@ -20,6 +26,9 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
   into the generated file. A type's name, as in `Footer [ ... ]`, is no longer taken for an instance of the template.
 
 ### Changed
+
+- A text node created by its factory, such as `Json.Str(value)` in a custom format, writes nothing for null, not even
+  its prefix, its suffix or a separator, as a plain string already did. `Json.Str(null)` wrote `""` before.
 
 - **Breaking:** the static class of the HTML elements is called `Elements` instead of `H`, so that a project can choose
   how to write them. `using static TemplateDsl.Html.Elements;` imports them without a prefix, as in `Div [ ... ]`, which

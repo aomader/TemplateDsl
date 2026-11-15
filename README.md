@@ -146,7 +146,9 @@ Div.Id("main").Class("card") [
 All standard HTML elements are available. Like all C# methods, their names are PascalCase, so they never clash with
 keywords: `Object`, `.Class(...)` and `.For(...)`. Attributes of several words are cased like their DOM property, as in
 `.TabIndex(...)`, `.ReadOnly()` and `.ColSpan(...)`. Elements like `Br` and `Img.Src(url)` have no children, and the
-doctype is written with `Doctype`, as in `[Doctype, Html [ ... ]]`.
+doctype is written with `Doctype`, as in `[Doctype, Html [ ... ]]`. `Comment(text)` writes `<!--text-->`, with text that
+can't end or break the comment: where it would, such as at `--` or a leading `>`, it gets a zero-width space, which
+changes nothing visible, as a browser doesn't decode escaped characters in a comment. Everyone who loads the page can read it.
 
 How elements are written is up to you, per file or for the whole project:
 
@@ -562,6 +564,14 @@ Templates in the format implement `IXmlTemplate`, or `ITemplate<XmlNode>` itself
 A format opts in to numbers and dates with `[TemplateFormat(typeof(XmlText), FormatsValues = true)]`. Its text uses the
 current culture unless it sets `TextCulture = ValueCulture.Invariant`, and its attributes are invariant unless they set
 `Culture = ValueCulture.Current`. The formats that fit are text formats with a nested structure.
+
+Some text can't be escaped character by character, such as a comment, in which a browser doesn't decode `&gt;`, or a
+CDATA section, which `]]>` ends. For those, a rule names a class implementing `ITextWriter`, which gets the whole text
+at once, and the characters it can change, so that constant text without them is still written while compiling:
+
+```csharp
+[Escape("comment", Writer = typeof(CommentText), Changes = "->")]
+```
 
 ## Contributing
 

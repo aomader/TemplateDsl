@@ -604,13 +604,14 @@ internal sealed class BuildTranslator(
 
         var node = chain.Node;
 
-        WriteSeparator();
-
+        // A text node, as a plain string is one: null writes nothing, not even what is around it or a separator.
         if (node.IsText)
         {
-            WriteTextNode(node, chain.Arguments[0].Expression);
+            WriteTextChild(node, chain.Arguments[0].Expression);
             return;
         }
+
+        WriteSeparator();
 
         if (node.IsVoid && children is not null)
         {
@@ -792,8 +793,14 @@ internal sealed class BuildTranslator(
         }
     }
 
-    /// <summary>A plain string that is null renders nothing at all, so no separator or quotes either.</summary>
-    private void WriteStringChild(ExpressionSyntax value)
+    /// <summary>A plain string, which becomes the text node of the format.</summary>
+    private void WriteStringChild(ExpressionSyntax value) => WriteTextChild(_stringNode, value);
+
+    /// <summary>
+    /// A text node, such as a plain string or a comment. One that is null renders nothing at all, so no separator, quotes
+    /// or comment markers either.
+    /// </summary>
+    private void WriteTextChild(NodeInfo node, ExpressionSyntax value)
     {
         var constant = _semanticModel.GetConstantValue(value, cancellationToken);
 
@@ -802,12 +809,12 @@ internal sealed class BuildTranslator(
             return;
         }
 
-        var writesAround = _separator is not null || _stringNode.TextPrefix.Length > 0 || _stringNode.TextSuffix.Length > 0;
+        var writesAround = _separator is not null || node.TextPrefix.Length > 0 || node.TextSuffix.Length > 0;
 
         if (constant.HasValue || value is InterpolatedStringExpressionSyntax || !writesAround)
         {
             WriteSeparator();
-            WriteTextNode(_stringNode, value);
+            WriteTextNode(node, value);
             return;
         }
 
@@ -817,9 +824,9 @@ internal sealed class BuildTranslator(
         Add(SegmentKind.Statement, $"string? {variable} = {value};");
         Add(SegmentKind.BlockStart, $"if ({variable} is not null)");
         WriteSeparator();
-        _literal.Append(_stringNode.TextPrefix);
-        AddValue(variable, _stringNode.TextEscape);
-        _literal.Append(_stringNode.TextSuffix);
+        _literal.Append(node.TextPrefix);
+        AddValue(variable, node.TextEscape);
+        _literal.Append(node.TextSuffix);
         Add(SegmentKind.BlockEnd);
     }
 
@@ -838,7 +845,9 @@ internal sealed class BuildTranslator(
             }
 
             var text = ((IFormattable)_semanticModel.GetConstantValue(value, cancellationToken).Value!).ToString(null, CultureInfo.InvariantCulture);
-            _literal.Append(prefix).Append(Escape(escape, text)).Append(suffix);
+            _literal.Append(prefix);
+            AppendEscaped(escape, text);
+            _literal.Append(suffix);
             return;
         }
 
@@ -933,7 +942,9 @@ internal sealed class BuildTranslator(
 
     /// <summary>Whether the escape rule replaces any of these characters. An unknown context is already an error, TDSL006.</summary>
     private bool NeedsEscaping(string context, string characters) =>
-        characters.Any(c => Escape(context, c.ToString()) != c.ToString());
+        Rule(context) is { Writer: not null } rule
+            ? !rule.EscapesWhileCompiling(characters)
+            : characters.Any(c => Escape(context, c.ToString()) != c.ToString());
 
     /// <summary>What programs read a date as. The invariant culture's own format, 11/01/2026, is useless there.</summary>
     private string? GetIsoFormat(ExpressionSyntax value) =>
@@ -1205,7 +1216,9 @@ internal sealed class BuildTranslator(
             // A constant null means that the attribute is absent.
             if (constant.Value is string text)
             {
-                _literal.Append(attribute.Prefix).Append(Escape(attribute.Escape, text)).Append(attribute.Suffix);
+                _literal.Append(attribute.Prefix);
+                AppendEscaped(attribute.Escape, text);
+                _literal.Append(attribute.Suffix);
             }
         }
         else if (value is ConditionalExpressionSyntax conditional)
@@ -1251,7 +1264,9 @@ internal sealed class BuildTranslator(
 
             if (member is not null)
             {
-                _literal.Append(attribute.Prefix).Append(Escape(attribute.Escape, FormatReader.GetEnumText(member.Name))).Append(attribute.Suffix);
+                _literal.Append(attribute.Prefix);
+                AppendEscaped(attribute.Escape, FormatReader.GetEnumText(member.Name));
+                _literal.Append(attribute.Suffix);
             }
 
             return;
@@ -1267,7 +1282,9 @@ internal sealed class BuildTranslator(
         foreach (var member in members)
         {
             Add(SegmentKind.Statement, $"case {typeName}.{member.Name}:");
-            _literal.Append(attribute.Prefix).Append(Escape(attribute.Escape, FormatReader.GetEnumText(member.Name))).Append(attribute.Suffix);
+            _literal.Append(attribute.Prefix);
+            AppendEscaped(attribute.Escape, FormatReader.GetEnumText(member.Name));
+            _literal.Append(attribute.Suffix);
             Add(SegmentKind.Statement, "break;");
         }
 
@@ -1306,6 +1323,24 @@ internal sealed class BuildTranslator(
 
     private string Escape(string? context, string value) => FormatReader.Escape(_escapeRules, context, value);
 
+    private EscapeRule? Rule(string? context) => _escapeRules.FirstOrDefault(rule => rule.Context == context);
+
+    /// <summary>
+    /// Constant text, escaped while compiling. The writer of a rule only runs while rendering, so text that it may
+    /// change goes to it then.
+    /// </summary>
+    private void AppendEscaped(string? context, string text)
+    {
+        if (Rule(context) is { } rule && !rule.EscapesWhileCompiling(text))
+        {
+            AddValue(SymbolDisplay.FormatLiteral(text, quote: true), context);
+        }
+        else
+        {
+            _literal.Append(Escape(context, text));
+        }
+    }
+
     private string? GetEscapeMethod(string? context) =>
         context is null
             ? null
@@ -1321,7 +1356,7 @@ internal sealed class BuildTranslator(
             // A constant null renders as nothing.
             if (constant.Value is string text)
             {
-                _literal.Append(Escape(escape, text));
+                AppendEscaped(escape, text);
             }
         }
         else if (value is ConditionalExpressionSyntax conditional)
@@ -1341,6 +1376,15 @@ internal sealed class BuildTranslator(
 
     private void WriteInterpolated(InterpolatedStringExpressionSyntax interpolated, string? escape, bool isInvariant)
     {
+        // A writer can depend on what comes before, such as a dash after a dash, so it gets the whole string at once,
+        // in the culture of its place.
+        if (Rule(escape)?.Writer is not null)
+        {
+            FlushIfAwaits(interpolated);
+            AddValue(isInvariant ? $"string.Create(global::System.Globalization.CultureInfo.InvariantCulture, {interpolated})" : interpolated.ToString(), escape);
+            return;
+        }
+
         foreach (var content in interpolated.Contents)
         {
             if (content is InterpolatedStringTextSyntax text)
