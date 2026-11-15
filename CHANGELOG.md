@@ -11,6 +11,11 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
   the parameters of its constructors, into the static class `Templates` in the root namespace of the project. With
   `using static App.Templates;`, a template is written `Card("Hello") [ ... ]`, and the type arguments of a generic
   template are inferred. The class can be named with the MSBuild property `TemplateDslTemplatesClass`.
+- The ARIA attributes of WAI-ARIA 1.2 have methods with the types the specification gives them, such as
+  `.AriaExpanded(isOpen)`, which writes `true` or `false`, `.AriaCurrent(AriaCurrent.Page)` and `.AriaValueNow(0.5)`.
+  `.Role(...)` takes the enum `Role`, as in `Role.AlertDialog` for `alertdialog`, or a string, and `.Aria(name, value)`
+  writes the ARIA attributes without a method. An enum member can name its text with `[EnumMember(Value = "...")]`, and
+  an attribute of a format can take a string next to an enum or a bool with `AlsoText`.
 - `.Data(name, value)` writes a data attribute: `.Data("user-id", id)` is `data-user-id`. The name is a constant without
   uppercase letters, which data names can't have, values for programs are invariant, and a `bool` is written as `true` or
   `false`. Formats declare such a family with `[AttrList(NamePrefix = "data-", TrueFalse = true, LowercaseNames = true)]`,
@@ -31,9 +36,12 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
 
 ### Changed
 
+- **Breaking:** `.Attr` can no longer write an attribute whose method takes any string, which the message names: the
+  ARIA attributes for text, such as `aria-label` with `.AriaLabel(...)`, and the attributes whose method takes a string
+  next to its type, such as `role` with `.Role(...)`, `aria-checked` and the `step` of an input. A typed attribute keeps
+  taking a value its type doesn't through `.Attr`, such as `.Attr("aria-expanded", "{{open}}")`.
 - A text node created by its factory, such as `Json.Str(value)` in a custom format, writes nothing for null, not even
   its prefix, its suffix or a separator, as a plain string already did. `Json.Str(null)` wrote `""` before.
-
 - **Breaking:** the static class of the HTML elements is called `Elements` instead of `H`, so that a project can choose
   how to write them. `using static TemplateDsl.Html.Elements;` imports them without a prefix, as in `Div [ ... ]`, which
   the README and the samples do. Code written for `H` keeps compiling unchanged with `using H = TemplateDsl.Html.Elements;`,

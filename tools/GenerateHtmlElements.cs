@@ -54,7 +54,7 @@ static (List<Attribute> Global, List<Element> Elements) Parse(string[] lines)
 
         if (name == "global")
         {
-            global = attributes;
+            global.AddRange(attributes);
         }
         else
         {
@@ -82,7 +82,7 @@ static string EmitElements(List<Attribute> global, List<Element> elements)
     source.Append(Coverage.Excluded + "\npublic abstract partial class HtmlTag<TElement> : HtmlElement where TElement : HtmlTag<TElement>\n{\n    private protected HtmlTag() { }\n\n");
     EmitAttributes(source, "TElement", global);
     source.Append("    /// <summary>An attribute without its own method, such as <c>data-id</c>. The name must be a constant.</summary>\n");
-    source.Append("    [AttrList(Before = \" \", BetweenNameAndValue = \"=\\\"\", After = \"\\\"\", Escape = \"attribute\", CurrentCultureNames = new[] { \"aria-label\", \"aria-description\", \"aria-placeholder\", \"aria-roledescription\", \"aria-valuetext\" })]\n");
+    source.Append("    [AttrList(Before = \" \", BetweenNameAndValue = \"=\\\"\", After = \"\\\"\", Escape = \"attribute\", CurrentCultureNames = new[] { " + AriaNames.ForPeople + " })]\n");
     source.Append("    public partial TElement Attr(string name, string? value);\n\n");
     source.Append("    /// <summary>\n");
     source.Append("    /// A data attribute, whose name follows <c>data-</c>: <c>.Data(\"user-id\", id)</c> writes <c>data-user-id</c>. The name\n");
@@ -90,7 +90,14 @@ static string EmitElements(List<Attribute> global, List<Element> elements)
     source.Append("    /// written as true or false. Null leaves the attribute out.\n");
     source.Append("    /// </summary>\n");
     source.Append("    [AttrList(Before = \" \", BetweenNameAndValue = \"=\\\"\", After = \"\\\"\", Escape = \"attribute\", NamePrefix = \"data-\", TrueFalse = true, LowercaseNames = true)]\n");
-    source.Append("    public partial TElement Data(string name, string? value);\n}\n");
+    source.Append("    public partial TElement Data(string name, string? value);\n\n");
+    source.Append("    /// <summary>\n");
+    source.Append("    /// An ARIA attribute without its own method, such as one of a newer version of WAI-ARIA, whose name follows\n");
+    source.Append("    /// <c>aria-</c>: <c>.Aria(\"braillelabel\", label)</c> writes <c>aria-braillelabel</c>. The name must be a constant in\n");
+    source.Append("    /// lowercase. A bool is written as true or false. Null leaves the attribute out.\n");
+    source.Append("    /// </summary>\n");
+    source.Append("    [AttrList(Before = \" \", BetweenNameAndValue = \"=\\\"\", After = \"\\\"\", Escape = \"attribute\", NamePrefix = \"aria-\", TrueFalse = true, LowercaseNames = true, CurrentCultureNames = new[] { " + AriaNames.ForPeople + " })]\n");
+    source.Append("    public partial TElement Aria(string name, string? value);\n}\n");
 
     foreach (var element in elements)
     {
@@ -129,6 +136,10 @@ static void EmitAttributes(StringBuilder source, string returnType, List<Attribu
                 "number" => ($"[Attr(\" {attribute.Name}=\\\"\", \"\\\"\", Escape = \"attribute\", AnyNumber = true)]", "double? value"),
                 "number|text" => ($"[Attr(\" {attribute.Name}=\\\"\", \"\\\"\", Escape = \"attribute\", AnyNumber = true, AlsoText = true)]", "double? value"),
                 "month" => ($"[Attr(\" {attribute.Name}=\\\"\", \"\\\"\", Escape = \"attribute\", Format = \"yyyy-MM\")]", "System.DateOnly? value"),
+
+                // A type that also takes a string, such as a role of another specification, or "mixed" for aria-checked.
+                var type when type.EndsWith("|text", StringComparison.Ordinal) =>
+                    ($"[Attr(\" {attribute.Name}=\\\"\", \"\\\"\", Escape = \"attribute\", AlsoText = true)]", type[..^"|text".Length] + "? value"),
                 var type => ($"[Attr(\" {attribute.Name}=\\\"\", \"\\\"\", Escape = \"attribute\")]", type switch
                 {
                     "date" => "System.DateOnly",
@@ -191,13 +202,17 @@ static class Names
         string.Concat(name.Split('-').Select(part => char.ToUpperInvariant(part[0]) + part[1..]));
 
     /// <summary>An attribute of several words is cased like its DOM property, such as tabIndex: <c>TabIndex</c>.</summary>
-    public static string Method(string attribute) => Words.TryGetValue(attribute, out var method) ? method : Pascal(attribute);
+    public static string Method(string attribute) => Words.TryGetValue(attribute.Replace("-", ""), out var method) ? method : Pascal(attribute);
 
     private static readonly Dictionary<string, string> Words = new[]
     {
         "AccessKey", "ColSpan", "ContentEditable", "CrossOrigin", "DateTime", "DirName", "FormAction", "FormEnctype", "FormMethod",
         "FormNoValidate", "FormTarget", "InputMode", "IsMap", "MaxLength", "MinLength", "NoModule", "NoValidate", "PlaysInline",
         "PopoverTarget", "PopoverTargetAction", "ReadOnly", "ReferrerPolicy", "RowSpan", "TabIndex", "UseMap",
+        "AriaActiveDescendant", "AriaAutoComplete", "AriaColCount", "AriaColIndex", "AriaColSpan", "AriaDescribedBy", "AriaErrorMessage",
+        "AriaFlowTo", "AriaHasPopup", "AriaKeyShortcuts", "AriaLabelledBy", "AriaMultiLine", "AriaMultiSelectable", "AriaPosInSet",
+        "AriaReadOnly", "AriaRoleDescription", "AriaRowCount", "AriaRowIndex", "AriaRowSpan", "AriaSetSize", "AriaValueMax", "AriaValueMin",
+        "AriaValueNow", "AriaValueText",
     }.ToDictionary(method => method.ToLowerInvariant());
 }
 
@@ -208,4 +223,13 @@ static class Coverage
     /// never runs, so code coverage leaves them out.
     /// </summary>
     public const string Excluded = "[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]";
+}
+
+static class AriaNames
+{
+    /// <summary>
+    /// The ARIA attributes meant for people that have no method of their own, of WAI-ARIA 1.3, which Attr and Aria write
+    /// in the current culture, like the methods of the ones of 1.2, such as AriaLabel.
+    /// </summary>
+    public const string ForPeople = "\"aria-braillelabel\", \"aria-brailleroledescription\", \"aria-colindextext\", \"aria-rowindextext\"";
 }

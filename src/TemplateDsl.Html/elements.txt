@@ -4,14 +4,20 @@
 #   name: attribute~                "~" marks text for people to read: strings, or numbers and dates in the current culture
 #   name: attribute:any             takes strings, or numbers and dates in the invariant culture. Others take only strings
 #   name: attribute:int             takes only that type, also :double and an enum such as :InputType. :bool writes the word true or false
+#   name: attribute:Role|text       takes that type, or a string too, such as a role of another specification
 #   name: attribute:number          takes any number. :number|text takes strings too, and :date, :month, :time, :datetime those
-#   name.variant!: attribute        a variant with a fixed type attribute, such as input.email, which becomes H.InputEmail
+#   name.variant!: attribute        a variant with a fixed type attribute, such as input.email, which becomes Elements.InputEmail
 #   name!: attribute                "!" marks a void element, which has no closing tag or children
 #
-# Attributes on the "global" line go on every element. Event handlers such as onclick are left
+# Attributes on the "global" lines go on every element. Event handlers such as onclick are left
 # out on purpose: running a dynamic value as code should never be one parameter away.
 
-global: id:any class style title~ lang dir role slot nonce tabindex:int accesskey contenteditable:bool draggable:bool spellcheck:bool translate popover hidden? inert? autofocus?
+global: id:any class style title~ lang dir role:Role|text slot nonce tabindex:int accesskey contenteditable:bool draggable:bool spellcheck:bool translate popover hidden? inert? autofocus?
+
+# The states and properties of WAI-ARIA 1.2, without the deprecated aria-dropeffect and aria-grabbed. Booleans are the
+# words true and false, which mean something, unlike the presence of hidden, so they are :bool. aria-checked and
+# aria-pressed also take "mixed". IDs, and lists of them separated by spaces, are strings.
+global: aria-activedescendant aria-atomic:bool aria-autocomplete:AriaAutoComplete aria-busy:bool aria-checked:bool|text aria-colcount:int aria-colindex:int aria-colspan:int aria-controls aria-current:AriaCurrent aria-describedby aria-description~ aria-details aria-disabled:bool aria-errormessage aria-expanded:bool aria-flowto aria-haspopup:AriaHasPopup aria-hidden:bool aria-invalid:AriaInvalid aria-keyshortcuts aria-label~ aria-labelledby aria-level:int aria-live:AriaLive aria-modal:bool aria-multiline:bool aria-multiselectable:bool aria-orientation:AriaOrientation aria-owns aria-placeholder~ aria-posinset:int aria-pressed:bool|text aria-readonly:bool aria-relevant aria-required:bool aria-roledescription~ aria-rowcount:int aria-rowindex:int aria-rowspan:int aria-selected:bool aria-setsize:int aria-sort:AriaSort aria-valuemax:number aria-valuemin:number aria-valuenow:number aria-valuetext~
 
 # Document
 html: xmlns

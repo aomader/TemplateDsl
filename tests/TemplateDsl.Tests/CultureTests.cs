@@ -21,7 +21,7 @@ public sealed partial class ForPeople(double real, int number) : IHtmlTemplate
     public IEnumerable<HtmlElement> Build() =>
     [
         H.Img.Alt(real),
-        H.Div.Title($"{real} of {number,3}").Attr("aria-label", real) [ real, $" {real}" ]
+        H.Div.Title($"{real} of {number,3}").AriaLabel(real) [ real, $" {real}" ]
     ];
 }
 

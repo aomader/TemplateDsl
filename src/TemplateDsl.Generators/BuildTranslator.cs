@@ -743,9 +743,10 @@ internal sealed class BuildTranslator(
         {
             Report(call.GetLocation(), $"'{attributeName}' has an uppercase letter, which the names of these attributes can't have; write it in lowercase, with a dash between words, such as 'user-id'");
         }
-        else if (FindAttribute(node, fullName.Replace("-", "")) is { Kind: AttributeKind.Text or AttributeKind.Presence })
+        // A typed attribute keeps Attr for values its type doesn't take, unless its method takes any string too, as .Role does.
+        else if (FindAttribute(node, fullName.Replace("-", "")) is ({ Kind: AttributeKind.Text or AttributeKind.Presence } or { AlsoText: true }) and var own)
         {
-            Report(call.GetLocation(), $"'{fullName}' has its own method for this kind of value, so it can't be used with {list.MethodName}");
+            Report(call.GetLocation(), $"'{fullName}' has its own method for this kind of value, .{own.Name}(...), so it can't be used with {list.MethodName}");
         }
         else if (!written.Add(fullName))
         {
@@ -1204,7 +1205,8 @@ internal sealed class BuildTranslator(
             return;
         }
 
-        if (attribute.Kind == AttributeKind.TrueFalse)
+        // A word attribute that also takes text, such as aria-checked with "mixed", writes a string as text.
+        if (attribute.Kind == AttributeKind.TrueFalse && !IsString(value))
         {
             WriteTrueFalseAttribute(attribute, value);
             return;
@@ -1278,7 +1280,7 @@ internal sealed class BuildTranslator(
             if (member is not null)
             {
                 _literal.Append(attribute.Prefix);
-                AppendEscaped(attribute.Escape, FormatReader.GetEnumText(member.Name));
+                AppendEscaped(attribute.Escape, FormatReader.GetEnumText(member));
                 _literal.Append(attribute.Suffix);
             }
 
@@ -1296,7 +1298,7 @@ internal sealed class BuildTranslator(
         {
             Add(SegmentKind.Statement, $"case {typeName}.{member.Name}:");
             _literal.Append(attribute.Prefix);
-            AppendEscaped(attribute.Escape, FormatReader.GetEnumText(member.Name));
+            AppendEscaped(attribute.Escape, FormatReader.GetEnumText(member));
             _literal.Append(attribute.Suffix);
             Add(SegmentKind.Statement, "break;");
         }
