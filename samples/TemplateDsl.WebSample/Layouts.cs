@@ -16,7 +16,7 @@ public sealed partial class MainLayout(Page page) : IAsyncHtmlTemplate
 {
     public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
-        Raw("<!DOCTYPE html>"),
+        Doctype,
         Html.Lang("en") [
             Head [
                 Meta.Charset("utf-8"),
@@ -35,7 +35,7 @@ public sealed partial class PlainLayout(Page page) : IAsyncHtmlTemplate
 {
     public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
     [
-        Raw("<!DOCTYPE html>"),
+        Doctype,
         Html.Lang("en") [
             Head [ Title [ page.Title ] ],
             Body [ await page ]

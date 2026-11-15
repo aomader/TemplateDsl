@@ -13,7 +13,7 @@ public sealed partial class DslMainLayout(DslLayoutPage page) : IHtmlTemplate
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        Raw("<!DOCTYPE html>"),
+        Doctype,
         Html.Lang("en") [
             Head [
                 Meta.Charset("utf-8"),
