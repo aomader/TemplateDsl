@@ -44,7 +44,7 @@ public sealed partial class OrdersPage(IAsyncEnumerable<Order> orders) : IAsyncH
         var title = $"Orders of {context.UserName}";
         
         return [
-            Raw("<!DOCTYPE html>"),
+            Doctype,
             Html [
                 Head [ Title [ title ] ],
                 Body [
@@ -146,7 +146,7 @@ Div.Id("main").Class("card") [
 All standard HTML elements are available. Like all C# methods, their names are PascalCase, so they never clash with
 keywords: `Object`, `.Class(...)` and `.For(...)`. Attributes of several words are cased like their DOM property, as in
 `.TabIndex(...)`, `.ReadOnly()` and `.ColSpan(...)`. Elements like `Br` and `Img.Src(url)` have no children, and the
-doctype is written with `Raw("<!DOCTYPE html>")`.
+doctype is written with `Doctype`, as in `[Doctype, Html [ ... ]]`.
 
 How elements are written is up to you, per file or for the whole project:
 

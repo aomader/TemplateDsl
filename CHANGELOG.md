@@ -11,6 +11,7 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
   the parameters of its constructors, into the static class `Templates` in the root namespace of the project. With
   `using static App.Templates;`, a template is written `Card("Hello") [ ... ]`, and the type arguments of a generic
   template are inferred. The class can be named with the MSBuild property `TemplateDslTemplatesClass`.
+- `Doctype` writes `<!DOCTYPE html>`, as in `[Doctype, Html [ ... ]]`, instead of `Raw("<!DOCTYPE html>")`.
 - TDSL010 reports a name of the class of the template factories that is taken, such as by a folder `Templates`.
 - TDSL011 warns about templates with the same name, which get no factory.
 - TDSL012 explains the error of an element that a name of your own hides, such as `Title [ ... ]` in a template with a

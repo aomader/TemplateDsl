@@ -38,7 +38,7 @@ public class HtmlElementsTests
 {
     private static IEnumerable<PropertyInfo> Factories() =>
         typeof(H).GetProperties(BindingFlags.Public | BindingFlags.Static)
-            .Where(p => p.PropertyType.GetCustomAttribute<NodeAttribute>() is not null);
+            .Where(p => p.PropertyType.BaseType is { IsGenericType: true } baseType && baseType.GetGenericTypeDefinition() == typeof(Nodes.HtmlTag<>));
 
     [Fact]
     public void Elements_render_with_their_attributes()
@@ -56,6 +56,46 @@ public class HtmlElementsTests
     public void The_table_is_fully_available()
     {
         Assert.True(Factories().Count() > 100, $"Only {Factories().Count()} elements");
+    }
+
+    [Theory]
+    [InlineData("[H.Doctype, H.Html]", "\"<!DOCTYPE html><html></html>\"u8", null)]
+    [InlineData("[H.Doctype.Id(\"x\")]", null, "CS1061")]     // not an element, so no attributes
+    [InlineData("[H.Doctype [ \"x\" ]]", null, "CS0021")]     // and no children
+    public void The_doctype_is_written_as_it_is_and_takes_nothing(string build, string? expected, string? error)
+    {
+        var compilation = CSharpCompilation.Create(
+            "Test",
+            [CSharpSyntaxTree.ParseText($$"""
+                using System.Collections.Generic;
+                using TemplateDsl;
+                using TemplateDsl.Html;
+                using H = TemplateDsl.Html.Elements;
+
+                public sealed partial class T : IHtmlTemplate
+                {
+                    public IEnumerable<HtmlElement> Build() => {{build}};
+                }
+                """)],
+            ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
+                .Split(Path.PathSeparator)
+                .Select(path => MetadataReference.CreateFromFile(path)),
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release));
+
+        CSharpGeneratorDriver.Create(new TemplateGenerator())
+            .RunGeneratorsAndUpdateCompilation(compilation, out var output, out _);
+
+        var errors = output.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).Select(d => d.Id).ToArray();
+
+        if (error is null)
+        {
+            Assert.Empty(errors);
+            Assert.Contains(expected!, output.SyntaxTrees.Skip(1).First(GeneratorTests.IsRenderFile).ToString());
+        }
+        else
+        {
+            Assert.Contains(error, errors);
+        }
     }
 
     [Fact]

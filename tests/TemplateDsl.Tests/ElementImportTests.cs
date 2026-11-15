@@ -13,6 +13,7 @@ public sealed partial class ImportedElementsPage(string title, IEnumerable<strin
 
     public IEnumerable<HtmlElement> Build() =>
     [
+        Doctype,
         Html [
             Head [ Elements.Title [ Title ] ],
             Body.Class("page") [
@@ -30,6 +31,6 @@ public class ElementImportTests
     [Fact]
     public void Elements_can_be_imported_and_written_without_a_prefix() =>
         Assert.Equal(
-            "<html><head><title>Items</title></head><body class=\"page\"><h1>Items</h1><ul><li>a</li><li>b</li></ul>done<hr></body></html>",
+            "<!DOCTYPE html><html><head><title>Items</title></head><body class=\"page\"><h1>Items</h1><ul><li>a</li><li>b</li></ul>done<hr></body></html>",
             new ImportedElementsPage("Items", ["a", "b"]).RenderToString());
 }

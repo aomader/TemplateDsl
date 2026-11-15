@@ -9,6 +9,9 @@ namespace TemplateDsl.Html;
 [TemplateTags(typeof(HtmlElement))]
 public static partial class Elements
 {
+    /// <summary>The doctype, <c>&lt;!DOCTYPE html&gt;</c>, which comes first in a page: <c>[Doctype, Html [ ... ]]</c>.</summary>
+    public static Nodes.Doctype Doctype => new();
+
     /// <summary>Writes <paramref name="value"/> as text, escaped, like a plain string does.</summary>
     public static Nodes.Text Text(string? value) => new();
 

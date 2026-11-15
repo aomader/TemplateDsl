@@ -20,7 +20,7 @@ public readonly partial record struct DslStructMainLayout<TPage, THead>(TPage Pa
 {
     public IEnumerable<HtmlElement> Build()
     {
-        yield return Raw("<!DOCTYPE html>");
+        yield return Doctype;
         yield return Html.Lang("en") [
             Head [
                 Meta.Charset("utf-8"),
