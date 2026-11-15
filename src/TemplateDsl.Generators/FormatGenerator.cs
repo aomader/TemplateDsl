@@ -444,6 +444,15 @@ public sealed class FormatGenerator : IIncrementalGenerator
             source.Append($"{formattable}    {Excluded}\n{start}<TValue>(string name, TValue? value) {Formattable} => {NotExecutable};\n\n");
         }
 
+        // A list that writes a bool as the word true or false, such as Data("selected", isSelected).
+        var isTrueFalse = isList && method.GetAttributes().Any(a =>
+            FormatReader.IsAttribute(a, "AttrListAttribute") && a.NamedArguments.Any(argument => argument.Key == "TrueFalse" && Equals(argument.Value.Value, true)));
+
+        if (isTrueFalse)
+        {
+            source.Append($"{documentation}    {Excluded}\n{start}(string name, bool? value) => {NotExecutable};\n\n");
+        }
+
         return source.ToString();
     }
 

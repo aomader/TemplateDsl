@@ -172,6 +172,18 @@ public sealed class AttrListAttribute : Attribute
 
     /// <summary>The attributes meant for people to read, whose values use the current culture. All others are invariant.</summary>
     public string[]? CurrentCultureNames { get; set; }
+
+    /// <summary>
+    /// Written before each name, for a family of attributes such as <c>data-</c>: <c>Data("user-id", id)</c> then writes
+    /// <c>data-user-id</c>. Its names are checked like any other, with the prefix.
+    /// </summary>
+    public string? NamePrefix { get; set; }
+
+    /// <summary>Whether a <c>bool?</c> value is written as the word true or false, which also adds an overload that takes one.</summary>
+    public bool TrueFalse { get; set; }
+
+    /// <summary>Whether a name can't have an uppercase letter, as the names of HTML's data attributes can't.</summary>
+    public bool LowercaseNames { get; set; }
 }
 
 /// <summary>A node whose output is the text passed as the first argument of its factory method.</summary>

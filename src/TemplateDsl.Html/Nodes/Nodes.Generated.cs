@@ -88,6 +88,14 @@ public abstract partial class HtmlTag<TElement> : HtmlElement where TElement : H
     /// <summary>An attribute without its own method, such as <c>data-id</c>. The name must be a constant.</summary>
     [AttrList(Before = " ", BetweenNameAndValue = "=\"", After = "\"", Escape = "attribute", CurrentCultureNames = new[] { "aria-label", "aria-description", "aria-placeholder", "aria-roledescription", "aria-valuetext" })]
     public partial TElement Attr(string name, string? value);
+
+    /// <summary>
+    /// A data attribute, whose name follows <c>data-</c>: <c>.Data("user-id", id)</c> writes <c>data-user-id</c>. The name
+    /// must be a constant in lowercase. Like other values for programs, numbers and dates are invariant, and a bool is
+    /// written as true or false. Null leaves the attribute out.
+    /// </summary>
+    [AttrList(Before = " ", BetweenNameAndValue = "=\"", After = "\"", Escape = "attribute", NamePrefix = "data-", TrueFalse = true, LowercaseNames = true)]
+    public partial TElement Data(string name, string? value);
 }
 
 /// <summary>The <c>&lt;html&gt;</c> element.</summary>

@@ -176,11 +176,12 @@ build error with its own ID, each explained in [docs/diagnostics](https://github
 ### Attributes and values
 
 Boolean attributes work with or without a value, as in `.Hidden()` and `.Hidden(isHidden)`. A null value leaves an
-attribute out. Attributes without their own method use `.Attr`, whose name must be a constant while the value can be
-dynamic:
+attribute out. Data attributes use `.Data`, whose name follows `data-` and has no uppercase letters, and other attributes
+without their own method use `.Attr`. Their names must be constants, while the values can be dynamic, and `.Data` also
+writes a `bool` as `true` or `false`:
 
 ```csharp
-Div.Id("main").Hidden(isHidden).Attr("data-user-id", userId).Attr("aria-label", "Profile") [
+Div.Id("main").Hidden(isHidden).Data("user-id", userId).Attr("aria-label", "Profile") [
     title
 ]
 ```
@@ -204,14 +205,14 @@ InputCheckbox.Min(3)                                                // compile e
 `Input.Type(InputType.Week)`, for when the type is only known at runtime. `InputType.DatetimeLocal` is written as
 `datetime-local`.
 
-Numbers, dates, `Guid`s and `char`s can be used directly, as in `P [ count ]` and `.Attr("data-id", id)`. They are
+Numbers, dates, `Guid`s and `char`s can be used directly, as in `P [ count ]` and `.Data("id", id)`. They are
 written without creating a string, escaped, and null leaves them out. For a specific format, use interpolation, as in
 `$"{price:F2}"`. A `bool` is not text, so write it with `$"{flag}"` or a word of your choice.
 
 Their culture depends on who reads them, also inside an interpolated string:
 
 ```csharp
-Div.Style($"width:{ratio}%").Attr("data-price", price) [   // width:1.5%, data-price="1.5": for programs, always invariant
+Div.Style($"width:{ratio}%").Data("price", price) [   // width:1.5%, data-price="1.5": for programs, always invariant
     price,                                                   // 1,5: text for people, in the current culture
     Img.Alt($"Costs {price}")                              // Costs 1,5: an attribute for people
 ]

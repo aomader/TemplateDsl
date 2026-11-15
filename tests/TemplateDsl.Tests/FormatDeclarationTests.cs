@@ -30,6 +30,18 @@ public class FormatDeclarationTests
     }
 
     [Fact]
+    public void Every_element_has_a_list_for_any_attribute_and_one_for_data_attributes()
+    {
+        var any = Tag.GetMethod("Attr", [typeof(string), typeof(string)])!.GetCustomAttribute<AttrListAttribute>()!;
+        var data = Tag.GetMethod("Data", [typeof(string), typeof(string)])!.GetCustomAttribute<AttrListAttribute>()!;
+
+        Assert.Equal((null, false, false), (any.NamePrefix, any.TrueFalse, any.LowercaseNames));
+        Assert.Equal(("data-", true, true), (data.NamePrefix, data.TrueFalse, data.LowercaseNames));
+        Assert.Equal((" ", "=\"", "\"", "attribute"), (data.Before, data.BetweenNameAndValue, data.After, data.Escape));
+        Assert.Null(data.CurrentCultureNames);
+    }
+
+    [Fact]
     public void Text_nodes_say_how_they_are_written()
     {
         var html = typeof(Nodes.Text).GetCustomAttribute<TextNodeAttribute>()!;

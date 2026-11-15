@@ -46,7 +46,17 @@ internal sealed record AttributeInfo(
     bool AlsoText = false,
     string? Format = null);
 
-internal sealed record AttributeListInfo(string Before, string BetweenNameAndValue, string After, string? Escape, EquatableArray<string> CurrentCultureNames);
+/// <summary>A list of attributes without their own method, such as Attr or Data, called by its method's name.</summary>
+internal sealed record AttributeListInfo(
+    string MethodName,
+    string Before,
+    string BetweenNameAndValue,
+    string After,
+    string? Escape,
+    EquatableArray<string> CurrentCultureNames,
+    string NamePrefix = "",
+    bool TrueFalse = false,
+    bool LowercaseNames = false);
 
 /// <summary>How a node renders, as declared by its attributes.</summary>
 internal sealed record NodeInfo(
@@ -59,7 +69,7 @@ internal sealed record NodeInfo(
     string TextSuffix,
     string? Separator,
     EquatableArray<AttributeInfo> Attributes,
-    AttributeListInfo? AttributeList = null,
+    EquatableArray<AttributeListInfo>? AttributeLists = null,
     bool IsVoid = false);
 
 /// <param name="Context">The name that nodes and attributes refer to the rule by.</param>
@@ -155,7 +165,7 @@ internal static class FormatReader
                     TextSuffix: "",
                     GetNamed(attribute, "Separator"),
                     new EquatableArray<AttributeInfo>(ReadAttributes(type)),
-                    ReadAttributeList(type),
+                    ReadAttributeLists(type),
                     attribute.NamedArguments.Any(argument => argument.Key == "IsVoid" && Equals(argument.Value.Value, true)));
             }
 
@@ -325,29 +335,28 @@ internal static class FormatReader
     public static bool HasAttributeListShape(IMethodSymbol method) =>
         !method.IsGenericMethod && method.Parameters.Length == 2 && method.Parameters.All(p => p.Type.SpecialType == SpecialType.System_String);
 
-    private static AttributeListInfo? ReadAttributeList(ITypeSymbol type)
-    {
-        foreach (var method in AllMethods(type))
-        {
-            var attribute = method.GetAttributes().FirstOrDefault(a => IsAttribute(a, "AttrListAttribute"));
-
-            if (attribute is not null)
-            {
-                return new AttributeListInfo(
-                    GetNamed(attribute, "Before") ?? "",
-                    GetNamed(attribute, "BetweenNameAndValue") ?? "",
-                    GetNamed(attribute, "After") ?? "",
-                    GetNamed(attribute, "Escape"),
-                    new EquatableArray<string>(attribute.NamedArguments
-                        .Where(argument => argument.Key == "CurrentCultureNames")
-                        .SelectMany(argument => argument.Value.Values)
-                        .Select(name => (string)name.Value!)
-                        .ToArray()));
-            }
-        }
-
-        return null;
-    }
+    /// <summary>The lists of attributes without their own method, such as Attr and Data, of a node and its base classes.</summary>
+    private static EquatableArray<AttributeListInfo> ReadAttributeLists(ITypeSymbol type) =>
+        new(AllMethods(type)
+            .Select(method => (Method: method, Attribute: method.GetAttributes().FirstOrDefault(a => IsAttribute(a, "AttrListAttribute"))))
+            .Where(pair => pair.Attribute is not null)
+            .GroupBy(pair => pair.Method.Name)
+            .Select(group => group.First())
+            .Select(pair => new AttributeListInfo(
+                pair.Method.Name,
+                GetNamed(pair.Attribute!, "Before") ?? "",
+                GetNamed(pair.Attribute!, "BetweenNameAndValue") ?? "",
+                GetNamed(pair.Attribute!, "After") ?? "",
+                GetNamed(pair.Attribute!, "Escape"),
+                new EquatableArray<string>(pair.Attribute!.NamedArguments
+                    .Where(argument => argument.Key == "CurrentCultureNames")
+                    .SelectMany(argument => argument.Value.Values)
+                    .Select(name => (string)name.Value!)
+                    .ToArray()),
+                GetNamed(pair.Attribute!, "NamePrefix") ?? "",
+                IsSet(pair.Attribute!, "TrueFalse"),
+                IsSet(pair.Attribute!, "LowercaseNames")))
+            .ToArray());
 
     /// <summary>Names aren't escaped, so these characters could inject markup.</summary>
     public static bool IsValidAttributeName(string name) =>

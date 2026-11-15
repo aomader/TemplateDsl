@@ -17,6 +17,15 @@ public sealed partial class AttrsPage(string value, string? optional, bool flag,
     ];
 }
 
+public sealed partial class DataPage(string value, string? optional, int number, DateOnly day, bool flag, bool? maybe) : IHtmlTemplate
+{
+    public IEnumerable<HtmlElement> Build() =>
+    [
+        H.Li.Data("todo-id", number).Data("state", value).Data("note", optional).Data("due", day).Data("ratio", 1.5)
+            .Data("done", flag).Data("selected", maybe).Data("on", true).Data("off", false).Data("const", "c&d") [ "x" ]
+    ];
+}
+
 public sealed partial class AsyncAttrs(Task<string> value) : IAsyncHtmlTemplate
 {
     public async Task<IEnumerable<HtmlElement>> BuildAsync(CancellationToken ct) =>
@@ -51,6 +60,31 @@ public class AttributeListTests
             + "<div></div>"
             + "<div></div>",
             new AttrsPage("v", "o", true, 7).RenderToString());
+    }
+
+    [Fact]
+    public void Data_attributes_are_written_with_their_prefix_in_the_invariant_culture()
+    {
+        var culture = System.Globalization.CultureInfo.CurrentCulture;
+        System.Globalization.CultureInfo.CurrentCulture = new System.Globalization.CultureInfo("de-DE");
+
+        try
+        {
+            Assert.Equal(
+                "<li data-todo-id=\"5\" data-state=\"open\" data-note=\"n\" data-due=\"2026-11-14\" data-ratio=\"1.5\""
+                + " data-done=\"true\" data-selected=\"false\" data-on=\"true\" data-off=\"false\" data-const=\"c&amp;d\">x</li>",
+                new DataPage("open", "n", 5, new DateOnly(2026, 11, 14), true, false).RenderToString());
+
+            // Null leaves an attribute out, for a string and a bool alike.
+            Assert.Equal(
+                "<li data-todo-id=\"5\" data-state=\"&quot;&gt;\" data-due=\"2026-11-14\" data-ratio=\"1.5\""
+                + " data-done=\"false\" data-on=\"true\" data-off=\"false\" data-const=\"c&amp;d\">x</li>",
+                new DataPage("\">", null, 5, new DateOnly(2026, 11, 14), false, null).RenderToString());
+        }
+        finally
+        {
+            System.Globalization.CultureInfo.CurrentCulture = culture;
+        }
     }
 
     [Fact]
@@ -98,6 +132,12 @@ public class AttributeListTests
     [InlineData("""=> [H.Div.Attr("data-a", "1").Attr("data-a", "2")];""")]
     [InlineData("""=> [H.Div.Attr(Shared, "b")]; private static readonly string Shared = "a";""")]
     [InlineData("""=> [H.Div.Attr("data-a")];""")]
+    [InlineData("""=> [H.Div.Data(model, "v")];""")]                          // a name that isn't a constant
+    [InlineData("""=> [H.Div.Data("", "v")];""")]                             // data- alone
+    [InlineData("""=> [H.Div.Data("userId", "v")];""")]                       // uppercase, which data names can't have
+    [InlineData("""=> [H.Div.Data("bad name", "v")];""")]
+    [InlineData("""=> [H.Div.Data("a", "1").Data("a", "2")];""")]
+    [InlineData("""=> [H.Div.Attr("data-a", "1").Data("a", "2")];""")]       // the same attribute, written both ways
     public void Invalid_attribute_lists_are_reported(string build)
     {
         var compilation = CSharpCompilation.Create(
