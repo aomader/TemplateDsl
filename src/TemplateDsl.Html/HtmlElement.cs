@@ -9,4 +9,5 @@ namespace TemplateDsl.Html;
 [TemplateFormat(typeof(Text), FormatsValues = true, ContentType = "text/html; charset=utf-8")]
 [Escape("text", "&", "&amp;", "<", "&lt;", ">", "&gt;")]
 [Escape("attribute", "&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&#39;")]
+[Escape("comment", Writer = typeof(CommentText), Changes = "->")]
 public abstract partial class HtmlElement : TemplateNode;

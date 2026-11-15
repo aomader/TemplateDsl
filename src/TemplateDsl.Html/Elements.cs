@@ -15,6 +15,13 @@ public static partial class Elements
     /// <summary>Writes <paramref name="value"/> as text, escaped, like a plain string does.</summary>
     public static Nodes.Text Text(string? value) => new();
 
+    /// <summary>
+    /// Writes <paramref name="value"/> as an HTML comment, <c>&lt;!--value--&gt;</c>, which it can't end early or
+    /// break, as it is written to be safe without changing how it reads. Null writes nothing. Everyone who loads the
+    /// page can read it, so it is no place for secrets.
+    /// </summary>
+    public static Nodes.Comment Comment(string? value) => new();
+
     /// <summary>Writes <paramref name="value"/> without escaping. Never use it with untrusted input.</summary>
     public static Nodes.RawHtml Raw(string? value) => new();
 }

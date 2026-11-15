@@ -60,6 +60,30 @@ public sealed class EscapeAttribute(string context, params string[] replacements
 
     /// <summary>Pairs of a single character and the text that replaces it, such as <c>"&lt;", "&amp;lt;"</c>.</summary>
     public string[] Replacements { get; } = replacements;
+
+    /// <summary>
+    /// A class implementing <see cref="ITextWriter"/> that writes the text of this rule instead of the replacements,
+    /// for a rule that depends on more than a single character, such as two dashes in a comment. It gets the whole text
+    /// at once, so an interpolated string is written as one. Without <see cref="Changes"/>, constant text goes through
+    /// it while rendering too.
+    /// </summary>
+    public Type? Writer { get; set; }
+
+    /// <summary>
+    /// For a <see cref="Writer"/>: the characters it can change. Text without any of them is written as it is, and
+    /// constant text without them is written while compiling, like with replacements.
+    /// </summary>
+    public string? Changes { get; set; }
+}
+
+/// <summary>
+/// Writes the text of an <see cref="EscapeAttribute"/> rule that single replacements can't describe, as UTF-8.
+/// Generated code calls it with the whole text, which is never null.
+/// </summary>
+public interface ITextWriter
+{
+    /// <summary>Writes <paramref name="text"/> as UTF-8 to <paramref name="writer"/>, escaped as the rule needs.</summary>
+    static abstract void Write(ReadOnlySpan<char> text, System.Buffers.IBufferWriter<byte> writer);
 }
 
 /// <summary>
