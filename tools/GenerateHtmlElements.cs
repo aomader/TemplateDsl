@@ -83,7 +83,14 @@ static string EmitElements(List<Attribute> global, List<Element> elements)
     EmitAttributes(source, "TElement", global);
     source.Append("    /// <summary>An attribute without its own method, such as <c>data-id</c>. The name must be a constant.</summary>\n");
     source.Append("    [AttrList(Before = \" \", BetweenNameAndValue = \"=\\\"\", After = \"\\\"\", Escape = \"attribute\", CurrentCultureNames = new[] { \"aria-label\", \"aria-description\", \"aria-placeholder\", \"aria-roledescription\", \"aria-valuetext\" })]\n");
-    source.Append("    public partial TElement Attr(string name, string? value);\n}\n");
+    source.Append("    public partial TElement Attr(string name, string? value);\n\n");
+    source.Append("    /// <summary>\n");
+    source.Append("    /// A data attribute, whose name follows <c>data-</c>: <c>.Data(\"user-id\", id)</c> writes <c>data-user-id</c>. The name\n");
+    source.Append("    /// must be a constant in lowercase. Like other values for programs, numbers and dates are invariant, and a bool is\n");
+    source.Append("    /// written as true or false. Null leaves the attribute out.\n");
+    source.Append("    /// </summary>\n");
+    source.Append("    [AttrList(Before = \" \", BetweenNameAndValue = \"=\\\"\", After = \"\\\"\", Escape = \"attribute\", NamePrefix = \"data-\", TrueFalse = true, LowercaseNames = true)]\n");
+    source.Append("    public partial TElement Data(string name, string? value);\n}\n");
 
     foreach (var element in elements)
     {

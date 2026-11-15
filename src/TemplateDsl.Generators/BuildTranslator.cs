@@ -701,7 +701,7 @@ internal sealed class BuildTranslator(
                 Report(call.GetLocation(), $"'{call}' must have one value");
             }
         }
-        else if (name == "Attr" && node.AttributeList is { } list)
+        else if (node.AttributeLists?.FirstOrDefault(candidate => candidate.MethodName == name) is { } list)
         {
             WriteAttr(node, list, call, written);
         }
@@ -728,31 +728,44 @@ internal sealed class BuildTranslator(
         if (!name.HasValue || name.Value is not string attributeName)
         {
             Report(call.GetLocation(), $"'{nameArgument}' must be a constant, because attribute names aren't escaped");
+            return;
         }
-        else if (!FormatReader.IsValidAttributeName(attributeName))
+
+        // A family of attributes, such as data-, has its prefix in front of every name: Data("user-id", ...) is data-user-id.
+        var fullName = list.NamePrefix + attributeName;
+        var value = arguments[nameFirst ? 1 : 0].Expression;
+
+        if (attributeName.Length == 0 || !FormatReader.IsValidAttributeName(fullName))
         {
-            Report(call.GetLocation(), $"'{attributeName}' is not a valid attribute name");
+            Report(call.GetLocation(), $"'{fullName}' is not a valid attribute name");
         }
-        else if (FindAttribute(node, attributeName.Replace("-", "")) is { Kind: AttributeKind.Text or AttributeKind.Presence })
+        else if (list.LowercaseNames && attributeName.Any(character => character is >= 'A' and <= 'Z'))
         {
-            Report(call.GetLocation(), $"'{attributeName}' has its own method for this kind of value, so it can't be used with Attr");
+            Report(call.GetLocation(), $"'{attributeName}' has an uppercase letter, which the names of these attributes can't have; write it in lowercase, with a dash between words, such as 'user-id'");
         }
-        else if (!written.Add(attributeName))
+        else if (FindAttribute(node, fullName.Replace("-", "")) is { Kind: AttributeKind.Text or AttributeKind.Presence })
         {
-            Report(call.GetLocation(), $"'{attributeName}' appears more than once");
+            Report(call.GetLocation(), $"'{fullName}' has its own method for this kind of value, so it can't be used with {list.MethodName}");
+        }
+        else if (!written.Add(fullName))
+        {
+            Report(call.GetLocation(), $"'{fullName}' appears more than once");
         }
         else
         {
-            // From here on it's an attribute like any other, whose value can be anything a string can be.
+            // From here on it's an attribute like any other, whose value can be anything a string can be, and a bool
+            // if the list writes it as a word.
+            var isTrueFalse = list.TrueFalse && GetValueType(value)?.SpecialType == SpecialType.System_Boolean;
+
             WriteAttribute(
                 new AttributeInfo(
-                    attributeName,
-                    list.Before + attributeName + list.BetweenNameAndValue,
+                    fullName,
+                    list.Before + fullName + list.BetweenNameAndValue,
                     list.After,
                     list.Escape,
-                    AttributeKind.Text,
-                    IsCurrentCulture: list.CurrentCultureNames.Contains(attributeName, StringComparer.OrdinalIgnoreCase)),
-                arguments[nameFirst ? 1 : 0].Expression);
+                    isTrueFalse ? AttributeKind.TrueFalse : AttributeKind.Text,
+                    IsCurrentCulture: list.CurrentCultureNames.Contains(fullName, StringComparer.OrdinalIgnoreCase)),
+                value);
         }
     }
 

@@ -11,7 +11,7 @@ public sealed partial class HelloPage(string userName, bool isAdmin, int unreadM
             [
                 Html [
                     Body [
-                        Div.Id($"admin-{userName}").Class("admin").Attr("data-role", "admin") [
+                        Div.Id($"admin-{userName}").Class("admin").Data("role", "admin") [
                             $"Administrator {userName} at {DateTime.UtcNow}",
                             new Card("Admin tools") [
                                 new Button("Save"),

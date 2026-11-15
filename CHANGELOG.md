@@ -11,6 +11,10 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
   the parameters of its constructors, into the static class `Templates` in the root namespace of the project. With
   `using static App.Templates;`, a template is written `Card("Hello") [ ... ]`, and the type arguments of a generic
   template are inferred. The class can be named with the MSBuild property `TemplateDslTemplatesClass`.
+- `.Data(name, value)` writes a data attribute: `.Data("user-id", id)` is `data-user-id`. The name is a constant without
+  uppercase letters, which data names can't have, values for programs are invariant, and a `bool` is written as `true` or
+  `false`. Formats declare such a family with `[AttrList(NamePrefix = "data-", TrueFalse = true, LowercaseNames = true)]`,
+  and a node can have several lists of attributes.
 - `Doctype` writes `<!DOCTYPE html>`, as in `[Doctype, Html [ ... ]]`, instead of `Raw("<!DOCTYPE html>")`.
 - `Comment(text)` writes an HTML comment whose text can't end or break it. A browser doesn't decode escaped characters
   in a comment, so instead of escaping, the text gets a zero-width space where it would be dangerous, such as at `--`
