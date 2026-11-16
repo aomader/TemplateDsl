@@ -18,14 +18,14 @@ global: id:any class:tokens style title~ lang dir role:Role|text slot nonce tabi
 # The states and properties of WAI-ARIA 1.2, without the deprecated aria-dropeffect and aria-grabbed. Booleans are the
 # words true and false, which mean something, unlike the presence of hidden, so they are :bool. aria-checked and
 # aria-pressed also take "mixed". IDs, and lists of them separated by spaces, are strings.
-global: aria-activedescendant aria-atomic:bool aria-autocomplete:AriaAutoComplete aria-busy:bool aria-checked:bool|text aria-colcount:int aria-colindex:int aria-colspan:int aria-controls aria-current:AriaCurrent aria-describedby aria-description~ aria-details aria-disabled:bool aria-errormessage aria-expanded:bool aria-flowto aria-haspopup:AriaHasPopup aria-hidden:bool aria-invalid:AriaInvalid aria-keyshortcuts aria-label~ aria-labelledby aria-level:int aria-live:AriaLive aria-modal:bool aria-multiline:bool aria-multiselectable:bool aria-orientation:AriaOrientation aria-owns aria-placeholder~ aria-posinset:int aria-pressed:bool|text aria-readonly:bool aria-relevant aria-required:bool aria-roledescription~ aria-rowcount:int aria-rowindex:int aria-rowspan:int aria-selected:bool aria-setsize:int aria-sort:AriaSort aria-valuemax:number aria-valuemin:number aria-valuenow:number aria-valuetext~
+global: aria-activedescendant aria-atomic:bool aria-autocomplete:AriaAutoComplete aria-busy:bool aria-checked:bool|text aria-colcount:int aria-colindex:int aria-colspan:int aria-controls:tokens aria-current:AriaCurrent aria-describedby:tokens aria-description~ aria-details aria-disabled:bool aria-errormessage aria-expanded:bool aria-flowto aria-haspopup:AriaHasPopup aria-hidden:bool aria-invalid:AriaInvalid aria-keyshortcuts aria-label~ aria-labelledby:tokens aria-level:int aria-live:AriaLive aria-modal:bool aria-multiline:bool aria-multiselectable:bool aria-orientation:AriaOrientation aria-owns:tokens aria-placeholder~ aria-posinset:int aria-pressed:bool|text aria-readonly:bool aria-relevant aria-required:bool aria-roledescription~ aria-rowcount:int aria-rowindex:int aria-rowspan:int aria-selected:bool aria-setsize:int aria-sort:AriaSort aria-valuemax:number aria-valuemin:number aria-valuenow:number aria-valuetext~
 
 # Document
 html: xmlns
 head:
 title:
 base!: href target
-link!: href rel as media type sizes crossorigin integrity hreflang referrerpolicy disabled?
+link!: href rel:tokens as media type sizes crossorigin integrity hreflang referrerpolicy disabled?
 meta!: name content:any charset http-equiv
 style: media
 body:
@@ -65,7 +65,7 @@ figcaption:
 div:
 
 # Text
-a: href target rel download hreflang type ping referrerpolicy
+a: href target rel:tokens download hreflang type ping referrerpolicy
 em:
 strong:
 small:
@@ -101,14 +101,14 @@ del: cite datetime:any
 picture:
 source!: src srcset sizes media type width:int height:int
 img!: src alt~ srcset sizes width:int height:int loading decoding crossorigin referrerpolicy usemap ismap?
-iframe: src srcdoc name sandbox allow width:int height:int loading referrerpolicy
+iframe: src srcdoc name sandbox:tokens allow width:int height:int loading referrerpolicy
 embed!: src type width:int height:int
 object: data type name form width:int height:int usemap
 video: src poster width:int height:int preload crossorigin controls? autoplay? loop? muted? playsinline?
 audio: src preload crossorigin controls? autoplay? loop? muted?
 track!: src kind srclang label~ default?
 map: name
-area!: href alt~ coords shape target rel download ping referrerpolicy
+area!: href alt~ coords shape target rel:tokens download ping referrerpolicy
 
 # Tables
 table:
@@ -123,7 +123,7 @@ td: colspan:int rowspan:int headers
 th: colspan:int rowspan:int headers scope abbr~
 
 # Forms
-form: action method enctype name target rel autocomplete accept-charset novalidate?
+form: action method enctype name target rel:tokens autocomplete accept-charset novalidate?
 label: for
 input!: type:InputType name:any value:any placeholder~ form list min:any max:any step:any pattern size:int maxlength:int minlength:int src alt~ width:int height:int accept autocomplete dirname inputmode formaction formenctype formmethod formtarget checked? disabled? multiple? readonly? required? formnovalidate?
 # The variants of input take only what their type allows: H.InputEmail, H.InputNumber and so on.

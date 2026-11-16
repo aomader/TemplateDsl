@@ -15,7 +15,7 @@ public abstract partial class HtmlTag<TElement> : HtmlElement where TElement : H
     /// <summary>The <c>class</c> attribute.</summary>
     public partial TElement Class([Attr(" class=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
-    /// <summary>The <c>class</c> attribute, of names that are left out if they are null or empty, or if their condition is false: <c>Class("todo", ("done", todo.Done))</c>.</summary>
+    /// <summary>The <c>class</c> attribute, of names that are left out if they are null or empty, or if their condition is false: <c>Class("a", ("b", isB))</c>.</summary>
     public partial TElement Class([Attr(" class=\"", "\"", Escape = "attribute", Tokens = " ")] params AttributeToken[] names);
 
     /// <summary>The <c>style</c> attribute.</summary>
@@ -96,11 +96,17 @@ public abstract partial class HtmlTag<TElement> : HtmlElement where TElement : H
     /// <summary>The <c>aria-controls</c> attribute.</summary>
     public partial TElement AriaControls([Attr(" aria-controls=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
+    /// <summary>The <c>aria-controls</c> attribute, of names that are left out if they are null or empty, or if their condition is false: <c>AriaControls("a", ("b", isB))</c>.</summary>
+    public partial TElement AriaControls([Attr(" aria-controls=\"", "\"", Escape = "attribute", Tokens = " ")] params AttributeToken[] names);
+
     /// <summary>The <c>aria-current</c> attribute.</summary>
     public partial TElement AriaCurrent([Attr(" aria-current=\"", "\"", Escape = "attribute")] AriaCurrent? value);
 
     /// <summary>The <c>aria-describedby</c> attribute.</summary>
     public partial TElement AriaDescribedBy([Attr(" aria-describedby=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
+
+    /// <summary>The <c>aria-describedby</c> attribute, of names that are left out if they are null or empty, or if their condition is false: <c>AriaDescribedBy("a", ("b", isB))</c>.</summary>
+    public partial TElement AriaDescribedBy([Attr(" aria-describedby=\"", "\"", Escape = "attribute", Tokens = " ")] params AttributeToken[] names);
 
     /// <summary>The <c>aria-description</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
     public partial TElement AriaDescription([Attr(" aria-description=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
@@ -138,6 +144,9 @@ public abstract partial class HtmlTag<TElement> : HtmlElement where TElement : H
     /// <summary>The <c>aria-labelledby</c> attribute.</summary>
     public partial TElement AriaLabelledBy([Attr(" aria-labelledby=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
+    /// <summary>The <c>aria-labelledby</c> attribute, of names that are left out if they are null or empty, or if their condition is false: <c>AriaLabelledBy("a", ("b", isB))</c>.</summary>
+    public partial TElement AriaLabelledBy([Attr(" aria-labelledby=\"", "\"", Escape = "attribute", Tokens = " ")] params AttributeToken[] names);
+
     /// <summary>The <c>aria-level</c> attribute.</summary>
     public partial TElement AriaLevel([Attr(" aria-level=\"", "\"", Escape = "attribute")] int? value);
 
@@ -158,6 +167,9 @@ public abstract partial class HtmlTag<TElement> : HtmlElement where TElement : H
 
     /// <summary>The <c>aria-owns</c> attribute.</summary>
     public partial TElement AriaOwns([Attr(" aria-owns=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
+
+    /// <summary>The <c>aria-owns</c> attribute, of names that are left out if they are null or empty, or if their condition is false: <c>AriaOwns("a", ("b", isB))</c>.</summary>
+    public partial TElement AriaOwns([Attr(" aria-owns=\"", "\"", Escape = "attribute", Tokens = " ")] params AttributeToken[] names);
 
     /// <summary>The <c>aria-placeholder</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
     public partial TElement AriaPlaceholder([Attr(" aria-placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
@@ -284,6 +296,9 @@ public sealed partial class Link : HtmlTag<Link>
 
     /// <summary>The <c>rel</c> attribute.</summary>
     public partial Link Rel([Attr(" rel=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
+
+    /// <summary>The <c>rel</c> attribute, of names that are left out if they are null or empty, or if their condition is false: <c>Rel("a", ("b", isB))</c>.</summary>
+    public partial Link Rel([Attr(" rel=\"", "\"", Escape = "attribute", Tokens = " ")] params AttributeToken[] names);
 
     /// <summary>The <c>as</c> attribute.</summary>
     public partial Link As([Attr(" as=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
@@ -622,6 +637,9 @@ public sealed partial class A : HtmlTag<A>
 
     /// <summary>The <c>rel</c> attribute.</summary>
     public partial A Rel([Attr(" rel=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
+
+    /// <summary>The <c>rel</c> attribute, of names that are left out if they are null or empty, or if their condition is false: <c>Rel("a", ("b", isB))</c>.</summary>
+    public partial A Rel([Attr(" rel=\"", "\"", Escape = "attribute", Tokens = " ")] params AttributeToken[] names);
 
     /// <summary>The <c>download</c> attribute.</summary>
     public partial A Download([Attr(" download=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
@@ -1000,6 +1018,9 @@ public sealed partial class Iframe : HtmlTag<Iframe>
     /// <summary>The <c>sandbox</c> attribute.</summary>
     public partial Iframe Sandbox([Attr(" sandbox=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
+    /// <summary>The <c>sandbox</c> attribute, of names that are left out if they are null or empty, or if their condition is false: <c>Sandbox("a", ("b", isB))</c>.</summary>
+    public partial Iframe Sandbox([Attr(" sandbox=\"", "\"", Escape = "attribute", Tokens = " ")] params AttributeToken[] names);
+
     /// <summary>The <c>allow</c> attribute.</summary>
     public partial Iframe Allow([Attr(" allow=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
@@ -1194,6 +1215,9 @@ public sealed partial class Area : HtmlTag<Area>
     /// <summary>The <c>rel</c> attribute.</summary>
     public partial Area Rel([Attr(" rel=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
+    /// <summary>The <c>rel</c> attribute, of names that are left out if they are null or empty, or if their condition is false: <c>Rel("a", ("b", isB))</c>.</summary>
+    public partial Area Rel([Attr(" rel=\"", "\"", Escape = "attribute", Tokens = " ")] params AttributeToken[] names);
+
     /// <summary>The <c>download</c> attribute.</summary>
     public partial Area Download([Attr(" download=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
@@ -1338,6 +1362,9 @@ public sealed partial class Form : HtmlTag<Form>
 
     /// <summary>The <c>rel</c> attribute.</summary>
     public partial Form Rel([Attr(" rel=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
+
+    /// <summary>The <c>rel</c> attribute, of names that are left out if they are null or empty, or if their condition is false: <c>Rel("a", ("b", isB))</c>.</summary>
+    public partial Form Rel([Attr(" rel=\"", "\"", Escape = "attribute", Tokens = " ")] params AttributeToken[] names);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
     public partial Form Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);

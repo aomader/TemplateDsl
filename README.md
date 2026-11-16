@@ -202,6 +202,14 @@ Li.Class("todo", ("done", todo.Done), ("editing", isEditing), extraClass) [ todo
 Constant names are written while compiling, so this costs no more than the ternary it replaces. A class is still set
 once per element: a second `.Class(...)` is an error.
 
+Other lists of names work the same way: `rel`, `sandbox`, and the ARIA lists of IDs `aria-describedby`,
+`aria-labelledby`, `aria-controls` and `aria-owns`. A field can point at its error only when there is one:
+
+```csharp
+InputEmail.Id("email").AriaDescribedBy("email-hint", ("email-error", error is not null))
+A.Href(url).Rel("noopener", ("nofollow", isUserContent))
+```
+
 ARIA attributes have methods too, with the types WAI-ARIA 1.2 gives them. Booleans are the words `true` and `false`,
 which mean something in ARIA, unlike the presence of `hidden`, and tokens are enums:
 

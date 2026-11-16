@@ -130,7 +130,7 @@ static void EmitAttributes(StringBuilder source, string returnType, List<Attribu
 
             source.Append(CultureInfo.InvariantCulture, $"    /// <summary>The <c>{attribute.Name}</c> attribute.</summary>\n");
             source.Append(CultureInfo.InvariantCulture, $"    public partial {returnType} {attribute.MethodName}([Attr({prefix}, TextOnly = true)] string? value);\n\n");
-            source.Append(CultureInfo.InvariantCulture, $"    /// <summary>The <c>{attribute.Name}</c> attribute, of names that are left out if they are null or empty, or if their condition is false: <c>{attribute.MethodName}(\"todo\", (\"done\", todo.Done))</c>.</summary>\n");
+            source.Append(CultureInfo.InvariantCulture, $"    /// <summary>The <c>{attribute.Name}</c> attribute, of names that are left out if they are null or empty, or if their condition is false: <c>{attribute.MethodName}(\"a\", (\"b\", isB))</c>.</summary>\n");
             source.Append(CultureInfo.InvariantCulture, $"    public partial {returnType} {attribute.MethodName}([Attr({prefix}, Tokens = \" \")] params AttributeToken[] names);\n\n");
             continue;
         }
