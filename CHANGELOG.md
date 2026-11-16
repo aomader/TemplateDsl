@@ -5,70 +5,54 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-16
+
+The first release. Templates are plain C#, which a source generator compiles into code that writes UTF-8 directly,
+so rendering builds no tree, and an error in a template is a compile error.
+
 ### Added
 
-- `.Class(...)` takes a list of names, each a string or a pair of a name and whether to write it:
-  `Li.Class("todo", ("done", todo.Done), extraClass)`. Null and empty names are left out, spaces go only between those
-  written, and the attribute is left out if none is. Constant names are written while compiling. `.Rel(...)`,
-  `.Sandbox(...)`, `.AriaDescribedBy(...)`, `.AriaLabelledBy(...)`, `.AriaControls(...)` and `.AriaOwns(...)` take names
-  the same way. Custom formats declare such an attribute with `[Attr(..., Tokens = " ")] params AttributeToken[] names`.
-- Templates can be created without `new`. The generator writes a factory for every template, named like it and with
-  the parameters of its constructors, into the static class `Templates` in the root namespace of the project. With
-  `using static App.Templates;`, a template is written `Card("Hello") [ ... ]`, and the type arguments of a generic
-  template are inferred. The class can be named with the MSBuild property `TemplateDslTemplatesClass`.
-- The ARIA attributes of WAI-ARIA 1.2 have methods with the types the specification gives them, such as
-  `.AriaExpanded(isOpen)`, which writes `true` or `false`, `.AriaCurrent(AriaCurrent.Page)` and `.AriaValueNow(0.5)`.
-  `.Role(...)` takes the enum `Role`, as in `Role.AlertDialog` for `alertdialog`, or a string, and `.Aria(name, value)`
-  writes the ARIA attributes without a method. An enum member can name its text with `[EnumMember(Value = "...")]`, and
-  an attribute of a format can take a string next to an enum or a bool with `AlsoText`.
-- Packages can add attributes to the elements of a format with extension methods whose parameters are marked with
-  `[Attr]`, such as `.HxGet(url)` for htmx. A method with several such parameters writes several attributes, for a node
-  and an extension alike, as in `.HxPost(url, target: "#app")`.
-- `.Data(name, value)` writes a data attribute: `.Data("user-id", id)` is `data-user-id`. The name is a constant without
-  uppercase letters, which data names can't have, values for programs are invariant, and a `bool` is written as `true` or
-  `false`. Formats declare such a family with `[AttrList(NamePrefix = "data-", TrueFalse = true, LowercaseNames = true)]`,
-  and a node can have several lists of attributes.
-- `Doctype` writes `<!DOCTYPE html>`, as in `[Doctype, Html [ ... ]]`, instead of `Raw("<!DOCTYPE html>")`.
-- `Comment(text)` writes an HTML comment whose text can't end or break it. A browser doesn't decode escaped characters
-  in a comment, so instead of escaping, the text gets a zero-width space where it would be dangerous, such as at `--`
-  or a leading `>`, and is written as it is everywhere else.
-- An escape rule can name a writer, a class implementing `ITextWriter`, for text that single replacements can't
-  escape: `[Escape("comment", Writer = typeof(CommentText), Changes = "->")]`. It gets the whole text, also of an
-  interpolated string, and constant text without the characters it changes is still written while compiling.
-- TDSL010 reports a name of the class of the template factories that is taken, such as by a folder `Templates`.
-- TDSL011 warns about templates with the same name, which get no factory.
-- TDSL012 explains the error of an element that a name of your own hides, such as `Title [ ... ]` in a template with a
-  `Title` property, or `Button [ ... ]` next to a template class `Button`, which C# reports without mentioning the element.
-  The translator leaves such an element out instead of reporting TDSL004 about what the name is, or copying the error
-  into the generated file. A type's name, as in `Footer [ ... ]`, is no longer taken for an instance of the template.
+- **TemplateDsl**, the core:
+  - Templates implement an interface, such as `IHtmlTemplate`, and describe their output in `Build`, with loops,
+    conditions, switches and nested templates, sync, async or streaming, and with a context for nested templates if
+    they need one.
+  - Templates can be classes, structs or records, and take children in brackets, without allocating. `IHtmlContent`
+    and `IAsyncHtmlContent` pass content to a layout or a slot, checked for the context it needs.
+  - Templates are created without `new`: the generator writes a factory for each into the class `Templates`, so with
+    `using static App.Templates;` a template is written `Card("Hello") [ ... ]`.
+  - Supports trimming, native AOT and Hot Reload.
+- **TemplateDsl.Html**:
+  - All standard HTML elements in `Elements`, written without a prefix with `using static TemplateDsl.Html.Elements;`,
+    and a variant of `input` per type, such as `InputEmail`.
+  - Typed attributes, such as `.ColSpan(2)`, `.Draggable(true)` and dates, and `.Attr(name, value)` for any other.
+  - The ARIA attributes of WAI-ARIA 1.2 with the types it gives them, such as `.AriaExpanded(isOpen)` and
+    `.Role(Role.Alert)`, plus `.Aria(name, value)` and `.Data(name, value)` for the others.
+  - Lists of names with conditions for `class`, `rel`, `sandbox` and the ARIA lists of IDs:
+    `Li.Class("todo", ("done", todo.Done))`.
+  - `Doctype`, and `Comment(text)`, whose text can't end or break the comment.
+- **TemplateDsl.AspNetCore**: `ToResult()` returns a template from a minimal API endpoint or a controller action.
+- **Custom formats**, declared with attributes and compiled by the same generator, as the RSS and JSON samples show.
+  Packages can add attributes to the elements of a format with extension methods, such as for htmx.
+- Diagnostics TDSL001 to TDSL012, documented in `docs/diagnostics`.
 
 ### Changed
 
-- **Breaking:** `[Attr]` marks the parameter that takes the value of an attribute instead of the method, as in
-  `public partial Item Id([Attr(" id=\"", "\"")] string? value);`, for custom formats. Moving it from the method to its
-  parameter is all it takes. The duplicate check of attributes compares what they write, so an attribute written twice,
-  through its method and `.Attr`, is an error now. The parameters of a factory are marked the same way, instead of
-  setting the attribute of the method with their name: `Prop([Attr("\"", "\":")] string name)`. A factory parameter
-  without `[Attr]` is an error, except the text of a text node, as in `Text(string? value)`, whose factory takes that
-  one string and nothing else.
-- **Breaking:** `.Attr` can no longer write an attribute whose method takes any string, which the message names: the
-  ARIA attributes for text, such as `aria-label` with `.AriaLabel(...)`, and the attributes whose method takes a string
-  next to its type, such as `role` with `.Role(...)`, `aria-checked` and the `step` of an input. A typed attribute keeps
-  taking a value its type doesn't through `.Attr`, such as `.Attr("aria-expanded", "{{open}}")`.
-- A text node created by its factory, such as `Json.Str(value)` in a custom format, writes nothing for null, not even
-  its prefix, its suffix or a separator, as a plain string already did. `Json.Str(null)` wrote `""` before.
-- **Breaking:** the static class of the HTML elements is called `Elements` instead of `H`, so that a project can choose
-  how to write them. `using static TemplateDsl.Html.Elements;` imports them without a prefix, as in `Div [ ... ]`, which
-  the README and the samples do. Code written for `H` keeps compiling unchanged with `using H = TemplateDsl.Html.Elements;`,
-  or for the whole project with `<Using Include="TemplateDsl.Html.Elements" Alias="H" />`.
-- **Breaking:** the classes of the element nodes, such as `Div` and `Text`, are in the namespace `TemplateDsl.Html.Nodes`
-  instead of `TemplateDsl.Html.Elements`. Templates don't name them, so this only matters for code that does.
+For those coming from the previews, these break code written for 0.1.0-preview.8:
+
+- **Breaking:** the HTML elements are in `Elements` instead of `H`. `using H = TemplateDsl.Html.Elements;`, or
+  `<Using Include="TemplateDsl.Html.Elements" Alias="H" />` for the whole project, keeps code written for `H` compiling.
+- **Breaking:** the node classes, such as `Div`, are in `TemplateDsl.Html.Nodes` instead of `TemplateDsl.Html.Elements`.
+- **Breaking:** in custom formats, `[Attr]` goes on the parameter that takes the value instead of on the method, and
+  every parameter of a factory needs one, except the text of a text node. Factories no longer set an attribute by the
+  name of their parameter.
+- **Breaking:** `.Attr` no longer writes an attribute whose method takes any string, such as `aria-label` or `role`.
+- **Breaking:** `.Class(null)` and the other lists of names with a literal `null` are ambiguous now. Leave the call
+  out instead, as it wrote nothing.
+- A text node created by its factory, such as `Json.Str(null)`, writes nothing for null, as a plain string does.
 
 ### Fixed
 
 - Hot Reload, such as with `dotnet watch`, failed on the second change to a template with "The assembly update failed".
-  The runtime can't apply a second update to a method with `u8` literals, in plain C# too, so a debug build now writes
-  the fixed output of a template as strings, encoded as they are written. A release build still writes `u8` literals.
 
 ## [0.1.0-preview.8] - 2026-11-06
 
@@ -129,7 +113,8 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
 - `TemplateDsl.AspNetCore`: `ToResult()` to return a template from a minimal API endpoint or a controller action.
 - Diagnostics TDSL001 to TDSL008, documented in `docs/diagnostics`.
 
-[Unreleased]: https://github.com/aomader/TemplateDsl/compare/0.1.0-preview.8...HEAD
+[Unreleased]: https://github.com/aomader/TemplateDsl/compare/0.1.0...HEAD
+[0.1.0]: https://github.com/aomader/TemplateDsl/releases/tag/0.1.0
 [0.1.0-preview.8]: https://github.com/aomader/TemplateDsl/releases/tag/0.1.0-preview.8
 [0.1.0-preview.2]: https://github.com/aomader/TemplateDsl/releases/tag/0.1.0-preview.2
 [0.1.0-preview.1]: https://github.com/aomader/TemplateDsl/releases/tag/0.1.0-preview.1
