@@ -62,8 +62,7 @@ public class GeneratorEdgeCaseTests
         [Node(Start = "<i", Body = ">", End = "</i>")]
         public sealed partial class XItem : XNode
         {
-            [Attr(" id=\"", "\"", Escape = "t")]
-            public partial XItem Id(string? value);
+            public partial XItem Id([Attr(" id=\"", "\"", Escape = "t")] string? value);
         }
 
         [TemplateTags(typeof(XNode))]
@@ -289,8 +288,7 @@ public class GeneratorEdgeCaseTests
             [Node(Start = "<i", Body = ">", End = "</i>", IsVoid = false)]
             public sealed partial class FItem : FNode
             {
-                [Attr(" a=\"", "\"", Escape = "t", TextOnly = false, AnyNumber = false, AlsoText = false, Culture = ValueCulture.Invariant)]
-                public partial FItem A(string? value);
+                public partial FItem A([Attr(" a=\"", "\"", Escape = "t", TextOnly = false, AnyNumber = false, AlsoText = false, Culture = ValueCulture.Invariant)] string? value);
             }
 
             [TemplateTags(typeof(FNode))]
@@ -334,9 +332,9 @@ public class GeneratorEdgeCaseTests
 
     [Theory]
     [InlineData("[TemplateTags(typeof(string))] public static partial class Y { }", "'Y' must name a class marked with [TemplateFormat]")]
-    [InlineData("public static partial class Outer { public sealed partial class Inner : XNode { [Attr(\" a\", \"\")] public partial Inner A(bool? value = true); } }", "'Inner.A' must be a partial method without a body, in a top-level partial class")]
-    [InlineData("public partial struct S { [Attr(\" a\", \"\")] public partial S A(bool? value = true); }", "'S.A' must be a partial method without a body, in a top-level partial class")]
-    [InlineData("public sealed partial class Loose { [Attr(\" a\", \"\")] public partial Loose A(bool? value = true); }", "'Loose' doesn't derive from a class marked with [TemplateFormat]")]
+    [InlineData("public static partial class Outer { public sealed partial class Inner : XNode { public partial Inner A([Attr(\" a\", \"\")] bool? value = true); } }", "'Inner.A' must be a partial method without a body, in a top-level partial class")]
+    [InlineData("public partial struct S { public partial S A([Attr(\" a\", \"\")] bool? value = true); }", "'S.A' must be a partial method without a body, in a top-level partial class")]
+    [InlineData("public sealed partial class Loose { public partial Loose A([Attr(\" a\", \"\")] bool? value = true); }", "'Loose' doesn't derive from a class marked with [TemplateFormat]")]
     public void Invalid_tags_and_attribute_methods_are_reported(string declaration, string message)
     {
         var result = Run(Format + declaration);
@@ -359,8 +357,7 @@ public class GeneratorEdgeCaseTests
             [Node(Start = "<k", Body = ">", End = "</k>")]
             public sealed partial class KItem : KNode
             {
-                [Attr(" default=\"", "\"")]
-                public partial KItem Default(string? @default);
+                public partial KItem Default([Attr(" default=\"", "\"")] string? @default);
             }
             """);
 

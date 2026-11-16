@@ -27,7 +27,7 @@ internal sealed class BuildTranslator(
     // A format without a proper text node is reported where it's declared, so this only has to not get in the way.
     private readonly NodeInfo _stringNode = FormatReader.ReadTextNode(format) is { } textNode && FormatReader.ReadNode(textNode) is { IsText: true } node
         ? node
-        : new NodeInfo("", "", "", IsText: true, TextEscape: null, TextPrefix: "", TextSuffix: "", Separator: null, new EquatableArray<AttributeInfo>([]));
+        : new NodeInfo("", "", "", IsText: true, TextEscape: null, TextPrefix: "", TextSuffix: "", Separator: null, new EquatableArray<AttributeMethodInfo>([]));
 
     private readonly bool _hasInvariantText = FormatReader.HasInvariantText(format);
     private readonly StringBuilder _literal = new();
@@ -659,13 +659,14 @@ internal sealed class BuildTranslator(
 
     private void WriteFactoryArgument(NodeInfo node, string name, ArgumentSyntax argument, HashSet<string> written)
     {
-        var attribute = FindAttribute(node, name);
+        // A parameter of the factory sets the attribute of the method of the same name, which writes only that one.
+        var attribute = FindMethod(node, name) is { Attributes.Length: 1 } method ? method.Attributes[0] : null;
 
         if (attribute is null)
         {
             Report(argument.GetLocation(), $"'{name}' is not an attribute of this node");
         }
-        else if (!written.Add(attribute.Name))
+        else if (!written.Add(attribute.Prefix))
         {
             Report(argument.GetLocation(), $"'{name}' appears more than once");
         }
@@ -675,16 +676,55 @@ internal sealed class BuildTranslator(
         }
     }
 
-    /// <summary>Writes one call of a chain, such as <c>.Id("a")</c> or <c>.Attr("data-id", id)</c>, in source order.</summary>
+    /// <summary>
+    /// Writes one call of a chain, such as <c>.Id("a")</c>, <c>.Attr("data-id", id)</c> or an extension method that writes
+    /// attributes, such as <c>.HxGet(url)</c>, in source order.
+    /// </summary>
     private void WriteChainCall(NodeInfo node, InvocationExpressionSyntax call, HashSet<string> written)
     {
         var name = ((MemberAccessExpressionSyntax)call.Expression).Name.Identifier.ValueText;
-        var arguments = call.ArgumentList.Arguments;
-        var attribute = FindAttribute(node, name);
 
-        if (attribute is not null)
+        if ((FindMethod(node, name) ?? FindExtension(call)) is { } method)
         {
-            if (!written.Add(attribute.Name))
+            WriteAttributeCall(name, method, call, written);
+        }
+        else if (node.AttributeLists?.FirstOrDefault(candidate => candidate.MethodName == name) is { } list)
+        {
+            WriteAttr(node, list, call, written);
+        }
+        else
+        {
+            Report(call.GetLocation(), $"'{name}' is not an attribute of this node");
+        }
+    }
+
+    /// <summary>
+    /// The attributes of an extension method that a call resolves to, such as one of a package for htmx. They are read
+    /// from the method marked with [Attr], also if the call resolves to an overload of it, such as for any number.
+    /// </summary>
+    private AttributeMethodInfo? FindExtension(InvocationExpressionSyntax call)
+    {
+        var info = _semanticModel.GetSymbolInfo(call, cancellationToken);
+
+        return (info.Symbol ?? info.CandidateSymbols.FirstOrDefault()) is IMethodSymbol { IsExtensionMethod: true } method
+            ? method.ContainingType.GetMembers(method.Name).OfType<IMethodSymbol>().Select(FormatReader.ReadAttributeMethod).FirstOrDefault(found => found is not null)
+            : null;
+    }
+
+    /// <summary>
+    /// A call of a method that writes attributes. One that writes a single attribute takes its value, or none for an
+    /// attribute without one, such as <c>.Hidden()</c>. One that writes several writes the attribute of the parameter of
+    /// each argument, by its position or its name, in the order of the arguments, and nothing for one that is left out.
+    /// </summary>
+    private void WriteAttributeCall(string name, AttributeMethodInfo method, InvocationExpressionSyntax call, HashSet<string> written)
+    {
+        var arguments = call.ArgumentList.Arguments;
+
+        if (method.Attributes.Length == 1)
+        {
+            var attribute = method.Attributes[0];
+
+            if (!written.Add(attribute.Prefix))
             {
                 Report(call.GetLocation(), $"'{name}' appears more than once");
             }
@@ -700,14 +740,29 @@ internal sealed class BuildTranslator(
             {
                 Report(call.GetLocation(), $"'{call}' must have one value");
             }
+
+            return;
         }
-        else if (node.AttributeLists?.FirstOrDefault(candidate => candidate.MethodName == name) is { } list)
+
+        for (var i = 0; i < arguments.Count; i++)
         {
-            WriteAttr(node, list, call, written);
-        }
-        else
-        {
-            Report(call.GetLocation(), $"'{name}' is not an attribute of this node");
+            var argument = arguments[i];
+            var attribute = argument.NameColon is { } named
+                ? method.Attributes.FirstOrDefault(candidate => candidate.Name == named.Name.Identifier.ValueText)
+                : i < method.Attributes.Length ? method.Attributes[i] : null;
+
+            if (attribute is null)
+            {
+                Report(argument.GetLocation(), $"'{argument}' is not a parameter of '{name}'");
+            }
+            else if (!written.Add(attribute.Prefix))
+            {
+                Report(argument.GetLocation(), $"'{attribute.Name}' of '{name}' is an attribute that appears more than once");
+            }
+            else
+            {
+                WriteAttribute(attribute, argument.Expression);
+            }
         }
     }
 
@@ -744,11 +799,11 @@ internal sealed class BuildTranslator(
             Report(call.GetLocation(), $"'{attributeName}' has an uppercase letter, which the names of these attributes can't have; write it in lowercase, with a dash between words, such as 'user-id'");
         }
         // A typed attribute keeps Attr for values its type doesn't take, unless its method takes any string too, as .Role does.
-        else if (FindAttribute(node, fullName.Replace("-", "")) is ({ Kind: AttributeKind.Text or AttributeKind.Presence } or { AlsoText: true }) and var own)
+        else if (FindOwnAttribute(node, list, fullName) is ({ Attribute: { Kind: AttributeKind.Text or AttributeKind.Presence } or { AlsoText: true } } and var own))
         {
-            Report(call.GetLocation(), $"'{fullName}' has its own method for this kind of value, .{own.Name}(...), so it can't be used with {list.MethodName}");
+            Report(call.GetLocation(), $"'{fullName}' has its own method for this kind of value, .{own.Method}(...), so it can't be used with {list.MethodName}");
         }
-        else if (!written.Add(fullName))
+        else if (!written.Add(list.Before + fullName + list.BetweenNameAndValue))
         {
             Report(call.GetLocation(), $"'{fullName}' appears more than once");
         }
@@ -770,9 +825,22 @@ internal sealed class BuildTranslator(
         }
     }
 
-    /// <summary>Names are matched ignoring case, because factory parameters such as href set the attribute Href.</summary>
-    private static AttributeInfo? FindAttribute(NodeInfo node, string name) =>
-        node.Attributes.FirstOrDefault(a => string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase));
+    /// <summary>Names are matched ignoring case, because factory parameters such as href set the attribute of Href.</summary>
+    private static AttributeMethodInfo? FindMethod(NodeInfo node, string name) =>
+        node.Methods.FirstOrDefault(method => string.Equals(method.Name, name, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>
+    /// The attribute of a method of the node that writes what a list would, such as AriaLabel for
+    /// <c>Attr("aria-label", ...)</c>: one that starts the same, with the name and what is between it and a value, or
+    /// only the name, for one without a value. HTML doesn't care about the case of a name.
+    /// </summary>
+    private static (string Method, AttributeInfo Attribute)? FindOwnAttribute(NodeInfo node, AttributeListInfo list, string name) =>
+        node.Methods
+            .SelectMany(method => method.Attributes.Select(attribute => (method.Name, attribute)))
+            .Where(pair => string.Equals(pair.attribute.Prefix, list.Before + name + list.BetweenNameAndValue, StringComparison.OrdinalIgnoreCase)
+                || (pair.attribute.Kind == AttributeKind.Presence && string.Equals(pair.attribute.Prefix, list.Before + name, StringComparison.OrdinalIgnoreCase)))
+            .Select(pair => ((string, AttributeInfo)?)(pair.Name, pair.attribute))
+            .FirstOrDefault();
 
     private void WriteBoolAttribute(AttributeInfo attribute, ExpressionSyntax value)
     {

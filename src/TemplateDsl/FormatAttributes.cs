@@ -111,14 +111,17 @@ public sealed class NodeAttribute : Attribute
 }
 
 /// <summary>
-/// Declares an attribute of a node as a partial method that returns the node, which the generator implements:
-/// <c>[Attr(" id=\"", "\"")] public partial Item Id(string? value);</c>. It renders as <paramref name="prefix"/>,
-/// the value and <paramref name="suffix"/>, or not at all if the value is null. The parameter says what values it
-/// takes: a string takes text, a number such as <c>int?</c> only that, an enum one of its members, written in
-/// lowercase with a dash between words, and a <c>bool?</c> writes <c>true</c> or <c>false</c>. A bool with the
-/// default <c>true</c> has no value: it renders as <paramref name="prefix"/> and <paramref name="suffix"/> if it is true.
+/// Declares that a parameter writes an attribute, in a partial method that returns the node, which the generator
+/// implements: <c>public partial Item Id([Attr(" id=\"", "\"")] string? value);</c>. It renders as
+/// <paramref name="prefix"/>, the value and <paramref name="suffix"/>, or not at all if the value is null. The parameter
+/// says what values it takes: a string takes text, a number such as <c>int?</c> only that, an enum one of its members,
+/// written in lowercase with a dash between words unless it has an <c>[EnumMember]</c>, and a <c>bool?</c> writes
+/// <c>true</c> or <c>false</c>. A bool with the default <c>true</c> has no value: it renders as <paramref name="prefix"/>
+/// and <paramref name="suffix"/> if it is true. A method with several such parameters writes several attributes, in
+/// their order, and leaves out those whose argument is left out. It can be an extension method in a static partial
+/// class, which adds attributes to the nodes its first parameter takes, such as those of a package for a library.
 /// </summary>
-[AttributeUsage(AttributeTargets.Method)]
+[AttributeUsage(AttributeTargets.Parameter)]
 public sealed class AttrAttribute(string prefix, string suffix) : Attribute
 {
     /// <summary>Written before the value, such as <c> id="</c>.</summary>

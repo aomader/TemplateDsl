@@ -150,8 +150,7 @@ public class EscapeWriterTests
             [Node(Start = "<i", Body = ">", End = "</i>")]
             public sealed partial class WItem : WNode
             {
-                [Attr(" n=\"", "\"", Escape = "w")]
-                public partial WItem N(int? value);
+                public partial WItem N([Attr(" n=\"", "\"", Escape = "w")] int? value);
             }
 
             [TemplateTags(typeof(WNode))]
