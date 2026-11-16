@@ -265,6 +265,8 @@ public sealed class FormatGenerator : IIncrementalGenerator
             : isList && !FormatReader.HasAttributeListShape(method) ? $"'{name}' must take a string name and a string? value, to be a list of attributes"
             : !isList && parameters.Length != attributes!.Length ? $"'{name}' must say which attribute each of its parameters writes, with [Attr]"
             : attributes is not null && attributes.Any(attribute => attribute.Kind == AttributeKind.Invalid) ? $"'{name}' must take a string, bool or value type that can format itself, such as int?, for each attribute"
+            : attributes is { Length: > 1 } && attributes.Any(attribute => attribute.Kind == AttributeKind.Tokens)
+                ? $"'{name}' takes a list of names, so it can write no other attribute"
             : attributes is { Length: > 1 } && parameters.Any(p => p.HasExplicitDefaultValue && p.ExplicitDefaultValue is not null)
                 ? $"'{name}' writes several attributes, so a parameter can only default to null: an argument that is left out writes nothing"
             : escapes.FirstOrDefault(escape => escape is not null && !IsKnownEscape(format!, escape)) is { } unknown ? $"'{name}' uses the escape context '{unknown}', which its format doesn't declare"
@@ -342,6 +344,7 @@ public sealed class FormatGenerator : IIncrementalGenerator
                     : null
                 : attributes.Any(attribute => attribute is null) ? "must say which attribute each of its parameters writes, with [Attr]"
                 : attributes.Any(attribute => attribute!.Kind == AttributeKind.Invalid) ? "must take a string, bool or value type that can format itself, such as int?, for each attribute"
+                : attributes.Any(attribute => attribute!.Kind == AttributeKind.Tokens) ? "can't take a list of names, which only a method of the node can, such as Class(\"a\", (\"b\", isB))"
                 : method.Parameters.Any(p => p.HasExplicitDefaultValue && p.ExplicitDefaultValue is not null) ? "can only default to null, as an argument that is left out writes nothing"
                 : attributes.FirstOrDefault(attribute => attribute!.Escape is not null && !IsKnownEscape(format, attribute.Escape))?.Escape is { } unknown ? $"uses the escape context '{unknown}', which its format doesn't declare"
                 : null;

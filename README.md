@@ -28,7 +28,7 @@ public readonly partial struct OrderRow(Order order) : IHtmlTemplate
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        Tr.Class(order.IsLate ? "late" : null) [
+        Tr.Class(("late", order.IsLate)) [
             Td [ order.Id ],
             Td [ order.Product ],
             Td [ Time.DateTime(order.Due) [ order.Due ] ]
@@ -190,6 +190,17 @@ Attributes take what makes sense for them. `.ColSpan(2)` and `.TabIndex(0)` take
 `double`, and `.Draggable(true)` writes `draggable="true"`. `.Class(...)`, `.Href(...)` and most others take only
 strings, while `.Id(...)`, `.Title(...)`, `.DateTime(...)` and `.Value(...)` on an input also take numbers and dates.
 For a value their type doesn't allow, `.Attr("colspan", "{{columns}}")` still works on the typed ones.
+
+A class can also be a list of names, each written unless it is null or empty, and a pair of a name and a condition only
+if the condition is true. Spaces go only between the names that are written, and if none is, there is no attribute:
+
+```csharp
+Li.Class("todo", ("done", todo.Done), ("editing", isEditing), extraClass) [ todo.Title ]
+// <li class="todo done">, or <li class="todo">
+```
+
+Constant names are written while compiling, so this costs no more than the ternary it replaces. A class is still set
+once per element: a second `.Class(...)` is an error.
 
 ARIA attributes have methods too, with the types WAI-ARIA 1.2 gives them. Booleans are the words `true` and `false`,
 which mean something in ARIA, unlike the presence of `hidden`, and tokens are enums:
@@ -576,6 +587,9 @@ for an attribute without a value. A method with several such parameters writes s
 whose argument is left out, so their parameters default to null. Escape every attribute with a value: a number type can
 be one of the app's own, which writes whatever it formats as. Attributes that several nodes share go in a base class
 that takes the node as a type parameter and returns it, as `HtmlTag<TElement>` does.
+A list of names, as HTML's class is, is a parameter `[Attr(" class=\"", "\"", Tokens = " ")] params AttributeToken[] names`,
+whose value is what goes between the names. It is the only attribute of its method, and an overload next to one
+that takes a string.
 
 A factory can take attributes too, which its parameters say the same way, such as the name of a JSON property:
 

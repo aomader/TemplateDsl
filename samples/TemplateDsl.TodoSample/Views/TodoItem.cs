@@ -9,7 +9,7 @@ public sealed partial class TodoItem(Todo todo, TodoFilter filter) : IHtmlTempla
     public IEnumerable<HtmlElement> Build() =>
     [
         Li.Id($"todo-{todo.Id}") [
-            Label.Class(todo.Done ? "done" : null) [
+            Label.Class(("done", todo.Done)) [
                 InputCheckbox.Checked(todo.Done).Attr("hx-post", Urls.Toggle(todo.Id, filter)),
                 " ",
                 todo.Title

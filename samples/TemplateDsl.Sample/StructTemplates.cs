@@ -10,7 +10,7 @@ public readonly partial record struct Badge(string Text, bool Highlighted = fals
 {
     public IEnumerable<HtmlElement> Build() =>
     [
-        Span.Class(Highlighted ? "badge badge-highlight" : "badge") [ Text ]
+        Span.Class("badge", ("badge-highlight", Highlighted)) [ Text ]
     ];
 }
 

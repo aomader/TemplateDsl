@@ -685,7 +685,9 @@ internal sealed class BuildTranslator(
     {
         var name = ((MemberAccessExpressionSyntax)call.Expression).Name.Identifier.ValueText;
 
-        if ((FindMethod(node, name) ?? FindExtension(call)) is { } method)
+        // The overload the call resolves to, such as Class(string?) or Class(params AttributeToken[]). Otherwise by its name,
+        // as for an overload the format generates, which says nothing itself, or a method that isn't resolved here.
+        if ((ResolveAttributeMethod(call) ?? FindMethod(node, name, call) ?? FindExtension(call)) is { } method)
         {
             WriteAttributeCall(name, method, call, written);
         }
@@ -698,6 +700,12 @@ internal sealed class BuildTranslator(
             Report(call.GetLocation(), $"'{name}' is not an attribute of this node");
         }
     }
+
+    /// <summary>The attributes of the method a call resolves to, if it is one marked with [Attr], as declared.</summary>
+    private AttributeMethodInfo? ResolveAttributeMethod(InvocationExpressionSyntax call) =>
+        _semanticModel.GetSymbolInfo(call, cancellationToken).Symbol is IMethodSymbol method
+            ? FormatReader.ReadAttributeMethod((method.ReducedFrom ?? method).OriginalDefinition)
+            : null;
 
     /// <summary>
     /// The attributes of an extension method that a call resolves to, such as one of a package for htmx. They are read
@@ -728,6 +736,10 @@ internal sealed class BuildTranslator(
             if (!written.Add(attribute.Prefix))
             {
                 Report(call.GetLocation(), $"'{name}' appears more than once");
+            }
+            else if (attribute.Kind == AttributeKind.Tokens)
+            {
+                WriteTokens(attribute, arguments);
             }
             else if (arguments.Count == 1)
             {
@@ -765,6 +777,148 @@ internal sealed class BuildTranslator(
                 WriteAttribute(attribute, argument.Expression);
             }
         }
+    }
+
+    /// <summary>
+    /// A list of names, such as <c>Class("todo", ("done", todo.Done), extra)</c>: each is written if it isn't null or empty
+    /// and its condition is true, with the separator only between those written, and the attribute only if one is. What
+    /// is known while compiling is part of the literal, so a flag is only needed while it isn't known whether one was written.
+    /// </summary>
+    private void WriteTokens(AttributeInfo attribute, SeparatedSyntaxList<ArgumentSyntax> arguments)
+    {
+        var state = TokenState.None;
+        string? flag = null;
+
+        // Writes what goes before a name: the start of the attribute, or the separator.
+        void BeforeName()
+        {
+            switch (state)
+            {
+                case TokenState.Written:
+                    _literal.Append(attribute.Separator);
+                    break;
+                case TokenState.None:
+                    _literal.Append(attribute.Prefix);
+                    break;
+                default:
+                    Add(SegmentKind.BlockStart, $"if ({flag})");
+                    _literal.Append(attribute.Separator);
+                    Add(SegmentKind.Else);
+                    _literal.Append(attribute.Prefix);
+                    Add(SegmentKind.BlockEnd);
+                    break;
+            }
+        }
+
+        // Before a name that may not be written, it must be known at runtime whether one was.
+        void MayWrite()
+        {
+            if (state == TokenState.None)
+            {
+                flag = $"__tokens{_nextVariable++}";
+                Add(SegmentKind.Statement, $"bool {flag} = false;");
+                state = TokenState.Unknown;
+            }
+        }
+
+        foreach (var argument in arguments)
+        {
+            var expression = Unwrap(argument.Expression);
+            var (name, condition) = expression is TupleExpressionSyntax { Arguments.Count: 2 } pair
+                ? (Unwrap(pair.Arguments[0].Expression), Unwrap(pair.Arguments[1].Expression))
+                : (expression, null);
+
+            if (acceptsChildren && expression.DescendantNodesAndSelf().OfType<ExpressionSyntax>().Any(IsChildrenReference))
+            {
+                Report(expression.GetLocation(), "Children can only be placed as a child, because they are not available as a value");
+                continue;
+            }
+
+            var constantName = _semanticModel.GetConstantValue(name, cancellationToken);
+            var constantCondition = condition is null ? new Optional<object?>(true) : _semanticModel.GetConstantValue(condition, cancellationToken);
+
+            if (!(constantName.HasValue && constantName.Value is null or string) && !IsString(name))
+            {
+                Report(argument.GetLocation(), $"'{argument}' must be a name, or a pair of a name and whether to write it, such as (\"done\", todo.Done)");
+                continue;
+            }
+
+            if ((constantName.HasValue && string.IsNullOrEmpty(constantName.Value as string)) || (constantCondition.HasValue && constantCondition.Value is false))
+            {
+                continue;
+            }
+
+            var isConditional = !constantCondition.HasValue;
+
+            // The flag is declared outside of the branches, which a name that may not be written needs.
+            if (isConditional || !constantName.HasValue)
+            {
+                MayWrite();
+            }
+
+            if (isConditional)
+            {
+                FlushIfAwaits(condition!);
+                Add(SegmentKind.BlockStart, $"if ({condition})");
+            }
+
+            if (constantName.HasValue)
+            {
+                BeforeName();
+                AppendEscaped(attribute.Escape, (string)constantName.Value!);
+            }
+            else
+            {
+                var variable = $"__token{_nextVariable++}";
+                var value = name is InterpolatedStringExpressionSyntax && !attribute.IsCurrentCulture
+                    ? $"string.Create(global::System.Globalization.CultureInfo.InvariantCulture, {name})"
+                    : name.ToString();
+
+                FlushIfAwaits(name);
+                Add(SegmentKind.Statement, $"string? {variable} = {value};");
+                Add(SegmentKind.BlockStart, $"if (!string.IsNullOrEmpty({variable}))");
+                BeforeName();
+                AddValue(variable, attribute.Escape);
+            }
+
+            if (state == TokenState.Unknown)
+            {
+                Add(SegmentKind.Statement, $"{flag} = true;");
+            }
+
+            if (!constantName.HasValue)
+            {
+                Add(SegmentKind.BlockEnd);
+            }
+
+            if (isConditional)
+            {
+                Add(SegmentKind.BlockEnd);
+            }
+            else if (constantName.HasValue)
+            {
+                state = TokenState.Written;
+            }
+        }
+
+        if (state == TokenState.Written)
+        {
+            _literal.Append(attribute.Suffix);
+        }
+        else if (state == TokenState.Unknown)
+        {
+            Add(SegmentKind.BlockStart, $"if ({flag})");
+            _literal.Append(attribute.Suffix);
+            Add(SegmentKind.BlockEnd);
+        }
+    }
+
+    /// <summary>Whether a name of a list was written, while compiling.</summary>
+    private enum TokenState
+    {
+        None,
+        Unknown,
+        Written,
     }
 
     private void WriteAttr(NodeInfo node, AttributeListInfo list, InvocationExpressionSyntax call, HashSet<string> written)
@@ -826,9 +980,19 @@ internal sealed class BuildTranslator(
         }
     }
 
-    /// <summary>Names are matched ignoring case, because factory parameters such as href set the attribute of Href.</summary>
-    private static AttributeMethodInfo? FindMethod(NodeInfo node, string name) =>
-        node.Methods.FirstOrDefault(method => string.Equals(method.Name, name, StringComparison.OrdinalIgnoreCase));
+    /// <summary>A method of the node by its name, as for an overload the format generates, which declares nothing itself.</summary>
+    private static AttributeMethodInfo? FindMethod(NodeInfo node, string name, InvocationExpressionSyntax call)
+    {
+        var methods = node.Methods.Where(method => method.Name == name).ToArray();
+
+        // Of overloads such as Class(string?) and Class(params AttributeToken[]), the one that takes names, for a call that
+        // looks like it, when C# couldn't resolve it, such as because of an error in an argument.
+        var arguments = call.ArgumentList.Arguments;
+        var takesNames = arguments.Count != 1 || arguments[0].Expression is TupleExpressionSyntax;
+
+        return methods.FirstOrDefault(method => method.Attributes.Length == 1 && method.Attributes[0].Kind == AttributeKind.Tokens == takesNames)
+            ?? methods.FirstOrDefault();
+    }
 
     /// <summary>
     /// The attribute of a method of the node that writes what a list would, such as AriaLabel for

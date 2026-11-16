@@ -20,6 +20,9 @@ internal enum AttributeKind
     /// <summary>An enum, which writes the name of the member.</summary>
     Enum,
 
+    /// <summary>A list of names, such as of a class, each a string or a pair of a string and whether to write it.</summary>
+    Tokens,
+
     /// <summary>A method that can't be an attribute, because of its parameters.</summary>
     Invalid,
 }
@@ -34,6 +37,7 @@ internal enum AttributeKind
 /// <param name="IsAnyNumber">Whether a typed attribute takes any number, not only its own type.</param>
 /// <param name="AlsoText">Whether a typed attribute also takes a string.</param>
 /// <param name="Format">The format of a typed attribute's values, if it has one.</param>
+/// <param name="Separator">For a list of names: what goes between them.</param>
 internal sealed record AttributeInfo(
     string Name,
     string Prefix,
@@ -44,7 +48,8 @@ internal sealed record AttributeInfo(
     bool IsTextOnly = false,
     bool IsAnyNumber = false,
     bool AlsoText = false,
-    string? Format = null);
+    string? Format = null,
+    string? Separator = null);
 
 /// <summary>
 /// A method that writes attributes, one for each of its parameters marked with <c>[Attr]</c>, in their order: a method
@@ -322,12 +327,19 @@ internal static class FormatReader
             IsSet(attribute, "TextOnly"),
             IsSet(attribute, "AnyNumber"),
             IsSet(attribute, "AlsoText"),
-            GetNamed(attribute, "Format"));
+            GetNamed(attribute, "Format"),
+            GetNamed(attribute, "Tokens") ?? " ");
     }
 
     /// <summary>What a parameter of an attribute method takes.</summary>
     private static AttributeKind GetKind(IParameterSymbol parameter)
     {
+        // params AttributeToken[]: names, such as of a class, each written or not.
+        if (parameter is { IsParams: true, Type: IArrayTypeSymbol { ElementType: var element } } && IsCoreType(element, "AttributeToken"))
+        {
+            return AttributeKind.Tokens;
+        }
+
         if (parameter.Type.SpecialType == SpecialType.System_String)
         {
             return AttributeKind.Text;
