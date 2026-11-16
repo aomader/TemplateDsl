@@ -33,8 +33,7 @@ public sealed partial class JsonArray : JsonNode;
 [Node]
 public sealed partial class JsonProperty : JsonNode
 {
-    [Attr("\"", "\":", Escape = "string")]
-    public partial JsonProperty Name(string? value);
+    public partial JsonProperty Name([Attr("\"", "\":", Escape = "string")] string? value);
 }
 
 [TemplateTags(typeof(JsonNode))]

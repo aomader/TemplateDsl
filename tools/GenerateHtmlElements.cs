@@ -151,7 +151,7 @@ static void EmitAttributes(StringBuilder source, string returnType, List<Attribu
         };
 
         source.Append(CultureInfo.InvariantCulture, $"    /// <summary>The <c>{attribute.Name}</c> attribute.{(attribute.IsForPeople ? " Numbers and dates in it use the current culture, because it's meant for people to read." : "")}</summary>\n");
-        source.Append(CultureInfo.InvariantCulture, $"    {attr}\n    public partial {returnType} {attribute.MethodName}({parameter});\n\n");
+        source.Append(CultureInfo.InvariantCulture, $"    public partial {returnType} {attribute.MethodName}({attr} {parameter});\n\n");
     }
 }
 

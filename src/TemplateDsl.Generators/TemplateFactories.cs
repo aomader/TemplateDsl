@@ -210,7 +210,7 @@ internal static class TemplateFactories
         _ => "",
     };
 
-    private static string Constraint(ITypeParameterSymbol parameter)
+    internal static string Constraint(ITypeParameterSymbol parameter)
     {
         var constraints = new List<string>();
 

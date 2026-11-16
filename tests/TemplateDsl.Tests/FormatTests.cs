@@ -11,11 +11,9 @@ namespace Tests;
 [Node(Start = "<section", Body = ">", End = "</section>")]
 public sealed partial class Section : HtmlElement
 {
-    [Attr(" data-name='", "'", Escape = "attribute")]
-    public partial Section Name(string? value);
+    public partial Section Name([Attr(" data-name='", "'", Escape = "attribute")] string? value);
 
-    [Attr(" raw=", "")]
-    public partial Section Raw(string? value);
+    public partial Section Raw([Attr(" raw=", "")] string? value);
 }
 
 [TemplateTags(typeof(HtmlElement))]
@@ -204,9 +202,9 @@ public class FormatTests
     }
 
     [Theory]
-    [InlineData("""[Attr("a", "b", Escape = "unknown")] public partial N A(string? value);""")]
-    [InlineData("""[Attr("a", "b")] public partial N A(int value, int other);""")]
-    [InlineData("""[Attr("a", "b")] public partial N A(object? value);""")]
+    [InlineData("""public partial N A([Attr("a", "b", Escape = "unknown")] string? value);""")]
+    [InlineData("""public partial N A([Attr("a", "b")] int value, int other);""")]
+    [InlineData("""public partial N A([Attr("a", "b")] object? value);""")]
     [InlineData("""[AttrList] public partial N Attr(string name);""")]
     public void Invalid_attribute_methods_are_reported_and_only_get_a_body(string method)
     {
@@ -221,7 +219,7 @@ public class FormatTests
     public void An_attribute_method_with_a_body_is_reported()
     {
         var diagnostics = RunFormatGenerator(out _, """
-            [Node] public sealed partial class N : HtmlElement { [Attr("a", "b")] public N A(string? value) => this; }
+            [Node] public sealed partial class N : HtmlElement { public N A([Attr("a", "b")] string? value) => this; }
             """);
 
         Assert.Equal("TDSL006", Assert.Single(diagnostics));
@@ -232,7 +230,7 @@ public class FormatTests
     {
         var diagnostics = RunFormatGenerator(out var generated, """
             [Node(Start = "<n", Body = ">", End = "</n>")]
-            public sealed partial class N : HtmlElement { [Attr(" a=", "", Escape = "text")] public partial N A(string? value); }
+            public sealed partial class N : HtmlElement { public partial N A([Attr(" a=", "", Escape = "text")] string? value); }
             """);
 
         Assert.Empty(diagnostics);
@@ -263,7 +261,7 @@ public class FormatTests
         var diagnostics = RunFormatGenerator(out var generated, """
             public abstract partial class Shared<TNode> : HtmlElement where TNode : Shared<TNode>
             {
-                [Attr(" s=", "", Escape = "text")] public partial TNode S(string? value);
+                public partial TNode S([Attr(" s=", "", Escape = "text")] string? value);
             }
             [Node(Start = "<n", Body = ">", End = "</n>")]
             public sealed partial class N : Shared<N>;

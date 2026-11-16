@@ -103,7 +103,11 @@ public class FormatDeclarationTests
         Assert.Equal(ValueCulture.Invariant, Attribute(Tag, "AriaValueNow").Culture);
     }
 
+    /// <summary>The attribute a method writes, which its parameter declares. Its overloads declare none.</summary>
     private static AttrAttribute Attribute(Type type, string method) =>
-        type.GetMethods().Single(candidate => candidate.Name == method && candidate.GetCustomAttribute<AttrAttribute>() is not null)
-            .GetCustomAttribute<AttrAttribute>()!;
+        type.GetMethods()
+            .SelectMany(candidate => candidate.Name == method ? candidate.GetParameters() : [])
+            .Select(parameter => parameter.GetCustomAttribute<AttrAttribute>())
+            .OfType<AttrAttribute>()
+            .Single();
 }

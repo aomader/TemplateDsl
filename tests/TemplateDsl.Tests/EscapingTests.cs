@@ -74,8 +74,7 @@ public sealed partial class EuroText : EuroNode;
 public sealed partial class EuroParagraph : EuroNode
 {
     /// <summary>Declares no escaping, so its values are written as they format.</summary>
-    [Attr(" code=", "")]
-    public partial EuroParagraph Code(Bracketed? value);
+    public partial EuroParagraph Code([Attr(" code=", "")] Bracketed? value);
 }
 
 [TemplateTags(typeof(EuroNode))]

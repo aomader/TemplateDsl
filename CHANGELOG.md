@@ -16,6 +16,9 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
   `.Role(...)` takes the enum `Role`, as in `Role.AlertDialog` for `alertdialog`, or a string, and `.Aria(name, value)`
   writes the ARIA attributes without a method. An enum member can name its text with `[EnumMember(Value = "...")]`, and
   an attribute of a format can take a string next to an enum or a bool with `AlsoText`.
+- Packages can add attributes to the elements of a format with extension methods whose parameters are marked with
+  `[Attr]`, such as `.HxGet(url)` for htmx. A method with several such parameters writes several attributes, for a node
+  and an extension alike, as in `.HxPost(url, target: "#app")`.
 - `.Data(name, value)` writes a data attribute: `.Data("user-id", id)` is `data-user-id`. The name is a constant without
   uppercase letters, which data names can't have, values for programs are invariant, and a `bool` is written as `true` or
   `false`. Formats declare such a family with `[AttrList(NamePrefix = "data-", TrueFalse = true, LowercaseNames = true)]`,
@@ -36,6 +39,10 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
 
 ### Changed
 
+- **Breaking:** `[Attr]` marks the parameter that takes the value of an attribute instead of the method, as in
+  `public partial Item Id([Attr(" id=\"", "\"")] string? value);`, for custom formats. Moving it from the method to its
+  parameter is all it takes. The duplicate check of attributes compares what they write, so an attribute written twice,
+  through its method and `.Attr`, is an error now.
 - **Breaking:** `.Attr` can no longer write an attribute whose method takes any string, which the message names: the
   ARIA attributes for text, such as `aria-label` with `.AriaLabel(...)`, and the attributes whose method takes a string
   next to its type, such as `role` with `.Role(...)`, `aria-checked` and the `step` of an input. A typed attribute keeps

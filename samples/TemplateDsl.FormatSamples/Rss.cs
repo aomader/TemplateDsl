@@ -33,8 +33,7 @@ public sealed partial class RssDescription : RssNode;
 [Node(Start = "<guid", Body = ">", End = "</guid>")]
 public sealed partial class RssGuid : RssNode
 {
-    [Attr(" isPermaLink=\"", "\"", Escape = "attribute")]
-    public partial RssGuid IsPermaLink(string? value);
+    public partial RssGuid IsPermaLink([Attr(" isPermaLink=\"", "\"", Escape = "attribute")] string? value);
 }
 
 [TemplateTags(typeof(RssNode))]

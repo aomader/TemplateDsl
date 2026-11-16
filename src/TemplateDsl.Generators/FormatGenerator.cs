@@ -68,10 +68,13 @@ public sealed class FormatGenerator : IIncrementalGenerator
             static (node, _) => node is ClassDeclarationSyntax,
             static (ctx, _) => AnalyzeTags(ctx));
 
+        // [Attr] marks parameters. A method with several is handled once, from the first.
         var attributeMethods = context.SyntaxProvider.ForAttributeWithMetadataName(
             "TemplateDsl.AttrAttribute",
-            static (node, _) => node is MethodDeclarationSyntax,
-            static (ctx, _) => AnalyzeAttributeMethod(ctx, isList: false));
+            static (node, _) => node is ParameterSyntax,
+            static (ctx, _) => AnalyzeAttributeParameter(ctx))
+            .Where(static method => method is not null)
+            .Select(static (method, _) => method!);
 
         var listMethods = context.SyntaxProvider.ForAttributeWithMetadataName(
             "TemplateDsl.AttrListAttribute",
@@ -220,25 +223,49 @@ public sealed class FormatGenerator : IIncrementalGenerator
     private static bool IsKnownEscape(ITypeSymbol format, string escape) =>
         FormatReader.ReadEscapeRules(format).Any(rule => rule.Context == escape);
 
-    private static AttributeMethodModel AnalyzeAttributeMethod(GeneratorAttributeSyntaxContext context, bool isList)
+    /// <summary>
+    /// A method with parameters marked with [Attr], handled once, from its first one: a method of a node, or an extension
+    /// method that adds attributes to nodes. Null for any other parameter, or one that isn't of a method.
+    /// </summary>
+    private static AttributeMethodModel? AnalyzeAttributeParameter(GeneratorAttributeSyntaxContext context)
     {
-        var method = (IMethodSymbol)context.TargetSymbol;
-        var syntax = (MethodDeclarationSyntax)context.TargetNode;
+        var parameter = (IParameterSymbol)context.TargetSymbol;
+
+        if (parameter.ContainingSymbol is not IMethodSymbol method
+            || context.TargetNode.Parent?.Parent is not MethodDeclarationSyntax syntax
+            || !SymbolEqualityComparer.Default.Equals(FormatReader.ValueParameters(method).FirstOrDefault(p => FormatReader.ReadAttribute(p) is not null), parameter))
+        {
+            return null;
+        }
+
+        return AnalyzeAttributeMethod(method, syntax, isList: false);
+    }
+
+    private static AttributeMethodModel AnalyzeAttributeMethod(GeneratorAttributeSyntaxContext context, bool isList) =>
+        AnalyzeAttributeMethod((IMethodSymbol)context.TargetSymbol, (MethodDeclarationSyntax)context.TargetNode, isList);
+
+    private static AttributeMethodModel AnalyzeAttributeMethod(IMethodSymbol method, MethodDeclarationSyntax syntax, bool isList)
+    {
         var type = method.ContainingType;
-        var format = FormatReader.FindFormat(type);
+        var format = method.IsExtensionMethod ? FormatOfReceiver(method.Parameters[0].Type) : FormatReader.FindFormat(type);
         var name = $"{type.Name}.{method.Name}";
-        var attribute = isList ? null : FormatReader.ReadAttribute(method);
-        var escape = isList ? ReadListEscape(method) : attribute?.Escape;
+        var attributes = isList ? null : FormatReader.ReadAttributeMethod(method)?.Attributes.ToArray();
+        var escapes = isList ? [ReadListEscape(method)] : attributes!.Select(attribute => attribute.Escape).ToArray();
+        var parameters = FormatReader.ValueParameters(method).ToArray();
 
         var isPartial = syntax.Modifiers.Any(SyntaxKind.PartialKeyword) && syntax.Body is null && syntax.ExpressionBody is null;
         var isTopLevelPartialClass = type.ContainingType is null && syntax.Parent is ClassDeclarationSyntax parent && parent.Modifiers.Any(SyntaxKind.PartialKeyword);
 
         string? problem =
             !isPartial || !isTopLevelPartialClass ? $"'{name}' must be a partial method without a body, in a top-level partial class, so that the generator can implement it"
+            : format is null && method.IsExtensionMethod ? $"'{name}' must extend a node of a format, a class derived from one marked with [TemplateFormat], or a type parameter constrained to one"
             : format is null ? $"'{type.Name}' doesn't derive from a class marked with [TemplateFormat]"
             : isList && !FormatReader.HasAttributeListShape(method) ? $"'{name}' must take a string name and a string? value, to be a list of attributes"
-            : attribute is { Kind: AttributeKind.Invalid } ? $"'{name}' must take one string, bool or value type that can format itself, such as int?, to be an attribute"
-            : escape is not null && !IsKnownEscape(format, escape) ? $"'{name}' uses the escape context '{escape}', which its format doesn't declare"
+            : !isList && parameters.Length != attributes!.Length ? $"'{name}' must say which attribute each of its parameters writes, with [Attr]"
+            : attributes is not null && attributes.Any(attribute => attribute.Kind == AttributeKind.Invalid) ? $"'{name}' must take a string, bool or value type that can format itself, such as int?, for each attribute"
+            : attributes is { Length: > 1 } && parameters.Any(p => p.HasExplicitDefaultValue && p.ExplicitDefaultValue is not null)
+                ? $"'{name}' writes several attributes, so a parameter can only default to null: an argument that is left out writes nothing"
+            : escapes.FirstOrDefault(escape => escape is not null && !IsKnownEscape(format!, escape)) is { } unknown ? $"'{name}' uses the escape context '{unknown}', which its format doesn't declare"
             : null;
 
         var diagnostic = problem is null ? null : DiagnosticInfo.Create(Diagnostics.InvalidFormat, syntax.Identifier.GetLocation(), problem);
@@ -250,11 +277,23 @@ public sealed class FormatGenerator : IIncrementalGenerator
         {
             var formatsValues = format is not null && FormatReader.FormatsValues(format);
 
-            code = EmitAttributeMethod(method, problem is null ? attribute : null, isList && problem is null, formatsValues);
+            // Only an attribute of its own gets overloads, such as for any number: for several, they would multiply.
+            code = EmitAttributeMethod(method, problem is null && attributes is { Length: 1 } ? attributes[0] : null, isList && problem is null, formatsValues);
         }
 
         return new AttributeMethodModel(GetDeclaration(type), code, diagnostic);
     }
+
+    /// <summary>
+    /// The format of the nodes an extension method is called on: of the node it takes, or of the constraint of the type
+    /// parameter it takes, such as <c>TElement : HtmlTag&lt;TElement&gt;</c>.
+    /// </summary>
+    private static ITypeSymbol? FormatOfReceiver(ITypeSymbol receiver) =>
+        receiver is ITypeParameterSymbol parameter
+            ? parameter.ConstraintTypes.Select(FormatOfReceiver).FirstOrDefault(format => format is not null)
+            : FormatReader.IsFormat(receiver) ? receiver
+            : receiver is INamedTypeSymbol named ? FormatReader.FindFormat(named)
+            : null;
 
     private static string? ReadListEscape(IMethodSymbol method) =>
         method.GetAttributes()
@@ -413,35 +452,40 @@ public sealed class FormatGenerator : IIncrementalGenerator
 
         // The overloads share the documentation of the declared method, so they show it in autocomplete too.
         var documentation = Documentation(method);
-        var anyNumber = documentation + "    /// <typeparam name=\"TValue\">Any number type, such as int, double or decimal.</typeparam>\n";
-        var formattable = documentation + "    /// <typeparam name=\"TValue\">A value that formats itself, such as a number, a date or a Guid.</typeparam>\n";
-        var start = $"    {SyntaxFacts.GetText(method.DeclaredAccessibility)} {DisplayType(method.ReturnType)} {Identifier(method.Name)}";
-        var parameters = string.Join(", ", method.Parameters.Select(p => DisplayType(p.Type) + " " + Identifier(p.Name)));
+        // Only with documentation of the method: a tag for TValue alone would leave its other type parameters without one.
+        var anyNumber = documentation.Length == 0 ? "" : documentation + "    /// <typeparam name=\"TValue\">Any number type, such as int, double or decimal.</typeparam>\n";
+        var formattable = documentation.Length == 0 ? "" : documentation + "    /// <typeparam name=\"TValue\">A value that formats itself, such as a number, a date or a Guid.</typeparam>\n";
         var source = new StringBuilder();
 
-        source.Append($"    {Excluded}\n    {SyntaxFacts.GetText(method.DeclaredAccessibility)} partial {DisplayType(method.ReturnType)} {Identifier(method.Name)}({parameters}) => {NotExecutable};\n\n");
+        // The part that implements the declared method repeats what makes it the same method, as C# requires: this,
+        // params, ref kinds and the constraints, but not default values or attributes.
+        var parameters = string.Join(", ", method.Parameters.Select(Parameter));
+        source.Append($"    {Excluded}\n    {Modifiers(method)}partial {DisplayType(method.ReturnType)} {Identifier(method.Name)}{TypeParameters(method, null)}({parameters}){Constraints(method, null)} => {NotExecutable};\n\n");
+
+        // An overload takes another value than the declared one, under the same name, so that named arguments work with it too.
+        var value = attribute is null ? "value" : Identifier(attribute.Name);
 
         if (attribute is { Kind: AttributeKind.Typed, IsAnyNumber: true })
         {
-            source.Append($"{anyNumber}    {Excluded}\n{start}<TValue>(TValue value) {AnyNumber} => {NotExecutable};\n\n");
-            source.Append($"{anyNumber}    {Excluded}\n{start}<TValue>(TValue? value) {AnyNumber} => {NotExecutable};\n\n");
+            source.Append(Overload(method, anyNumber, $"TValue {value}", AnyNumber));
+            source.Append(Overload(method, anyNumber, $"TValue? {value}", AnyNumber));
         }
 
         if (attribute is { Kind: AttributeKind.Typed or AttributeKind.Enum or AttributeKind.TrueFalse, AlsoText: true })
         {
-            source.Append($"{documentation}    {Excluded}\n{start}(string? value) => {NotExecutable};\n\n");
+            source.Append(Overload(method, documentation, $"string? {value}", null));
         }
 
         if (formatsValues && attribute is { Kind: AttributeKind.Text, IsTextOnly: false })
         {
-            source.Append($"{formattable}    {Excluded}\n{start}<TValue>(TValue value) {Formattable} => {NotExecutable};\n\n");
-            source.Append($"{formattable}    {Excluded}\n{start}<TValue>(TValue? value) {Formattable} => {NotExecutable};\n\n");
+            source.Append(Overload(method, formattable, $"TValue {value}", Formattable));
+            source.Append(Overload(method, formattable, $"TValue? {value}", Formattable));
         }
 
         if (formatsValues && isList)
         {
-            source.Append($"{formattable}    {Excluded}\n{start}<TValue>(string name, TValue value) {Formattable} => {NotExecutable};\n\n");
-            source.Append($"{formattable}    {Excluded}\n{start}<TValue>(string name, TValue? value) {Formattable} => {NotExecutable};\n\n");
+            source.Append(Overload(method, formattable, "string name, TValue value", Formattable));
+            source.Append(Overload(method, formattable, "string name, TValue? value", Formattable));
         }
 
         // A list that writes a bool as the word true or false, such as Data("selected", isSelected).
@@ -450,11 +494,41 @@ public sealed class FormatGenerator : IIncrementalGenerator
 
         if (isTrueFalse)
         {
-            source.Append($"{documentation}    {Excluded}\n{start}(string name, bool? value) => {NotExecutable};\n\n");
+            source.Append(Overload(method, documentation, "string name, bool? value", null));
         }
 
         return source.ToString();
     }
+
+    /// <summary>
+    /// An overload of an attribute method with other value parameters, and a type parameter TValue if
+    /// <paramref name="constraint"/> is one for it. An extension method keeps what it is called on.
+    /// </summary>
+    private static string Overload(IMethodSymbol method, string documentation, string values, string? constraint)
+    {
+        var receiver = method.IsExtensionMethod ? Parameter(method.Parameters[0]) + ", " : "";
+        var typeParameter = constraint is null ? null : "TValue";
+
+        return $"{documentation}    {Excluded}\n    {Modifiers(method)}{DisplayType(method.ReturnType)} {Identifier(method.Name)}{TypeParameters(method, typeParameter)}({receiver}{values}){Constraints(method, constraint)} => {NotExecutable};\n\n";
+    }
+
+    private static string Modifiers(IMethodSymbol method) =>
+        SyntaxFacts.GetText(method.DeclaredAccessibility) + " " + (method.IsStatic ? "static " : "");
+
+    private static string TypeParameters(IMethodSymbol method, string? extra)
+    {
+        var names = method.TypeParameters.Select(parameter => parameter.Name).Concat(extra is null ? [] : [extra]).ToArray();
+        return names.Length == 0 ? "" : $"<{string.Join(", ", names)}>";
+    }
+
+    private static string Constraints(IMethodSymbol method, string? extra) =>
+        string.Concat(method.TypeParameters.Select(TemplateFactories.Constraint)) + (extra is null ? "" : " " + extra);
+
+    private static string Parameter(IParameterSymbol parameter) =>
+        (parameter.Ordinal == 0 && ((IMethodSymbol)parameter.ContainingSymbol).IsExtensionMethod ? "this " : "")
+        + (parameter.IsParams ? "params " : "")
+        + (parameter.RefKind switch { RefKind.Ref => "ref ", RefKind.Out => "out ", RefKind.In => "in ", _ => "" })
+        + DisplayType(parameter.Type) + " " + Identifier(parameter.Name);
 
     /// <summary>The documentation comment of a method in source, as lines of a comment, or nothing if it has none.</summary>
     private static string Documentation(IMethodSymbol method) =>

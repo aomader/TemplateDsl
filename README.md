@@ -557,8 +557,7 @@ public sealed partial class XmlText : XmlNode;
 [Node(Start = "<item", Body = ">", End = "</item>")]
 public sealed partial class Item : XmlNode
 {
-    [Attr(" id=\"", "\"", Escape = "text")]
-    public partial Item Id(string? value);
+    public partial Item Id([Attr(" id=\"", "\"", Escape = "text")] string? value);
 }
 
 [TemplateTags(typeof(XmlNode))]
@@ -570,11 +569,40 @@ public static partial class Xml
 public interface IXmlTemplate : ITemplate<XmlNode>;
 ```
 
-An attribute is a partial method that returns the node, which the generator implements, so this is written
-`Xml.Item.Id("a") [ "text" ]`. Its parameter says what it takes, as for HTML: a string, a number such as `int?`, an enum,
-`bool?` for the words true and false, or `bool? value = true` for an attribute without a value. Escape every attribute
-with a value: a number type can be one of the app's own, which writes whatever it formats as. Attributes that several
-nodes share go in a base class that takes the node as a type parameter and returns it, as `HtmlTag<TElement>` does.
+Attributes are written by partial methods that return the node, which the generator implements, so this is written
+`Xml.Item.Id("a") [ "text" ]`. Each parameter marked with `[Attr]` writes an attribute, and its type says what it takes,
+as for HTML: a string, a number such as `int?`, an enum, `bool?` for the words true and false, or `bool? value = true`
+for an attribute without a value. A method with several such parameters writes several attributes, and leaves out those
+whose argument is left out, so their parameters default to null. Escape every attribute with a value: a number type can
+be one of the app's own, which writes whatever it formats as. Attributes that several nodes share go in a base class
+that takes the node as a type parameter and returns it, as `HtmlTag<TElement>` does.
+
+## Extending elements
+
+A package can add attributes to the elements of a format, such as one for a library like htmx, with extension methods
+in a static partial class. The node they take says which elements get them: any element through a type parameter, as
+here, or only one, such as `this Form form`:
+
+```csharp
+public static partial class Htmx
+{
+    public static partial TElement HxGet<TElement>(this TElement element,
+        [Attr(" hx-get=\"", "\"", Escape = "attribute")] string? url)
+        where TElement : HtmlTag<TElement>;
+
+    public static partial TElement HxPost<TElement>(this TElement element,
+        [Attr(" hx-post=\"", "\"", Escape = "attribute")] string url,
+        [Attr(" hx-target=\"", "\"", Escape = "attribute")] string? target = null,
+        [Attr(" hx-swap=\"", "\"", Escape = "attribute")] HxSwap? swap = null)
+        where TElement : HtmlTag<TElement>;
+}
+
+Button.HxGet(Urls.Search).Type("button") [ "Search" ]
+Form.HxPost(Urls.Todos, target: "#app", swap: HxSwap.OuterHtml) [ ... ]   // three attributes
+```
+
+They work like the attributes of the elements themselves, written while compiling and checked as such, also when they
+come from another package: an attribute that appears twice, through two methods or `.Attr`, is an error.
 
 Templates in the format implement `IXmlTemplate`, or `ITemplate<XmlNode>` itself. One with a context implements `ITemplate<XmlNode, TContext>`, and an async one `IAsyncTemplate<XmlNode>`.
 A format opts in to numbers and dates with `[TemplateFormat(typeof(XmlText), FormatsValues = true)]`. Its text uses the

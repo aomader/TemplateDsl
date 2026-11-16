@@ -10,268 +10,202 @@ public abstract partial class HtmlTag<TElement> : HtmlElement where TElement : H
     private protected HtmlTag() { }
 
     /// <summary>The <c>id</c> attribute.</summary>
-    [Attr(" id=\"", "\"", Escape = "attribute")]
-    public partial TElement Id(string? value);
+    public partial TElement Id([Attr(" id=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>class</c> attribute.</summary>
-    [Attr(" class=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement Class(string? value);
+    public partial TElement Class([Attr(" class=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>style</c> attribute.</summary>
-    [Attr(" style=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement Style(string? value);
+    public partial TElement Style([Attr(" style=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>title</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" title=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial TElement Title(string? value);
+    public partial TElement Title([Attr(" title=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>lang</c> attribute.</summary>
-    [Attr(" lang=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement Lang(string? value);
+    public partial TElement Lang([Attr(" lang=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>dir</c> attribute.</summary>
-    [Attr(" dir=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement Dir(string? value);
+    public partial TElement Dir([Attr(" dir=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>role</c> attribute.</summary>
-    [Attr(" role=\"", "\"", Escape = "attribute", AlsoText = true)]
-    public partial TElement Role(Role? value);
+    public partial TElement Role([Attr(" role=\"", "\"", Escape = "attribute", AlsoText = true)] Role? value);
 
     /// <summary>The <c>slot</c> attribute.</summary>
-    [Attr(" slot=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement Slot(string? value);
+    public partial TElement Slot([Attr(" slot=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>nonce</c> attribute.</summary>
-    [Attr(" nonce=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement Nonce(string? value);
+    public partial TElement Nonce([Attr(" nonce=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>tabindex</c> attribute.</summary>
-    [Attr(" tabindex=\"", "\"", Escape = "attribute")]
-    public partial TElement TabIndex(int? value);
+    public partial TElement TabIndex([Attr(" tabindex=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>accesskey</c> attribute.</summary>
-    [Attr(" accesskey=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement AccessKey(string? value);
+    public partial TElement AccessKey([Attr(" accesskey=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>contenteditable</c> attribute.</summary>
-    [Attr(" contenteditable=\"", "\"", Escape = "attribute")]
-    public partial TElement ContentEditable(bool? value);
+    public partial TElement ContentEditable([Attr(" contenteditable=\"", "\"", Escape = "attribute")] bool? value);
 
     /// <summary>The <c>draggable</c> attribute.</summary>
-    [Attr(" draggable=\"", "\"", Escape = "attribute")]
-    public partial TElement Draggable(bool? value);
+    public partial TElement Draggable([Attr(" draggable=\"", "\"", Escape = "attribute")] bool? value);
 
     /// <summary>The <c>spellcheck</c> attribute.</summary>
-    [Attr(" spellcheck=\"", "\"", Escape = "attribute")]
-    public partial TElement Spellcheck(bool? value);
+    public partial TElement Spellcheck([Attr(" spellcheck=\"", "\"", Escape = "attribute")] bool? value);
 
     /// <summary>The <c>translate</c> attribute.</summary>
-    [Attr(" translate=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement Translate(string? value);
+    public partial TElement Translate([Attr(" translate=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>popover</c> attribute.</summary>
-    [Attr(" popover=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement Popover(string? value);
+    public partial TElement Popover([Attr(" popover=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>hidden</c> attribute.</summary>
-    [Attr(" hidden", "")]
-    public partial TElement Hidden(bool? value = true);
+    public partial TElement Hidden([Attr(" hidden", "")] bool? value = true);
 
     /// <summary>The <c>inert</c> attribute.</summary>
-    [Attr(" inert", "")]
-    public partial TElement Inert(bool? value = true);
+    public partial TElement Inert([Attr(" inert", "")] bool? value = true);
 
     /// <summary>The <c>autofocus</c> attribute.</summary>
-    [Attr(" autofocus", "")]
-    public partial TElement Autofocus(bool? value = true);
+    public partial TElement Autofocus([Attr(" autofocus", "")] bool? value = true);
 
     /// <summary>The <c>aria-activedescendant</c> attribute.</summary>
-    [Attr(" aria-activedescendant=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement AriaActiveDescendant(string? value);
+    public partial TElement AriaActiveDescendant([Attr(" aria-activedescendant=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>aria-atomic</c> attribute.</summary>
-    [Attr(" aria-atomic=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaAtomic(bool? value);
+    public partial TElement AriaAtomic([Attr(" aria-atomic=\"", "\"", Escape = "attribute")] bool? value);
 
     /// <summary>The <c>aria-autocomplete</c> attribute.</summary>
-    [Attr(" aria-autocomplete=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaAutoComplete(AriaAutoComplete? value);
+    public partial TElement AriaAutoComplete([Attr(" aria-autocomplete=\"", "\"", Escape = "attribute")] AriaAutoComplete? value);
 
     /// <summary>The <c>aria-busy</c> attribute.</summary>
-    [Attr(" aria-busy=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaBusy(bool? value);
+    public partial TElement AriaBusy([Attr(" aria-busy=\"", "\"", Escape = "attribute")] bool? value);
 
     /// <summary>The <c>aria-checked</c> attribute.</summary>
-    [Attr(" aria-checked=\"", "\"", Escape = "attribute", AlsoText = true)]
-    public partial TElement AriaChecked(bool? value);
+    public partial TElement AriaChecked([Attr(" aria-checked=\"", "\"", Escape = "attribute", AlsoText = true)] bool? value);
 
     /// <summary>The <c>aria-colcount</c> attribute.</summary>
-    [Attr(" aria-colcount=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaColCount(int? value);
+    public partial TElement AriaColCount([Attr(" aria-colcount=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>aria-colindex</c> attribute.</summary>
-    [Attr(" aria-colindex=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaColIndex(int? value);
+    public partial TElement AriaColIndex([Attr(" aria-colindex=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>aria-colspan</c> attribute.</summary>
-    [Attr(" aria-colspan=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaColSpan(int? value);
+    public partial TElement AriaColSpan([Attr(" aria-colspan=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>aria-controls</c> attribute.</summary>
-    [Attr(" aria-controls=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement AriaControls(string? value);
+    public partial TElement AriaControls([Attr(" aria-controls=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>aria-current</c> attribute.</summary>
-    [Attr(" aria-current=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaCurrent(AriaCurrent? value);
+    public partial TElement AriaCurrent([Attr(" aria-current=\"", "\"", Escape = "attribute")] AriaCurrent? value);
 
     /// <summary>The <c>aria-describedby</c> attribute.</summary>
-    [Attr(" aria-describedby=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement AriaDescribedBy(string? value);
+    public partial TElement AriaDescribedBy([Attr(" aria-describedby=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>aria-description</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" aria-description=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial TElement AriaDescription(string? value);
+    public partial TElement AriaDescription([Attr(" aria-description=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>aria-details</c> attribute.</summary>
-    [Attr(" aria-details=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement AriaDetails(string? value);
+    public partial TElement AriaDetails([Attr(" aria-details=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>aria-disabled</c> attribute.</summary>
-    [Attr(" aria-disabled=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaDisabled(bool? value);
+    public partial TElement AriaDisabled([Attr(" aria-disabled=\"", "\"", Escape = "attribute")] bool? value);
 
     /// <summary>The <c>aria-errormessage</c> attribute.</summary>
-    [Attr(" aria-errormessage=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement AriaErrorMessage(string? value);
+    public partial TElement AriaErrorMessage([Attr(" aria-errormessage=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>aria-expanded</c> attribute.</summary>
-    [Attr(" aria-expanded=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaExpanded(bool? value);
+    public partial TElement AriaExpanded([Attr(" aria-expanded=\"", "\"", Escape = "attribute")] bool? value);
 
     /// <summary>The <c>aria-flowto</c> attribute.</summary>
-    [Attr(" aria-flowto=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement AriaFlowTo(string? value);
+    public partial TElement AriaFlowTo([Attr(" aria-flowto=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>aria-haspopup</c> attribute.</summary>
-    [Attr(" aria-haspopup=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaHasPopup(AriaHasPopup? value);
+    public partial TElement AriaHasPopup([Attr(" aria-haspopup=\"", "\"", Escape = "attribute")] AriaHasPopup? value);
 
     /// <summary>The <c>aria-hidden</c> attribute.</summary>
-    [Attr(" aria-hidden=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaHidden(bool? value);
+    public partial TElement AriaHidden([Attr(" aria-hidden=\"", "\"", Escape = "attribute")] bool? value);
 
     /// <summary>The <c>aria-invalid</c> attribute.</summary>
-    [Attr(" aria-invalid=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaInvalid(AriaInvalid? value);
+    public partial TElement AriaInvalid([Attr(" aria-invalid=\"", "\"", Escape = "attribute")] AriaInvalid? value);
 
     /// <summary>The <c>aria-keyshortcuts</c> attribute.</summary>
-    [Attr(" aria-keyshortcuts=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement AriaKeyShortcuts(string? value);
+    public partial TElement AriaKeyShortcuts([Attr(" aria-keyshortcuts=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>aria-label</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" aria-label=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial TElement AriaLabel(string? value);
+    public partial TElement AriaLabel([Attr(" aria-label=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>aria-labelledby</c> attribute.</summary>
-    [Attr(" aria-labelledby=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement AriaLabelledBy(string? value);
+    public partial TElement AriaLabelledBy([Attr(" aria-labelledby=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>aria-level</c> attribute.</summary>
-    [Attr(" aria-level=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaLevel(int? value);
+    public partial TElement AriaLevel([Attr(" aria-level=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>aria-live</c> attribute.</summary>
-    [Attr(" aria-live=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaLive(AriaLive? value);
+    public partial TElement AriaLive([Attr(" aria-live=\"", "\"", Escape = "attribute")] AriaLive? value);
 
     /// <summary>The <c>aria-modal</c> attribute.</summary>
-    [Attr(" aria-modal=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaModal(bool? value);
+    public partial TElement AriaModal([Attr(" aria-modal=\"", "\"", Escape = "attribute")] bool? value);
 
     /// <summary>The <c>aria-multiline</c> attribute.</summary>
-    [Attr(" aria-multiline=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaMultiLine(bool? value);
+    public partial TElement AriaMultiLine([Attr(" aria-multiline=\"", "\"", Escape = "attribute")] bool? value);
 
     /// <summary>The <c>aria-multiselectable</c> attribute.</summary>
-    [Attr(" aria-multiselectable=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaMultiSelectable(bool? value);
+    public partial TElement AriaMultiSelectable([Attr(" aria-multiselectable=\"", "\"", Escape = "attribute")] bool? value);
 
     /// <summary>The <c>aria-orientation</c> attribute.</summary>
-    [Attr(" aria-orientation=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaOrientation(AriaOrientation? value);
+    public partial TElement AriaOrientation([Attr(" aria-orientation=\"", "\"", Escape = "attribute")] AriaOrientation? value);
 
     /// <summary>The <c>aria-owns</c> attribute.</summary>
-    [Attr(" aria-owns=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement AriaOwns(string? value);
+    public partial TElement AriaOwns([Attr(" aria-owns=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>aria-placeholder</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" aria-placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial TElement AriaPlaceholder(string? value);
+    public partial TElement AriaPlaceholder([Attr(" aria-placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>aria-posinset</c> attribute.</summary>
-    [Attr(" aria-posinset=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaPosInSet(int? value);
+    public partial TElement AriaPosInSet([Attr(" aria-posinset=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>aria-pressed</c> attribute.</summary>
-    [Attr(" aria-pressed=\"", "\"", Escape = "attribute", AlsoText = true)]
-    public partial TElement AriaPressed(bool? value);
+    public partial TElement AriaPressed([Attr(" aria-pressed=\"", "\"", Escape = "attribute", AlsoText = true)] bool? value);
 
     /// <summary>The <c>aria-readonly</c> attribute.</summary>
-    [Attr(" aria-readonly=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaReadOnly(bool? value);
+    public partial TElement AriaReadOnly([Attr(" aria-readonly=\"", "\"", Escape = "attribute")] bool? value);
 
     /// <summary>The <c>aria-relevant</c> attribute.</summary>
-    [Attr(" aria-relevant=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TElement AriaRelevant(string? value);
+    public partial TElement AriaRelevant([Attr(" aria-relevant=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>aria-required</c> attribute.</summary>
-    [Attr(" aria-required=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaRequired(bool? value);
+    public partial TElement AriaRequired([Attr(" aria-required=\"", "\"", Escape = "attribute")] bool? value);
 
     /// <summary>The <c>aria-roledescription</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" aria-roledescription=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial TElement AriaRoleDescription(string? value);
+    public partial TElement AriaRoleDescription([Attr(" aria-roledescription=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>aria-rowcount</c> attribute.</summary>
-    [Attr(" aria-rowcount=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaRowCount(int? value);
+    public partial TElement AriaRowCount([Attr(" aria-rowcount=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>aria-rowindex</c> attribute.</summary>
-    [Attr(" aria-rowindex=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaRowIndex(int? value);
+    public partial TElement AriaRowIndex([Attr(" aria-rowindex=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>aria-rowspan</c> attribute.</summary>
-    [Attr(" aria-rowspan=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaRowSpan(int? value);
+    public partial TElement AriaRowSpan([Attr(" aria-rowspan=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>aria-selected</c> attribute.</summary>
-    [Attr(" aria-selected=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaSelected(bool? value);
+    public partial TElement AriaSelected([Attr(" aria-selected=\"", "\"", Escape = "attribute")] bool? value);
 
     /// <summary>The <c>aria-setsize</c> attribute.</summary>
-    [Attr(" aria-setsize=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaSetSize(int? value);
+    public partial TElement AriaSetSize([Attr(" aria-setsize=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>aria-sort</c> attribute.</summary>
-    [Attr(" aria-sort=\"", "\"", Escape = "attribute")]
-    public partial TElement AriaSort(AriaSort? value);
+    public partial TElement AriaSort([Attr(" aria-sort=\"", "\"", Escape = "attribute")] AriaSort? value);
 
     /// <summary>The <c>aria-valuemax</c> attribute.</summary>
-    [Attr(" aria-valuemax=\"", "\"", Escape = "attribute", AnyNumber = true)]
-    public partial TElement AriaValueMax(double? value);
+    public partial TElement AriaValueMax([Attr(" aria-valuemax=\"", "\"", Escape = "attribute", AnyNumber = true)] double? value);
 
     /// <summary>The <c>aria-valuemin</c> attribute.</summary>
-    [Attr(" aria-valuemin=\"", "\"", Escape = "attribute", AnyNumber = true)]
-    public partial TElement AriaValueMin(double? value);
+    public partial TElement AriaValueMin([Attr(" aria-valuemin=\"", "\"", Escape = "attribute", AnyNumber = true)] double? value);
 
     /// <summary>The <c>aria-valuenow</c> attribute.</summary>
-    [Attr(" aria-valuenow=\"", "\"", Escape = "attribute", AnyNumber = true)]
-    public partial TElement AriaValueNow(double? value);
+    public partial TElement AriaValueNow([Attr(" aria-valuenow=\"", "\"", Escape = "attribute", AnyNumber = true)] double? value);
 
     /// <summary>The <c>aria-valuetext</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" aria-valuetext=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial TElement AriaValueText(string? value);
+    public partial TElement AriaValueText([Attr(" aria-valuetext=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>An attribute without its own method, such as <c>data-id</c>. The name must be a constant.</summary>
     [AttrList(Before = " ", BetweenNameAndValue = "=\"", After = "\"", Escape = "attribute", CurrentCultureNames = new[] { "aria-braillelabel", "aria-brailleroledescription", "aria-colindextext", "aria-rowindextext" })]
@@ -302,8 +236,7 @@ public sealed partial class Html : HtmlTag<Html>
     internal Html() { }
 
     /// <summary>The <c>xmlns</c> attribute.</summary>
-    [Attr(" xmlns=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Html Xmlns(string? value);
+    public partial Html Xmlns([Attr(" xmlns=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 }
 
 /// <summary>The <c>&lt;head&gt;</c> element.</summary>
@@ -330,12 +263,10 @@ public sealed partial class Base : HtmlTag<Base>
     internal Base() { }
 
     /// <summary>The <c>href</c> attribute.</summary>
-    [Attr(" href=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Base Href(string? value);
+    public partial Base Href([Attr(" href=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>target</c> attribute.</summary>
-    [Attr(" target=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Base Target(string? value);
+    public partial Base Target([Attr(" target=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 }
 
 /// <summary>The <c>&lt;link&gt;</c> element.</summary>
@@ -346,48 +277,37 @@ public sealed partial class Link : HtmlTag<Link>
     internal Link() { }
 
     /// <summary>The <c>href</c> attribute.</summary>
-    [Attr(" href=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Link Href(string? value);
+    public partial Link Href([Attr(" href=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>rel</c> attribute.</summary>
-    [Attr(" rel=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Link Rel(string? value);
+    public partial Link Rel([Attr(" rel=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>as</c> attribute.</summary>
-    [Attr(" as=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Link As(string? value);
+    public partial Link As([Attr(" as=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>media</c> attribute.</summary>
-    [Attr(" media=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Link Media(string? value);
+    public partial Link Media([Attr(" media=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>type</c> attribute.</summary>
-    [Attr(" type=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Link Type(string? value);
+    public partial Link Type([Attr(" type=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>sizes</c> attribute.</summary>
-    [Attr(" sizes=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Link Sizes(string? value);
+    public partial Link Sizes([Attr(" sizes=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>crossorigin</c> attribute.</summary>
-    [Attr(" crossorigin=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Link CrossOrigin(string? value);
+    public partial Link CrossOrigin([Attr(" crossorigin=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>integrity</c> attribute.</summary>
-    [Attr(" integrity=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Link Integrity(string? value);
+    public partial Link Integrity([Attr(" integrity=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>hreflang</c> attribute.</summary>
-    [Attr(" hreflang=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Link Hreflang(string? value);
+    public partial Link Hreflang([Attr(" hreflang=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>referrerpolicy</c> attribute.</summary>
-    [Attr(" referrerpolicy=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Link ReferrerPolicy(string? value);
+    public partial Link ReferrerPolicy([Attr(" referrerpolicy=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial Link Disabled(bool? value = true);
+    public partial Link Disabled([Attr(" disabled", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;meta&gt;</c> element.</summary>
@@ -398,20 +318,16 @@ public sealed partial class Meta : HtmlTag<Meta>
     internal Meta() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Meta Name(string? value);
+    public partial Meta Name([Attr(" name=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>content</c> attribute.</summary>
-    [Attr(" content=\"", "\"", Escape = "attribute")]
-    public partial Meta Content(string? value);
+    public partial Meta Content([Attr(" content=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>charset</c> attribute.</summary>
-    [Attr(" charset=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Meta Charset(string? value);
+    public partial Meta Charset([Attr(" charset=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>http-equiv</c> attribute.</summary>
-    [Attr(" http-equiv=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Meta HttpEquiv(string? value);
+    public partial Meta HttpEquiv([Attr(" http-equiv=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 }
 
 /// <summary>The <c>&lt;style&gt;</c> element.</summary>
@@ -422,8 +338,7 @@ public sealed partial class Style : HtmlTag<Style>
     internal Style() { }
 
     /// <summary>The <c>media</c> attribute.</summary>
-    [Attr(" media=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Style Media(string? value);
+    public partial Style Media([Attr(" media=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 }
 
 /// <summary>The <c>&lt;body&gt;</c> element.</summary>
@@ -594,8 +509,7 @@ public sealed partial class Blockquote : HtmlTag<Blockquote>
     internal Blockquote() { }
 
     /// <summary>The <c>cite</c> attribute.</summary>
-    [Attr(" cite=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Blockquote Cite(string? value);
+    public partial Blockquote Cite([Attr(" cite=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 }
 
 /// <summary>The <c>&lt;ol&gt;</c> element.</summary>
@@ -606,16 +520,13 @@ public sealed partial class Ol : HtmlTag<Ol>
     internal Ol() { }
 
     /// <summary>The <c>start</c> attribute.</summary>
-    [Attr(" start=\"", "\"", Escape = "attribute")]
-    public partial Ol Start(int? value);
+    public partial Ol Start([Attr(" start=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>type</c> attribute.</summary>
-    [Attr(" type=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Ol Type(string? value);
+    public partial Ol Type([Attr(" type=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>reversed</c> attribute.</summary>
-    [Attr(" reversed", "")]
-    public partial Ol Reversed(bool? value = true);
+    public partial Ol Reversed([Attr(" reversed", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;ul&gt;</c> element.</summary>
@@ -642,8 +553,7 @@ public sealed partial class Li : HtmlTag<Li>
     internal Li() { }
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute")]
-    public partial Li Value(int? value);
+    public partial Li Value([Attr(" value=\"", "\"", Escape = "attribute")] int? value);
 }
 
 /// <summary>The <c>&lt;dl&gt;</c> element.</summary>
@@ -702,36 +612,28 @@ public sealed partial class A : HtmlTag<A>
     internal A() { }
 
     /// <summary>The <c>href</c> attribute.</summary>
-    [Attr(" href=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial A Href(string? value);
+    public partial A Href([Attr(" href=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>target</c> attribute.</summary>
-    [Attr(" target=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial A Target(string? value);
+    public partial A Target([Attr(" target=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>rel</c> attribute.</summary>
-    [Attr(" rel=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial A Rel(string? value);
+    public partial A Rel([Attr(" rel=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>download</c> attribute.</summary>
-    [Attr(" download=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial A Download(string? value);
+    public partial A Download([Attr(" download=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>hreflang</c> attribute.</summary>
-    [Attr(" hreflang=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial A Hreflang(string? value);
+    public partial A Hreflang([Attr(" hreflang=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>type</c> attribute.</summary>
-    [Attr(" type=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial A Type(string? value);
+    public partial A Type([Attr(" type=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>ping</c> attribute.</summary>
-    [Attr(" ping=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial A Ping(string? value);
+    public partial A Ping([Attr(" ping=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>referrerpolicy</c> attribute.</summary>
-    [Attr(" referrerpolicy=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial A ReferrerPolicy(string? value);
+    public partial A ReferrerPolicy([Attr(" referrerpolicy=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 }
 
 /// <summary>The <c>&lt;em&gt;</c> element.</summary>
@@ -782,8 +684,7 @@ public sealed partial class Q : HtmlTag<Q>
     internal Q() { }
 
     /// <summary>The <c>cite</c> attribute.</summary>
-    [Attr(" cite=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Q Cite(string? value);
+    public partial Q Cite([Attr(" cite=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 }
 
 /// <summary>The <c>&lt;dfn&gt;</c> element.</summary>
@@ -834,8 +735,7 @@ public sealed partial class Data : HtmlTag<Data>
     internal Data() { }
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute")]
-    public partial Data Value(string? value);
+    public partial Data Value([Attr(" value=\"", "\"", Escape = "attribute")] string? value);
 }
 
 /// <summary>The <c>&lt;time&gt;</c> element.</summary>
@@ -846,8 +746,7 @@ public sealed partial class Time : HtmlTag<Time>
     internal Time() { }
 
     /// <summary>The <c>datetime</c> attribute.</summary>
-    [Attr(" datetime=\"", "\"", Escape = "attribute")]
-    public partial Time DateTime(string? value);
+    public partial Time DateTime([Attr(" datetime=\"", "\"", Escape = "attribute")] string? value);
 }
 
 /// <summary>The <c>&lt;code&gt;</c> element.</summary>
@@ -978,12 +877,10 @@ public sealed partial class Ins : HtmlTag<Ins>
     internal Ins() { }
 
     /// <summary>The <c>cite</c> attribute.</summary>
-    [Attr(" cite=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Ins Cite(string? value);
+    public partial Ins Cite([Attr(" cite=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>datetime</c> attribute.</summary>
-    [Attr(" datetime=\"", "\"", Escape = "attribute")]
-    public partial Ins DateTime(string? value);
+    public partial Ins DateTime([Attr(" datetime=\"", "\"", Escape = "attribute")] string? value);
 }
 
 /// <summary>The <c>&lt;del&gt;</c> element.</summary>
@@ -994,12 +891,10 @@ public sealed partial class Del : HtmlTag<Del>
     internal Del() { }
 
     /// <summary>The <c>cite</c> attribute.</summary>
-    [Attr(" cite=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Del Cite(string? value);
+    public partial Del Cite([Attr(" cite=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>datetime</c> attribute.</summary>
-    [Attr(" datetime=\"", "\"", Escape = "attribute")]
-    public partial Del DateTime(string? value);
+    public partial Del DateTime([Attr(" datetime=\"", "\"", Escape = "attribute")] string? value);
 }
 
 /// <summary>The <c>&lt;picture&gt;</c> element.</summary>
@@ -1018,32 +913,25 @@ public sealed partial class Source : HtmlTag<Source>
     internal Source() { }
 
     /// <summary>The <c>src</c> attribute.</summary>
-    [Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Source Src(string? value);
+    public partial Source Src([Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>srcset</c> attribute.</summary>
-    [Attr(" srcset=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Source Srcset(string? value);
+    public partial Source Srcset([Attr(" srcset=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>sizes</c> attribute.</summary>
-    [Attr(" sizes=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Source Sizes(string? value);
+    public partial Source Sizes([Attr(" sizes=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>media</c> attribute.</summary>
-    [Attr(" media=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Source Media(string? value);
+    public partial Source Media([Attr(" media=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>type</c> attribute.</summary>
-    [Attr(" type=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Source Type(string? value);
+    public partial Source Type([Attr(" type=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>width</c> attribute.</summary>
-    [Attr(" width=\"", "\"", Escape = "attribute")]
-    public partial Source Width(int? value);
+    public partial Source Width([Attr(" width=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>height</c> attribute.</summary>
-    [Attr(" height=\"", "\"", Escape = "attribute")]
-    public partial Source Height(int? value);
+    public partial Source Height([Attr(" height=\"", "\"", Escape = "attribute")] int? value);
 }
 
 /// <summary>The <c>&lt;img&gt;</c> element.</summary>
@@ -1054,52 +942,40 @@ public sealed partial class Img : HtmlTag<Img>
     internal Img() { }
 
     /// <summary>The <c>src</c> attribute.</summary>
-    [Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Img Src(string? value);
+    public partial Img Src([Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>alt</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" alt=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial Img Alt(string? value);
+    public partial Img Alt([Attr(" alt=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>srcset</c> attribute.</summary>
-    [Attr(" srcset=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Img Srcset(string? value);
+    public partial Img Srcset([Attr(" srcset=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>sizes</c> attribute.</summary>
-    [Attr(" sizes=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Img Sizes(string? value);
+    public partial Img Sizes([Attr(" sizes=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>width</c> attribute.</summary>
-    [Attr(" width=\"", "\"", Escape = "attribute")]
-    public partial Img Width(int? value);
+    public partial Img Width([Attr(" width=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>height</c> attribute.</summary>
-    [Attr(" height=\"", "\"", Escape = "attribute")]
-    public partial Img Height(int? value);
+    public partial Img Height([Attr(" height=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>loading</c> attribute.</summary>
-    [Attr(" loading=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Img Loading(string? value);
+    public partial Img Loading([Attr(" loading=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>decoding</c> attribute.</summary>
-    [Attr(" decoding=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Img Decoding(string? value);
+    public partial Img Decoding([Attr(" decoding=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>crossorigin</c> attribute.</summary>
-    [Attr(" crossorigin=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Img CrossOrigin(string? value);
+    public partial Img CrossOrigin([Attr(" crossorigin=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>referrerpolicy</c> attribute.</summary>
-    [Attr(" referrerpolicy=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Img ReferrerPolicy(string? value);
+    public partial Img ReferrerPolicy([Attr(" referrerpolicy=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>usemap</c> attribute.</summary>
-    [Attr(" usemap=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Img UseMap(string? value);
+    public partial Img UseMap([Attr(" usemap=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>ismap</c> attribute.</summary>
-    [Attr(" ismap", "")]
-    public partial Img IsMap(bool? value = true);
+    public partial Img IsMap([Attr(" ismap", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;iframe&gt;</c> element.</summary>
@@ -1110,40 +986,31 @@ public sealed partial class Iframe : HtmlTag<Iframe>
     internal Iframe() { }
 
     /// <summary>The <c>src</c> attribute.</summary>
-    [Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Iframe Src(string? value);
+    public partial Iframe Src([Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>srcdoc</c> attribute.</summary>
-    [Attr(" srcdoc=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Iframe Srcdoc(string? value);
+    public partial Iframe Srcdoc([Attr(" srcdoc=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Iframe Name(string? value);
+    public partial Iframe Name([Attr(" name=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>sandbox</c> attribute.</summary>
-    [Attr(" sandbox=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Iframe Sandbox(string? value);
+    public partial Iframe Sandbox([Attr(" sandbox=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>allow</c> attribute.</summary>
-    [Attr(" allow=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Iframe Allow(string? value);
+    public partial Iframe Allow([Attr(" allow=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>width</c> attribute.</summary>
-    [Attr(" width=\"", "\"", Escape = "attribute")]
-    public partial Iframe Width(int? value);
+    public partial Iframe Width([Attr(" width=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>height</c> attribute.</summary>
-    [Attr(" height=\"", "\"", Escape = "attribute")]
-    public partial Iframe Height(int? value);
+    public partial Iframe Height([Attr(" height=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>loading</c> attribute.</summary>
-    [Attr(" loading=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Iframe Loading(string? value);
+    public partial Iframe Loading([Attr(" loading=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>referrerpolicy</c> attribute.</summary>
-    [Attr(" referrerpolicy=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Iframe ReferrerPolicy(string? value);
+    public partial Iframe ReferrerPolicy([Attr(" referrerpolicy=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 }
 
 /// <summary>The <c>&lt;embed&gt;</c> element.</summary>
@@ -1154,20 +1021,16 @@ public sealed partial class Embed : HtmlTag<Embed>
     internal Embed() { }
 
     /// <summary>The <c>src</c> attribute.</summary>
-    [Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Embed Src(string? value);
+    public partial Embed Src([Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>type</c> attribute.</summary>
-    [Attr(" type=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Embed Type(string? value);
+    public partial Embed Type([Attr(" type=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>width</c> attribute.</summary>
-    [Attr(" width=\"", "\"", Escape = "attribute")]
-    public partial Embed Width(int? value);
+    public partial Embed Width([Attr(" width=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>height</c> attribute.</summary>
-    [Attr(" height=\"", "\"", Escape = "attribute")]
-    public partial Embed Height(int? value);
+    public partial Embed Height([Attr(" height=\"", "\"", Escape = "attribute")] int? value);
 }
 
 /// <summary>The <c>&lt;object&gt;</c> element.</summary>
@@ -1178,32 +1041,25 @@ public sealed partial class Object : HtmlTag<Object>
     internal Object() { }
 
     /// <summary>The <c>data</c> attribute.</summary>
-    [Attr(" data=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Object Data(string? value);
+    public partial Object Data([Attr(" data=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>type</c> attribute.</summary>
-    [Attr(" type=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Object Type(string? value);
+    public partial Object Type([Attr(" type=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Object Name(string? value);
+    public partial Object Name([Attr(" name=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Object Form(string? value);
+    public partial Object Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>width</c> attribute.</summary>
-    [Attr(" width=\"", "\"", Escape = "attribute")]
-    public partial Object Width(int? value);
+    public partial Object Width([Attr(" width=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>height</c> attribute.</summary>
-    [Attr(" height=\"", "\"", Escape = "attribute")]
-    public partial Object Height(int? value);
+    public partial Object Height([Attr(" height=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>usemap</c> attribute.</summary>
-    [Attr(" usemap=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Object UseMap(string? value);
+    public partial Object UseMap([Attr(" usemap=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 }
 
 /// <summary>The <c>&lt;video&gt;</c> element.</summary>
@@ -1214,48 +1070,37 @@ public sealed partial class Video : HtmlTag<Video>
     internal Video() { }
 
     /// <summary>The <c>src</c> attribute.</summary>
-    [Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Video Src(string? value);
+    public partial Video Src([Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>poster</c> attribute.</summary>
-    [Attr(" poster=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Video Poster(string? value);
+    public partial Video Poster([Attr(" poster=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>width</c> attribute.</summary>
-    [Attr(" width=\"", "\"", Escape = "attribute")]
-    public partial Video Width(int? value);
+    public partial Video Width([Attr(" width=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>height</c> attribute.</summary>
-    [Attr(" height=\"", "\"", Escape = "attribute")]
-    public partial Video Height(int? value);
+    public partial Video Height([Attr(" height=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>preload</c> attribute.</summary>
-    [Attr(" preload=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Video Preload(string? value);
+    public partial Video Preload([Attr(" preload=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>crossorigin</c> attribute.</summary>
-    [Attr(" crossorigin=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Video CrossOrigin(string? value);
+    public partial Video CrossOrigin([Attr(" crossorigin=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>controls</c> attribute.</summary>
-    [Attr(" controls", "")]
-    public partial Video Controls(bool? value = true);
+    public partial Video Controls([Attr(" controls", "")] bool? value = true);
 
     /// <summary>The <c>autoplay</c> attribute.</summary>
-    [Attr(" autoplay", "")]
-    public partial Video Autoplay(bool? value = true);
+    public partial Video Autoplay([Attr(" autoplay", "")] bool? value = true);
 
     /// <summary>The <c>loop</c> attribute.</summary>
-    [Attr(" loop", "")]
-    public partial Video Loop(bool? value = true);
+    public partial Video Loop([Attr(" loop", "")] bool? value = true);
 
     /// <summary>The <c>muted</c> attribute.</summary>
-    [Attr(" muted", "")]
-    public partial Video Muted(bool? value = true);
+    public partial Video Muted([Attr(" muted", "")] bool? value = true);
 
     /// <summary>The <c>playsinline</c> attribute.</summary>
-    [Attr(" playsinline", "")]
-    public partial Video PlaysInline(bool? value = true);
+    public partial Video PlaysInline([Attr(" playsinline", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;audio&gt;</c> element.</summary>
@@ -1266,32 +1111,25 @@ public sealed partial class Audio : HtmlTag<Audio>
     internal Audio() { }
 
     /// <summary>The <c>src</c> attribute.</summary>
-    [Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Audio Src(string? value);
+    public partial Audio Src([Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>preload</c> attribute.</summary>
-    [Attr(" preload=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Audio Preload(string? value);
+    public partial Audio Preload([Attr(" preload=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>crossorigin</c> attribute.</summary>
-    [Attr(" crossorigin=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Audio CrossOrigin(string? value);
+    public partial Audio CrossOrigin([Attr(" crossorigin=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>controls</c> attribute.</summary>
-    [Attr(" controls", "")]
-    public partial Audio Controls(bool? value = true);
+    public partial Audio Controls([Attr(" controls", "")] bool? value = true);
 
     /// <summary>The <c>autoplay</c> attribute.</summary>
-    [Attr(" autoplay", "")]
-    public partial Audio Autoplay(bool? value = true);
+    public partial Audio Autoplay([Attr(" autoplay", "")] bool? value = true);
 
     /// <summary>The <c>loop</c> attribute.</summary>
-    [Attr(" loop", "")]
-    public partial Audio Loop(bool? value = true);
+    public partial Audio Loop([Attr(" loop", "")] bool? value = true);
 
     /// <summary>The <c>muted</c> attribute.</summary>
-    [Attr(" muted", "")]
-    public partial Audio Muted(bool? value = true);
+    public partial Audio Muted([Attr(" muted", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;track&gt;</c> element.</summary>
@@ -1302,24 +1140,19 @@ public sealed partial class Track : HtmlTag<Track>
     internal Track() { }
 
     /// <summary>The <c>src</c> attribute.</summary>
-    [Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Track Src(string? value);
+    public partial Track Src([Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>kind</c> attribute.</summary>
-    [Attr(" kind=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Track Kind(string? value);
+    public partial Track Kind([Attr(" kind=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>srclang</c> attribute.</summary>
-    [Attr(" srclang=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Track Srclang(string? value);
+    public partial Track Srclang([Attr(" srclang=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>label</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" label=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial Track Label(string? value);
+    public partial Track Label([Attr(" label=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>default</c> attribute.</summary>
-    [Attr(" default", "")]
-    public partial Track Default(bool? value = true);
+    public partial Track Default([Attr(" default", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;map&gt;</c> element.</summary>
@@ -1330,8 +1163,7 @@ public sealed partial class Map : HtmlTag<Map>
     internal Map() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Map Name(string? value);
+    public partial Map Name([Attr(" name=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 }
 
 /// <summary>The <c>&lt;area&gt;</c> element.</summary>
@@ -1342,40 +1174,31 @@ public sealed partial class Area : HtmlTag<Area>
     internal Area() { }
 
     /// <summary>The <c>href</c> attribute.</summary>
-    [Attr(" href=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Area Href(string? value);
+    public partial Area Href([Attr(" href=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>alt</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" alt=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial Area Alt(string? value);
+    public partial Area Alt([Attr(" alt=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>coords</c> attribute.</summary>
-    [Attr(" coords=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Area Coords(string? value);
+    public partial Area Coords([Attr(" coords=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>shape</c> attribute.</summary>
-    [Attr(" shape=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Area Shape(string? value);
+    public partial Area Shape([Attr(" shape=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>target</c> attribute.</summary>
-    [Attr(" target=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Area Target(string? value);
+    public partial Area Target([Attr(" target=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>rel</c> attribute.</summary>
-    [Attr(" rel=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Area Rel(string? value);
+    public partial Area Rel([Attr(" rel=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>download</c> attribute.</summary>
-    [Attr(" download=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Area Download(string? value);
+    public partial Area Download([Attr(" download=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>ping</c> attribute.</summary>
-    [Attr(" ping=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Area Ping(string? value);
+    public partial Area Ping([Attr(" ping=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>referrerpolicy</c> attribute.</summary>
-    [Attr(" referrerpolicy=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Area ReferrerPolicy(string? value);
+    public partial Area ReferrerPolicy([Attr(" referrerpolicy=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 }
 
 /// <summary>The <c>&lt;table&gt;</c> element.</summary>
@@ -1402,8 +1225,7 @@ public sealed partial class Colgroup : HtmlTag<Colgroup>
     internal Colgroup() { }
 
     /// <summary>The <c>span</c> attribute.</summary>
-    [Attr(" span=\"", "\"", Escape = "attribute")]
-    public partial Colgroup Span(int? value);
+    public partial Colgroup Span([Attr(" span=\"", "\"", Escape = "attribute")] int? value);
 }
 
 /// <summary>The <c>&lt;col&gt;</c> element.</summary>
@@ -1414,8 +1236,7 @@ public sealed partial class Col : HtmlTag<Col>
     internal Col() { }
 
     /// <summary>The <c>span</c> attribute.</summary>
-    [Attr(" span=\"", "\"", Escape = "attribute")]
-    public partial Col Span(int? value);
+    public partial Col Span([Attr(" span=\"", "\"", Escape = "attribute")] int? value);
 }
 
 /// <summary>The <c>&lt;tbody&gt;</c> element.</summary>
@@ -1458,16 +1279,13 @@ public sealed partial class Td : HtmlTag<Td>
     internal Td() { }
 
     /// <summary>The <c>colspan</c> attribute.</summary>
-    [Attr(" colspan=\"", "\"", Escape = "attribute")]
-    public partial Td ColSpan(int? value);
+    public partial Td ColSpan([Attr(" colspan=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>rowspan</c> attribute.</summary>
-    [Attr(" rowspan=\"", "\"", Escape = "attribute")]
-    public partial Td RowSpan(int? value);
+    public partial Td RowSpan([Attr(" rowspan=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>headers</c> attribute.</summary>
-    [Attr(" headers=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Td Headers(string? value);
+    public partial Td Headers([Attr(" headers=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 }
 
 /// <summary>The <c>&lt;th&gt;</c> element.</summary>
@@ -1478,24 +1296,19 @@ public sealed partial class Th : HtmlTag<Th>
     internal Th() { }
 
     /// <summary>The <c>colspan</c> attribute.</summary>
-    [Attr(" colspan=\"", "\"", Escape = "attribute")]
-    public partial Th ColSpan(int? value);
+    public partial Th ColSpan([Attr(" colspan=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>rowspan</c> attribute.</summary>
-    [Attr(" rowspan=\"", "\"", Escape = "attribute")]
-    public partial Th RowSpan(int? value);
+    public partial Th RowSpan([Attr(" rowspan=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>headers</c> attribute.</summary>
-    [Attr(" headers=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Th Headers(string? value);
+    public partial Th Headers([Attr(" headers=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>scope</c> attribute.</summary>
-    [Attr(" scope=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Th Scope(string? value);
+    public partial Th Scope([Attr(" scope=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>abbr</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" abbr=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial Th Abbr(string? value);
+    public partial Th Abbr([Attr(" abbr=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 }
 
 /// <summary>The <c>&lt;form&gt;</c> element.</summary>
@@ -1506,40 +1319,31 @@ public sealed partial class Form : HtmlTag<Form>
     internal Form() { }
 
     /// <summary>The <c>action</c> attribute.</summary>
-    [Attr(" action=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Form Action(string? value);
+    public partial Form Action([Attr(" action=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>method</c> attribute.</summary>
-    [Attr(" method=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Form Method(string? value);
+    public partial Form Method([Attr(" method=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>enctype</c> attribute.</summary>
-    [Attr(" enctype=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Form Enctype(string? value);
+    public partial Form Enctype([Attr(" enctype=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Form Name(string? value);
+    public partial Form Name([Attr(" name=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>target</c> attribute.</summary>
-    [Attr(" target=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Form Target(string? value);
+    public partial Form Target([Attr(" target=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>rel</c> attribute.</summary>
-    [Attr(" rel=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Form Rel(string? value);
+    public partial Form Rel([Attr(" rel=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Form Autocomplete(string? value);
+    public partial Form Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>accept-charset</c> attribute.</summary>
-    [Attr(" accept-charset=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Form AcceptCharset(string? value);
+    public partial Form AcceptCharset([Attr(" accept-charset=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>novalidate</c> attribute.</summary>
-    [Attr(" novalidate", "")]
-    public partial Form NoValidate(bool? value = true);
+    public partial Form NoValidate([Attr(" novalidate", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;label&gt;</c> element.</summary>
@@ -1550,8 +1354,7 @@ public sealed partial class Label : HtmlTag<Label>
     internal Label() { }
 
     /// <summary>The <c>for</c> attribute.</summary>
-    [Attr(" for=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Label For(string? value);
+    public partial Label For([Attr(" for=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 }
 
 /// <summary>The <c>&lt;input&gt;</c> element.</summary>
@@ -1562,128 +1365,97 @@ public sealed partial class Input : HtmlTag<Input>
     internal Input() { }
 
     /// <summary>The <c>type</c> attribute.</summary>
-    [Attr(" type=\"", "\"", Escape = "attribute")]
-    public partial Input Type(InputType? value);
+    public partial Input Type([Attr(" type=\"", "\"", Escape = "attribute")] InputType? value);
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial Input Name(string? value);
+    public partial Input Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute")]
-    public partial Input Value(string? value);
+    public partial Input Value([Attr(" value=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>placeholder</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial Input Placeholder(string? value);
+    public partial Input Placeholder([Attr(" placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Input Form(string? value);
+    public partial Input Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>list</c> attribute.</summary>
-    [Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Input List(string? value);
+    public partial Input List([Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>min</c> attribute.</summary>
-    [Attr(" min=\"", "\"", Escape = "attribute")]
-    public partial Input Min(string? value);
+    public partial Input Min([Attr(" min=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>max</c> attribute.</summary>
-    [Attr(" max=\"", "\"", Escape = "attribute")]
-    public partial Input Max(string? value);
+    public partial Input Max([Attr(" max=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>step</c> attribute.</summary>
-    [Attr(" step=\"", "\"", Escape = "attribute")]
-    public partial Input Step(string? value);
+    public partial Input Step([Attr(" step=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>pattern</c> attribute.</summary>
-    [Attr(" pattern=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Input Pattern(string? value);
+    public partial Input Pattern([Attr(" pattern=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>size</c> attribute.</summary>
-    [Attr(" size=\"", "\"", Escape = "attribute")]
-    public partial Input Size(int? value);
+    public partial Input Size([Attr(" size=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>maxlength</c> attribute.</summary>
-    [Attr(" maxlength=\"", "\"", Escape = "attribute")]
-    public partial Input MaxLength(int? value);
+    public partial Input MaxLength([Attr(" maxlength=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>minlength</c> attribute.</summary>
-    [Attr(" minlength=\"", "\"", Escape = "attribute")]
-    public partial Input MinLength(int? value);
+    public partial Input MinLength([Attr(" minlength=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>src</c> attribute.</summary>
-    [Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Input Src(string? value);
+    public partial Input Src([Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>alt</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" alt=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial Input Alt(string? value);
+    public partial Input Alt([Attr(" alt=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>width</c> attribute.</summary>
-    [Attr(" width=\"", "\"", Escape = "attribute")]
-    public partial Input Width(int? value);
+    public partial Input Width([Attr(" width=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>height</c> attribute.</summary>
-    [Attr(" height=\"", "\"", Escape = "attribute")]
-    public partial Input Height(int? value);
+    public partial Input Height([Attr(" height=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>accept</c> attribute.</summary>
-    [Attr(" accept=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Input Accept(string? value);
+    public partial Input Accept([Attr(" accept=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Input Autocomplete(string? value);
+    public partial Input Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>dirname</c> attribute.</summary>
-    [Attr(" dirname=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Input DirName(string? value);
+    public partial Input DirName([Attr(" dirname=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>inputmode</c> attribute.</summary>
-    [Attr(" inputmode=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Input InputMode(string? value);
+    public partial Input InputMode([Attr(" inputmode=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>formaction</c> attribute.</summary>
-    [Attr(" formaction=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Input FormAction(string? value);
+    public partial Input FormAction([Attr(" formaction=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>formenctype</c> attribute.</summary>
-    [Attr(" formenctype=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Input FormEnctype(string? value);
+    public partial Input FormEnctype([Attr(" formenctype=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>formmethod</c> attribute.</summary>
-    [Attr(" formmethod=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Input FormMethod(string? value);
+    public partial Input FormMethod([Attr(" formmethod=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>formtarget</c> attribute.</summary>
-    [Attr(" formtarget=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Input FormTarget(string? value);
+    public partial Input FormTarget([Attr(" formtarget=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>checked</c> attribute.</summary>
-    [Attr(" checked", "")]
-    public partial Input Checked(bool? value = true);
+    public partial Input Checked([Attr(" checked", "")] bool? value = true);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial Input Disabled(bool? value = true);
+    public partial Input Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>multiple</c> attribute.</summary>
-    [Attr(" multiple", "")]
-    public partial Input Multiple(bool? value = true);
+    public partial Input Multiple([Attr(" multiple", "")] bool? value = true);
 
     /// <summary>The <c>readonly</c> attribute.</summary>
-    [Attr(" readonly", "")]
-    public partial Input ReadOnly(bool? value = true);
+    public partial Input ReadOnly([Attr(" readonly", "")] bool? value = true);
 
     /// <summary>The <c>required</c> attribute.</summary>
-    [Attr(" required", "")]
-    public partial Input Required(bool? value = true);
+    public partial Input Required([Attr(" required", "")] bool? value = true);
 
     /// <summary>The <c>formnovalidate</c> attribute.</summary>
-    [Attr(" formnovalidate", "")]
-    public partial Input FormNoValidate(bool? value = true);
+    public partial Input FormNoValidate([Attr(" formnovalidate", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="text"&gt;</c> element, which takes only what this type allows.</summary>
@@ -1694,60 +1466,46 @@ public sealed partial class TextInput : HtmlTag<TextInput>
     internal TextInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial TextInput Name(string? value);
+    public partial TextInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TextInput Form(string? value);
+    public partial TextInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TextInput Value(string? value);
+    public partial TextInput Value([Attr(" value=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>placeholder</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial TextInput Placeholder(string? value);
+    public partial TextInput Placeholder([Attr(" placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>dirname</c> attribute.</summary>
-    [Attr(" dirname=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TextInput DirName(string? value);
+    public partial TextInput DirName([Attr(" dirname=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TextInput Autocomplete(string? value);
+    public partial TextInput Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>list</c> attribute.</summary>
-    [Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TextInput List(string? value);
+    public partial TextInput List([Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>maxlength</c> attribute.</summary>
-    [Attr(" maxlength=\"", "\"", Escape = "attribute")]
-    public partial TextInput MaxLength(int? value);
+    public partial TextInput MaxLength([Attr(" maxlength=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>minlength</c> attribute.</summary>
-    [Attr(" minlength=\"", "\"", Escape = "attribute")]
-    public partial TextInput MinLength(int? value);
+    public partial TextInput MinLength([Attr(" minlength=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>pattern</c> attribute.</summary>
-    [Attr(" pattern=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TextInput Pattern(string? value);
+    public partial TextInput Pattern([Attr(" pattern=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>size</c> attribute.</summary>
-    [Attr(" size=\"", "\"", Escape = "attribute")]
-    public partial TextInput Size(int? value);
+    public partial TextInput Size([Attr(" size=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial TextInput Disabled(bool? value = true);
+    public partial TextInput Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>readonly</c> attribute.</summary>
-    [Attr(" readonly", "")]
-    public partial TextInput ReadOnly(bool? value = true);
+    public partial TextInput ReadOnly([Attr(" readonly", "")] bool? value = true);
 
     /// <summary>The <c>required</c> attribute.</summary>
-    [Attr(" required", "")]
-    public partial TextInput Required(bool? value = true);
+    public partial TextInput Required([Attr(" required", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="search"&gt;</c> element, which takes only what this type allows.</summary>
@@ -1758,60 +1516,46 @@ public sealed partial class SearchInput : HtmlTag<SearchInput>
     internal SearchInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial SearchInput Name(string? value);
+    public partial SearchInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial SearchInput Form(string? value);
+    public partial SearchInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial SearchInput Value(string? value);
+    public partial SearchInput Value([Attr(" value=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>placeholder</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial SearchInput Placeholder(string? value);
+    public partial SearchInput Placeholder([Attr(" placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>dirname</c> attribute.</summary>
-    [Attr(" dirname=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial SearchInput DirName(string? value);
+    public partial SearchInput DirName([Attr(" dirname=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial SearchInput Autocomplete(string? value);
+    public partial SearchInput Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>list</c> attribute.</summary>
-    [Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial SearchInput List(string? value);
+    public partial SearchInput List([Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>maxlength</c> attribute.</summary>
-    [Attr(" maxlength=\"", "\"", Escape = "attribute")]
-    public partial SearchInput MaxLength(int? value);
+    public partial SearchInput MaxLength([Attr(" maxlength=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>minlength</c> attribute.</summary>
-    [Attr(" minlength=\"", "\"", Escape = "attribute")]
-    public partial SearchInput MinLength(int? value);
+    public partial SearchInput MinLength([Attr(" minlength=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>pattern</c> attribute.</summary>
-    [Attr(" pattern=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial SearchInput Pattern(string? value);
+    public partial SearchInput Pattern([Attr(" pattern=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>size</c> attribute.</summary>
-    [Attr(" size=\"", "\"", Escape = "attribute")]
-    public partial SearchInput Size(int? value);
+    public partial SearchInput Size([Attr(" size=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial SearchInput Disabled(bool? value = true);
+    public partial SearchInput Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>readonly</c> attribute.</summary>
-    [Attr(" readonly", "")]
-    public partial SearchInput ReadOnly(bool? value = true);
+    public partial SearchInput ReadOnly([Attr(" readonly", "")] bool? value = true);
 
     /// <summary>The <c>required</c> attribute.</summary>
-    [Attr(" required", "")]
-    public partial SearchInput Required(bool? value = true);
+    public partial SearchInput Required([Attr(" required", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="url"&gt;</c> element, which takes only what this type allows.</summary>
@@ -1822,56 +1566,43 @@ public sealed partial class UrlInput : HtmlTag<UrlInput>
     internal UrlInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial UrlInput Name(string? value);
+    public partial UrlInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial UrlInput Form(string? value);
+    public partial UrlInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial UrlInput Value(string? value);
+    public partial UrlInput Value([Attr(" value=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>placeholder</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial UrlInput Placeholder(string? value);
+    public partial UrlInput Placeholder([Attr(" placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial UrlInput Autocomplete(string? value);
+    public partial UrlInput Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>list</c> attribute.</summary>
-    [Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial UrlInput List(string? value);
+    public partial UrlInput List([Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>maxlength</c> attribute.</summary>
-    [Attr(" maxlength=\"", "\"", Escape = "attribute")]
-    public partial UrlInput MaxLength(int? value);
+    public partial UrlInput MaxLength([Attr(" maxlength=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>minlength</c> attribute.</summary>
-    [Attr(" minlength=\"", "\"", Escape = "attribute")]
-    public partial UrlInput MinLength(int? value);
+    public partial UrlInput MinLength([Attr(" minlength=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>pattern</c> attribute.</summary>
-    [Attr(" pattern=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial UrlInput Pattern(string? value);
+    public partial UrlInput Pattern([Attr(" pattern=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>size</c> attribute.</summary>
-    [Attr(" size=\"", "\"", Escape = "attribute")]
-    public partial UrlInput Size(int? value);
+    public partial UrlInput Size([Attr(" size=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial UrlInput Disabled(bool? value = true);
+    public partial UrlInput Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>readonly</c> attribute.</summary>
-    [Attr(" readonly", "")]
-    public partial UrlInput ReadOnly(bool? value = true);
+    public partial UrlInput ReadOnly([Attr(" readonly", "")] bool? value = true);
 
     /// <summary>The <c>required</c> attribute.</summary>
-    [Attr(" required", "")]
-    public partial UrlInput Required(bool? value = true);
+    public partial UrlInput Required([Attr(" required", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="tel"&gt;</c> element, which takes only what this type allows.</summary>
@@ -1882,56 +1613,43 @@ public sealed partial class TelInput : HtmlTag<TelInput>
     internal TelInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial TelInput Name(string? value);
+    public partial TelInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TelInput Form(string? value);
+    public partial TelInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TelInput Value(string? value);
+    public partial TelInput Value([Attr(" value=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>placeholder</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial TelInput Placeholder(string? value);
+    public partial TelInput Placeholder([Attr(" placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TelInput Autocomplete(string? value);
+    public partial TelInput Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>list</c> attribute.</summary>
-    [Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TelInput List(string? value);
+    public partial TelInput List([Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>maxlength</c> attribute.</summary>
-    [Attr(" maxlength=\"", "\"", Escape = "attribute")]
-    public partial TelInput MaxLength(int? value);
+    public partial TelInput MaxLength([Attr(" maxlength=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>minlength</c> attribute.</summary>
-    [Attr(" minlength=\"", "\"", Escape = "attribute")]
-    public partial TelInput MinLength(int? value);
+    public partial TelInput MinLength([Attr(" minlength=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>pattern</c> attribute.</summary>
-    [Attr(" pattern=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TelInput Pattern(string? value);
+    public partial TelInput Pattern([Attr(" pattern=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>size</c> attribute.</summary>
-    [Attr(" size=\"", "\"", Escape = "attribute")]
-    public partial TelInput Size(int? value);
+    public partial TelInput Size([Attr(" size=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial TelInput Disabled(bool? value = true);
+    public partial TelInput Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>readonly</c> attribute.</summary>
-    [Attr(" readonly", "")]
-    public partial TelInput ReadOnly(bool? value = true);
+    public partial TelInput ReadOnly([Attr(" readonly", "")] bool? value = true);
 
     /// <summary>The <c>required</c> attribute.</summary>
-    [Attr(" required", "")]
-    public partial TelInput Required(bool? value = true);
+    public partial TelInput Required([Attr(" required", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="email"&gt;</c> element, which takes only what this type allows.</summary>
@@ -1942,60 +1660,46 @@ public sealed partial class EmailInput : HtmlTag<EmailInput>
     internal EmailInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial EmailInput Name(string? value);
+    public partial EmailInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial EmailInput Form(string? value);
+    public partial EmailInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial EmailInput Value(string? value);
+    public partial EmailInput Value([Attr(" value=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>placeholder</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial EmailInput Placeholder(string? value);
+    public partial EmailInput Placeholder([Attr(" placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial EmailInput Autocomplete(string? value);
+    public partial EmailInput Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>list</c> attribute.</summary>
-    [Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial EmailInput List(string? value);
+    public partial EmailInput List([Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>maxlength</c> attribute.</summary>
-    [Attr(" maxlength=\"", "\"", Escape = "attribute")]
-    public partial EmailInput MaxLength(int? value);
+    public partial EmailInput MaxLength([Attr(" maxlength=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>minlength</c> attribute.</summary>
-    [Attr(" minlength=\"", "\"", Escape = "attribute")]
-    public partial EmailInput MinLength(int? value);
+    public partial EmailInput MinLength([Attr(" minlength=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>pattern</c> attribute.</summary>
-    [Attr(" pattern=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial EmailInput Pattern(string? value);
+    public partial EmailInput Pattern([Attr(" pattern=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>size</c> attribute.</summary>
-    [Attr(" size=\"", "\"", Escape = "attribute")]
-    public partial EmailInput Size(int? value);
+    public partial EmailInput Size([Attr(" size=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial EmailInput Disabled(bool? value = true);
+    public partial EmailInput Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>readonly</c> attribute.</summary>
-    [Attr(" readonly", "")]
-    public partial EmailInput ReadOnly(bool? value = true);
+    public partial EmailInput ReadOnly([Attr(" readonly", "")] bool? value = true);
 
     /// <summary>The <c>required</c> attribute.</summary>
-    [Attr(" required", "")]
-    public partial EmailInput Required(bool? value = true);
+    public partial EmailInput Required([Attr(" required", "")] bool? value = true);
 
     /// <summary>The <c>multiple</c> attribute.</summary>
-    [Attr(" multiple", "")]
-    public partial EmailInput Multiple(bool? value = true);
+    public partial EmailInput Multiple([Attr(" multiple", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="password"&gt;</c> element, which takes only what this type allows.</summary>
@@ -2006,52 +1710,40 @@ public sealed partial class PasswordInput : HtmlTag<PasswordInput>
     internal PasswordInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial PasswordInput Name(string? value);
+    public partial PasswordInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial PasswordInput Form(string? value);
+    public partial PasswordInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial PasswordInput Value(string? value);
+    public partial PasswordInput Value([Attr(" value=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>placeholder</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial PasswordInput Placeholder(string? value);
+    public partial PasswordInput Placeholder([Attr(" placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial PasswordInput Autocomplete(string? value);
+    public partial PasswordInput Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>maxlength</c> attribute.</summary>
-    [Attr(" maxlength=\"", "\"", Escape = "attribute")]
-    public partial PasswordInput MaxLength(int? value);
+    public partial PasswordInput MaxLength([Attr(" maxlength=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>minlength</c> attribute.</summary>
-    [Attr(" minlength=\"", "\"", Escape = "attribute")]
-    public partial PasswordInput MinLength(int? value);
+    public partial PasswordInput MinLength([Attr(" minlength=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>pattern</c> attribute.</summary>
-    [Attr(" pattern=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial PasswordInput Pattern(string? value);
+    public partial PasswordInput Pattern([Attr(" pattern=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>size</c> attribute.</summary>
-    [Attr(" size=\"", "\"", Escape = "attribute")]
-    public partial PasswordInput Size(int? value);
+    public partial PasswordInput Size([Attr(" size=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial PasswordInput Disabled(bool? value = true);
+    public partial PasswordInput Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>readonly</c> attribute.</summary>
-    [Attr(" readonly", "")]
-    public partial PasswordInput ReadOnly(bool? value = true);
+    public partial PasswordInput ReadOnly([Attr(" readonly", "")] bool? value = true);
 
     /// <summary>The <c>required</c> attribute.</summary>
-    [Attr(" required", "")]
-    public partial PasswordInput Required(bool? value = true);
+    public partial PasswordInput Required([Attr(" required", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="number"&gt;</c> element, which takes only what this type allows.</summary>
@@ -2062,52 +1754,40 @@ public sealed partial class NumberInput : HtmlTag<NumberInput>
     internal NumberInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial NumberInput Name(string? value);
+    public partial NumberInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial NumberInput Form(string? value);
+    public partial NumberInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute", AnyNumber = true)]
-    public partial NumberInput Value(double? value);
+    public partial NumberInput Value([Attr(" value=\"", "\"", Escape = "attribute", AnyNumber = true)] double? value);
 
     /// <summary>The <c>min</c> attribute.</summary>
-    [Attr(" min=\"", "\"", Escape = "attribute", AnyNumber = true)]
-    public partial NumberInput Min(double? value);
+    public partial NumberInput Min([Attr(" min=\"", "\"", Escape = "attribute", AnyNumber = true)] double? value);
 
     /// <summary>The <c>max</c> attribute.</summary>
-    [Attr(" max=\"", "\"", Escape = "attribute", AnyNumber = true)]
-    public partial NumberInput Max(double? value);
+    public partial NumberInput Max([Attr(" max=\"", "\"", Escape = "attribute", AnyNumber = true)] double? value);
 
     /// <summary>The <c>step</c> attribute.</summary>
-    [Attr(" step=\"", "\"", Escape = "attribute", AnyNumber = true, AlsoText = true)]
-    public partial NumberInput Step(double? value);
+    public partial NumberInput Step([Attr(" step=\"", "\"", Escape = "attribute", AnyNumber = true, AlsoText = true)] double? value);
 
     /// <summary>The <c>placeholder</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial NumberInput Placeholder(string? value);
+    public partial NumberInput Placeholder([Attr(" placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial NumberInput Autocomplete(string? value);
+    public partial NumberInput Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>list</c> attribute.</summary>
-    [Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial NumberInput List(string? value);
+    public partial NumberInput List([Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial NumberInput Disabled(bool? value = true);
+    public partial NumberInput Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>readonly</c> attribute.</summary>
-    [Attr(" readonly", "")]
-    public partial NumberInput ReadOnly(bool? value = true);
+    public partial NumberInput ReadOnly([Attr(" readonly", "")] bool? value = true);
 
     /// <summary>The <c>required</c> attribute.</summary>
-    [Attr(" required", "")]
-    public partial NumberInput Required(bool? value = true);
+    public partial NumberInput Required([Attr(" required", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="range"&gt;</c> element, which takes only what this type allows.</summary>
@@ -2118,40 +1798,31 @@ public sealed partial class RangeInput : HtmlTag<RangeInput>
     internal RangeInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial RangeInput Name(string? value);
+    public partial RangeInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial RangeInput Form(string? value);
+    public partial RangeInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute", AnyNumber = true)]
-    public partial RangeInput Value(double? value);
+    public partial RangeInput Value([Attr(" value=\"", "\"", Escape = "attribute", AnyNumber = true)] double? value);
 
     /// <summary>The <c>min</c> attribute.</summary>
-    [Attr(" min=\"", "\"", Escape = "attribute", AnyNumber = true)]
-    public partial RangeInput Min(double? value);
+    public partial RangeInput Min([Attr(" min=\"", "\"", Escape = "attribute", AnyNumber = true)] double? value);
 
     /// <summary>The <c>max</c> attribute.</summary>
-    [Attr(" max=\"", "\"", Escape = "attribute", AnyNumber = true)]
-    public partial RangeInput Max(double? value);
+    public partial RangeInput Max([Attr(" max=\"", "\"", Escape = "attribute", AnyNumber = true)] double? value);
 
     /// <summary>The <c>step</c> attribute.</summary>
-    [Attr(" step=\"", "\"", Escape = "attribute", AnyNumber = true, AlsoText = true)]
-    public partial RangeInput Step(double? value);
+    public partial RangeInput Step([Attr(" step=\"", "\"", Escape = "attribute", AnyNumber = true, AlsoText = true)] double? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial RangeInput Autocomplete(string? value);
+    public partial RangeInput Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>list</c> attribute.</summary>
-    [Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial RangeInput List(string? value);
+    public partial RangeInput List([Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial RangeInput Disabled(bool? value = true);
+    public partial RangeInput Disabled([Attr(" disabled", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="date"&gt;</c> element, which takes only what this type allows.</summary>
@@ -2162,48 +1833,37 @@ public sealed partial class DateInput : HtmlTag<DateInput>
     internal DateInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial DateInput Name(string? value);
+    public partial DateInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial DateInput Form(string? value);
+    public partial DateInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute")]
-    public partial DateInput Value(System.DateOnly? value);
+    public partial DateInput Value([Attr(" value=\"", "\"", Escape = "attribute")] System.DateOnly? value);
 
     /// <summary>The <c>min</c> attribute.</summary>
-    [Attr(" min=\"", "\"", Escape = "attribute")]
-    public partial DateInput Min(System.DateOnly? value);
+    public partial DateInput Min([Attr(" min=\"", "\"", Escape = "attribute")] System.DateOnly? value);
 
     /// <summary>The <c>max</c> attribute.</summary>
-    [Attr(" max=\"", "\"", Escape = "attribute")]
-    public partial DateInput Max(System.DateOnly? value);
+    public partial DateInput Max([Attr(" max=\"", "\"", Escape = "attribute")] System.DateOnly? value);
 
     /// <summary>The <c>step</c> attribute.</summary>
-    [Attr(" step=\"", "\"", Escape = "attribute", AnyNumber = true, AlsoText = true)]
-    public partial DateInput Step(double? value);
+    public partial DateInput Step([Attr(" step=\"", "\"", Escape = "attribute", AnyNumber = true, AlsoText = true)] double? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial DateInput Autocomplete(string? value);
+    public partial DateInput Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>list</c> attribute.</summary>
-    [Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial DateInput List(string? value);
+    public partial DateInput List([Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial DateInput Disabled(bool? value = true);
+    public partial DateInput Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>readonly</c> attribute.</summary>
-    [Attr(" readonly", "")]
-    public partial DateInput ReadOnly(bool? value = true);
+    public partial DateInput ReadOnly([Attr(" readonly", "")] bool? value = true);
 
     /// <summary>The <c>required</c> attribute.</summary>
-    [Attr(" required", "")]
-    public partial DateInput Required(bool? value = true);
+    public partial DateInput Required([Attr(" required", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="month"&gt;</c> element, which takes only what this type allows.</summary>
@@ -2214,48 +1874,37 @@ public sealed partial class MonthInput : HtmlTag<MonthInput>
     internal MonthInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial MonthInput Name(string? value);
+    public partial MonthInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial MonthInput Form(string? value);
+    public partial MonthInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute", Format = "yyyy-MM")]
-    public partial MonthInput Value(System.DateOnly? value);
+    public partial MonthInput Value([Attr(" value=\"", "\"", Escape = "attribute", Format = "yyyy-MM")] System.DateOnly? value);
 
     /// <summary>The <c>min</c> attribute.</summary>
-    [Attr(" min=\"", "\"", Escape = "attribute", Format = "yyyy-MM")]
-    public partial MonthInput Min(System.DateOnly? value);
+    public partial MonthInput Min([Attr(" min=\"", "\"", Escape = "attribute", Format = "yyyy-MM")] System.DateOnly? value);
 
     /// <summary>The <c>max</c> attribute.</summary>
-    [Attr(" max=\"", "\"", Escape = "attribute", Format = "yyyy-MM")]
-    public partial MonthInput Max(System.DateOnly? value);
+    public partial MonthInput Max([Attr(" max=\"", "\"", Escape = "attribute", Format = "yyyy-MM")] System.DateOnly? value);
 
     /// <summary>The <c>step</c> attribute.</summary>
-    [Attr(" step=\"", "\"", Escape = "attribute", AnyNumber = true, AlsoText = true)]
-    public partial MonthInput Step(double? value);
+    public partial MonthInput Step([Attr(" step=\"", "\"", Escape = "attribute", AnyNumber = true, AlsoText = true)] double? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial MonthInput Autocomplete(string? value);
+    public partial MonthInput Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>list</c> attribute.</summary>
-    [Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial MonthInput List(string? value);
+    public partial MonthInput List([Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial MonthInput Disabled(bool? value = true);
+    public partial MonthInput Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>readonly</c> attribute.</summary>
-    [Attr(" readonly", "")]
-    public partial MonthInput ReadOnly(bool? value = true);
+    public partial MonthInput ReadOnly([Attr(" readonly", "")] bool? value = true);
 
     /// <summary>The <c>required</c> attribute.</summary>
-    [Attr(" required", "")]
-    public partial MonthInput Required(bool? value = true);
+    public partial MonthInput Required([Attr(" required", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="week"&gt;</c> element, which takes only what this type allows.</summary>
@@ -2266,48 +1915,37 @@ public sealed partial class WeekInput : HtmlTag<WeekInput>
     internal WeekInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial WeekInput Name(string? value);
+    public partial WeekInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial WeekInput Form(string? value);
+    public partial WeekInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial WeekInput Value(string? value);
+    public partial WeekInput Value([Attr(" value=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>min</c> attribute.</summary>
-    [Attr(" min=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial WeekInput Min(string? value);
+    public partial WeekInput Min([Attr(" min=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>max</c> attribute.</summary>
-    [Attr(" max=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial WeekInput Max(string? value);
+    public partial WeekInput Max([Attr(" max=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>step</c> attribute.</summary>
-    [Attr(" step=\"", "\"", Escape = "attribute", AnyNumber = true, AlsoText = true)]
-    public partial WeekInput Step(double? value);
+    public partial WeekInput Step([Attr(" step=\"", "\"", Escape = "attribute", AnyNumber = true, AlsoText = true)] double? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial WeekInput Autocomplete(string? value);
+    public partial WeekInput Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>list</c> attribute.</summary>
-    [Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial WeekInput List(string? value);
+    public partial WeekInput List([Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial WeekInput Disabled(bool? value = true);
+    public partial WeekInput Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>readonly</c> attribute.</summary>
-    [Attr(" readonly", "")]
-    public partial WeekInput ReadOnly(bool? value = true);
+    public partial WeekInput ReadOnly([Attr(" readonly", "")] bool? value = true);
 
     /// <summary>The <c>required</c> attribute.</summary>
-    [Attr(" required", "")]
-    public partial WeekInput Required(bool? value = true);
+    public partial WeekInput Required([Attr(" required", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="time"&gt;</c> element, which takes only what this type allows.</summary>
@@ -2318,48 +1956,37 @@ public sealed partial class TimeInput : HtmlTag<TimeInput>
     internal TimeInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial TimeInput Name(string? value);
+    public partial TimeInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TimeInput Form(string? value);
+    public partial TimeInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute")]
-    public partial TimeInput Value(System.TimeOnly? value);
+    public partial TimeInput Value([Attr(" value=\"", "\"", Escape = "attribute")] System.TimeOnly? value);
 
     /// <summary>The <c>min</c> attribute.</summary>
-    [Attr(" min=\"", "\"", Escape = "attribute")]
-    public partial TimeInput Min(System.TimeOnly? value);
+    public partial TimeInput Min([Attr(" min=\"", "\"", Escape = "attribute")] System.TimeOnly? value);
 
     /// <summary>The <c>max</c> attribute.</summary>
-    [Attr(" max=\"", "\"", Escape = "attribute")]
-    public partial TimeInput Max(System.TimeOnly? value);
+    public partial TimeInput Max([Attr(" max=\"", "\"", Escape = "attribute")] System.TimeOnly? value);
 
     /// <summary>The <c>step</c> attribute.</summary>
-    [Attr(" step=\"", "\"", Escape = "attribute", AnyNumber = true, AlsoText = true)]
-    public partial TimeInput Step(double? value);
+    public partial TimeInput Step([Attr(" step=\"", "\"", Escape = "attribute", AnyNumber = true, AlsoText = true)] double? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TimeInput Autocomplete(string? value);
+    public partial TimeInput Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>list</c> attribute.</summary>
-    [Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial TimeInput List(string? value);
+    public partial TimeInput List([Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial TimeInput Disabled(bool? value = true);
+    public partial TimeInput Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>readonly</c> attribute.</summary>
-    [Attr(" readonly", "")]
-    public partial TimeInput ReadOnly(bool? value = true);
+    public partial TimeInput ReadOnly([Attr(" readonly", "")] bool? value = true);
 
     /// <summary>The <c>required</c> attribute.</summary>
-    [Attr(" required", "")]
-    public partial TimeInput Required(bool? value = true);
+    public partial TimeInput Required([Attr(" required", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="datetime-local"&gt;</c> element, which takes only what this type allows.</summary>
@@ -2370,48 +1997,37 @@ public sealed partial class DatetimeLocalInput : HtmlTag<DatetimeLocalInput>
     internal DatetimeLocalInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial DatetimeLocalInput Name(string? value);
+    public partial DatetimeLocalInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial DatetimeLocalInput Form(string? value);
+    public partial DatetimeLocalInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute")]
-    public partial DatetimeLocalInput Value(System.DateTime? value);
+    public partial DatetimeLocalInput Value([Attr(" value=\"", "\"", Escape = "attribute")] System.DateTime? value);
 
     /// <summary>The <c>min</c> attribute.</summary>
-    [Attr(" min=\"", "\"", Escape = "attribute")]
-    public partial DatetimeLocalInput Min(System.DateTime? value);
+    public partial DatetimeLocalInput Min([Attr(" min=\"", "\"", Escape = "attribute")] System.DateTime? value);
 
     /// <summary>The <c>max</c> attribute.</summary>
-    [Attr(" max=\"", "\"", Escape = "attribute")]
-    public partial DatetimeLocalInput Max(System.DateTime? value);
+    public partial DatetimeLocalInput Max([Attr(" max=\"", "\"", Escape = "attribute")] System.DateTime? value);
 
     /// <summary>The <c>step</c> attribute.</summary>
-    [Attr(" step=\"", "\"", Escape = "attribute", AnyNumber = true, AlsoText = true)]
-    public partial DatetimeLocalInput Step(double? value);
+    public partial DatetimeLocalInput Step([Attr(" step=\"", "\"", Escape = "attribute", AnyNumber = true, AlsoText = true)] double? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial DatetimeLocalInput Autocomplete(string? value);
+    public partial DatetimeLocalInput Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>list</c> attribute.</summary>
-    [Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial DatetimeLocalInput List(string? value);
+    public partial DatetimeLocalInput List([Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial DatetimeLocalInput Disabled(bool? value = true);
+    public partial DatetimeLocalInput Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>readonly</c> attribute.</summary>
-    [Attr(" readonly", "")]
-    public partial DatetimeLocalInput ReadOnly(bool? value = true);
+    public partial DatetimeLocalInput ReadOnly([Attr(" readonly", "")] bool? value = true);
 
     /// <summary>The <c>required</c> attribute.</summary>
-    [Attr(" required", "")]
-    public partial DatetimeLocalInput Required(bool? value = true);
+    public partial DatetimeLocalInput Required([Attr(" required", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="color"&gt;</c> element, which takes only what this type allows.</summary>
@@ -2422,28 +2038,22 @@ public sealed partial class ColorInput : HtmlTag<ColorInput>
     internal ColorInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial ColorInput Name(string? value);
+    public partial ColorInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial ColorInput Form(string? value);
+    public partial ColorInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial ColorInput Value(string? value);
+    public partial ColorInput Value([Attr(" value=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial ColorInput Autocomplete(string? value);
+    public partial ColorInput Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>list</c> attribute.</summary>
-    [Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial ColorInput List(string? value);
+    public partial ColorInput List([Attr(" list=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial ColorInput Disabled(bool? value = true);
+    public partial ColorInput Disabled([Attr(" disabled", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="checkbox"&gt;</c> element, which takes only what this type allows.</summary>
@@ -2454,28 +2064,22 @@ public sealed partial class CheckboxInput : HtmlTag<CheckboxInput>
     internal CheckboxInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial CheckboxInput Name(string? value);
+    public partial CheckboxInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial CheckboxInput Form(string? value);
+    public partial CheckboxInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute")]
-    public partial CheckboxInput Value(string? value);
+    public partial CheckboxInput Value([Attr(" value=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>checked</c> attribute.</summary>
-    [Attr(" checked", "")]
-    public partial CheckboxInput Checked(bool? value = true);
+    public partial CheckboxInput Checked([Attr(" checked", "")] bool? value = true);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial CheckboxInput Disabled(bool? value = true);
+    public partial CheckboxInput Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>required</c> attribute.</summary>
-    [Attr(" required", "")]
-    public partial CheckboxInput Required(bool? value = true);
+    public partial CheckboxInput Required([Attr(" required", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="radio"&gt;</c> element, which takes only what this type allows.</summary>
@@ -2486,28 +2090,22 @@ public sealed partial class RadioInput : HtmlTag<RadioInput>
     internal RadioInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial RadioInput Name(string? value);
+    public partial RadioInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial RadioInput Form(string? value);
+    public partial RadioInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute")]
-    public partial RadioInput Value(string? value);
+    public partial RadioInput Value([Attr(" value=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>checked</c> attribute.</summary>
-    [Attr(" checked", "")]
-    public partial RadioInput Checked(bool? value = true);
+    public partial RadioInput Checked([Attr(" checked", "")] bool? value = true);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial RadioInput Disabled(bool? value = true);
+    public partial RadioInput Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>required</c> attribute.</summary>
-    [Attr(" required", "")]
-    public partial RadioInput Required(bool? value = true);
+    public partial RadioInput Required([Attr(" required", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="file"&gt;</c> element, which takes only what this type allows.</summary>
@@ -2518,28 +2116,22 @@ public sealed partial class FileInput : HtmlTag<FileInput>
     internal FileInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial FileInput Name(string? value);
+    public partial FileInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial FileInput Form(string? value);
+    public partial FileInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>accept</c> attribute.</summary>
-    [Attr(" accept=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial FileInput Accept(string? value);
+    public partial FileInput Accept([Attr(" accept=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial FileInput Disabled(bool? value = true);
+    public partial FileInput Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>multiple</c> attribute.</summary>
-    [Attr(" multiple", "")]
-    public partial FileInput Multiple(bool? value = true);
+    public partial FileInput Multiple([Attr(" multiple", "")] bool? value = true);
 
     /// <summary>The <c>required</c> attribute.</summary>
-    [Attr(" required", "")]
-    public partial FileInput Required(bool? value = true);
+    public partial FileInput Required([Attr(" required", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="hidden"&gt;</c> element, which takes only what this type allows.</summary>
@@ -2550,24 +2142,19 @@ public sealed partial class HiddenInput : HtmlTag<HiddenInput>
     internal HiddenInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial HiddenInput Name(string? value);
+    public partial HiddenInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial HiddenInput Form(string? value);
+    public partial HiddenInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute")]
-    public partial HiddenInput Value(string? value);
+    public partial HiddenInput Value([Attr(" value=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial HiddenInput Autocomplete(string? value);
+    public partial HiddenInput Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial HiddenInput Disabled(bool? value = true);
+    public partial HiddenInput Disabled([Attr(" disabled", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="submit"&gt;</c> element, which takes only what this type allows.</summary>
@@ -2578,48 +2165,37 @@ public sealed partial class SubmitInput : HtmlTag<SubmitInput>
     internal SubmitInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial SubmitInput Name(string? value);
+    public partial SubmitInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial SubmitInput Form(string? value);
+    public partial SubmitInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial SubmitInput Value(string? value);
+    public partial SubmitInput Value([Attr(" value=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>formaction</c> attribute.</summary>
-    [Attr(" formaction=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial SubmitInput FormAction(string? value);
+    public partial SubmitInput FormAction([Attr(" formaction=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>formenctype</c> attribute.</summary>
-    [Attr(" formenctype=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial SubmitInput FormEnctype(string? value);
+    public partial SubmitInput FormEnctype([Attr(" formenctype=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>formmethod</c> attribute.</summary>
-    [Attr(" formmethod=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial SubmitInput FormMethod(string? value);
+    public partial SubmitInput FormMethod([Attr(" formmethod=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>formtarget</c> attribute.</summary>
-    [Attr(" formtarget=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial SubmitInput FormTarget(string? value);
+    public partial SubmitInput FormTarget([Attr(" formtarget=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>popovertarget</c> attribute.</summary>
-    [Attr(" popovertarget=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial SubmitInput PopoverTarget(string? value);
+    public partial SubmitInput PopoverTarget([Attr(" popovertarget=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>popovertargetaction</c> attribute.</summary>
-    [Attr(" popovertargetaction=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial SubmitInput PopoverTargetAction(string? value);
+    public partial SubmitInput PopoverTargetAction([Attr(" popovertargetaction=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial SubmitInput Disabled(bool? value = true);
+    public partial SubmitInput Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>formnovalidate</c> attribute.</summary>
-    [Attr(" formnovalidate", "")]
-    public partial SubmitInput FormNoValidate(bool? value = true);
+    public partial SubmitInput FormNoValidate([Attr(" formnovalidate", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="image"&gt;</c> element, which takes only what this type allows.</summary>
@@ -2630,60 +2206,46 @@ public sealed partial class ImageInput : HtmlTag<ImageInput>
     internal ImageInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial ImageInput Name(string? value);
+    public partial ImageInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial ImageInput Form(string? value);
+    public partial ImageInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>alt</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" alt=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial ImageInput Alt(string? value);
+    public partial ImageInput Alt([Attr(" alt=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>src</c> attribute.</summary>
-    [Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial ImageInput Src(string? value);
+    public partial ImageInput Src([Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>width</c> attribute.</summary>
-    [Attr(" width=\"", "\"", Escape = "attribute")]
-    public partial ImageInput Width(int? value);
+    public partial ImageInput Width([Attr(" width=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>height</c> attribute.</summary>
-    [Attr(" height=\"", "\"", Escape = "attribute")]
-    public partial ImageInput Height(int? value);
+    public partial ImageInput Height([Attr(" height=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>formaction</c> attribute.</summary>
-    [Attr(" formaction=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial ImageInput FormAction(string? value);
+    public partial ImageInput FormAction([Attr(" formaction=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>formenctype</c> attribute.</summary>
-    [Attr(" formenctype=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial ImageInput FormEnctype(string? value);
+    public partial ImageInput FormEnctype([Attr(" formenctype=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>formmethod</c> attribute.</summary>
-    [Attr(" formmethod=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial ImageInput FormMethod(string? value);
+    public partial ImageInput FormMethod([Attr(" formmethod=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>formtarget</c> attribute.</summary>
-    [Attr(" formtarget=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial ImageInput FormTarget(string? value);
+    public partial ImageInput FormTarget([Attr(" formtarget=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>popovertarget</c> attribute.</summary>
-    [Attr(" popovertarget=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial ImageInput PopoverTarget(string? value);
+    public partial ImageInput PopoverTarget([Attr(" popovertarget=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>popovertargetaction</c> attribute.</summary>
-    [Attr(" popovertargetaction=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial ImageInput PopoverTargetAction(string? value);
+    public partial ImageInput PopoverTargetAction([Attr(" popovertargetaction=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial ImageInput Disabled(bool? value = true);
+    public partial ImageInput Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>formnovalidate</c> attribute.</summary>
-    [Attr(" formnovalidate", "")]
-    public partial ImageInput FormNoValidate(bool? value = true);
+    public partial ImageInput FormNoValidate([Attr(" formnovalidate", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="reset"&gt;</c> element, which takes only what this type allows.</summary>
@@ -2694,28 +2256,22 @@ public sealed partial class ResetInput : HtmlTag<ResetInput>
     internal ResetInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial ResetInput Name(string? value);
+    public partial ResetInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial ResetInput Form(string? value);
+    public partial ResetInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial ResetInput Value(string? value);
+    public partial ResetInput Value([Attr(" value=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>popovertarget</c> attribute.</summary>
-    [Attr(" popovertarget=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial ResetInput PopoverTarget(string? value);
+    public partial ResetInput PopoverTarget([Attr(" popovertarget=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>popovertargetaction</c> attribute.</summary>
-    [Attr(" popovertargetaction=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial ResetInput PopoverTargetAction(string? value);
+    public partial ResetInput PopoverTargetAction([Attr(" popovertargetaction=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial ResetInput Disabled(bool? value = true);
+    public partial ResetInput Disabled([Attr(" disabled", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;input type="button"&gt;</c> element, which takes only what this type allows.</summary>
@@ -2726,28 +2282,22 @@ public sealed partial class ButtonInput : HtmlTag<ButtonInput>
     internal ButtonInput() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial ButtonInput Name(string? value);
+    public partial ButtonInput Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial ButtonInput Form(string? value);
+    public partial ButtonInput Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>value</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial ButtonInput Value(string? value);
+    public partial ButtonInput Value([Attr(" value=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>popovertarget</c> attribute.</summary>
-    [Attr(" popovertarget=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial ButtonInput PopoverTarget(string? value);
+    public partial ButtonInput PopoverTarget([Attr(" popovertarget=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>popovertargetaction</c> attribute.</summary>
-    [Attr(" popovertargetaction=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial ButtonInput PopoverTargetAction(string? value);
+    public partial ButtonInput PopoverTargetAction([Attr(" popovertargetaction=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial ButtonInput Disabled(bool? value = true);
+    public partial ButtonInput Disabled([Attr(" disabled", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;button&gt;</c> element.</summary>
@@ -2758,52 +2308,40 @@ public sealed partial class Button : HtmlTag<Button>
     internal Button() { }
 
     /// <summary>The <c>type</c> attribute.</summary>
-    [Attr(" type=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Button Type(string? value);
+    public partial Button Type([Attr(" type=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial Button Name(string? value);
+    public partial Button Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute")]
-    public partial Button Value(string? value);
+    public partial Button Value([Attr(" value=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Button Form(string? value);
+    public partial Button Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>popovertarget</c> attribute.</summary>
-    [Attr(" popovertarget=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Button PopoverTarget(string? value);
+    public partial Button PopoverTarget([Attr(" popovertarget=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>popovertargetaction</c> attribute.</summary>
-    [Attr(" popovertargetaction=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Button PopoverTargetAction(string? value);
+    public partial Button PopoverTargetAction([Attr(" popovertargetaction=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>formaction</c> attribute.</summary>
-    [Attr(" formaction=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Button FormAction(string? value);
+    public partial Button FormAction([Attr(" formaction=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>formenctype</c> attribute.</summary>
-    [Attr(" formenctype=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Button FormEnctype(string? value);
+    public partial Button FormEnctype([Attr(" formenctype=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>formmethod</c> attribute.</summary>
-    [Attr(" formmethod=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Button FormMethod(string? value);
+    public partial Button FormMethod([Attr(" formmethod=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>formtarget</c> attribute.</summary>
-    [Attr(" formtarget=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Button FormTarget(string? value);
+    public partial Button FormTarget([Attr(" formtarget=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial Button Disabled(bool? value = true);
+    public partial Button Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>formnovalidate</c> attribute.</summary>
-    [Attr(" formnovalidate", "")]
-    public partial Button FormNoValidate(bool? value = true);
+    public partial Button FormNoValidate([Attr(" formnovalidate", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;select&gt;</c> element.</summary>
@@ -2814,32 +2352,25 @@ public sealed partial class Select : HtmlTag<Select>
     internal Select() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial Select Name(string? value);
+    public partial Select Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Select Form(string? value);
+    public partial Select Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>size</c> attribute.</summary>
-    [Attr(" size=\"", "\"", Escape = "attribute")]
-    public partial Select Size(int? value);
+    public partial Select Size([Attr(" size=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Select Autocomplete(string? value);
+    public partial Select Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial Select Disabled(bool? value = true);
+    public partial Select Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>multiple</c> attribute.</summary>
-    [Attr(" multiple", "")]
-    public partial Select Multiple(bool? value = true);
+    public partial Select Multiple([Attr(" multiple", "")] bool? value = true);
 
     /// <summary>The <c>required</c> attribute.</summary>
-    [Attr(" required", "")]
-    public partial Select Required(bool? value = true);
+    public partial Select Required([Attr(" required", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;datalist&gt;</c> element.</summary>
@@ -2858,12 +2389,10 @@ public sealed partial class Optgroup : HtmlTag<Optgroup>
     internal Optgroup() { }
 
     /// <summary>The <c>label</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" label=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial Optgroup Label(string? value);
+    public partial Optgroup Label([Attr(" label=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial Optgroup Disabled(bool? value = true);
+    public partial Optgroup Disabled([Attr(" disabled", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;option&gt;</c> element.</summary>
@@ -2874,20 +2403,16 @@ public sealed partial class Option : HtmlTag<Option>
     internal Option() { }
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute")]
-    public partial Option Value(string? value);
+    public partial Option Value([Attr(" value=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>label</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" label=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial Option Label(string? value);
+    public partial Option Label([Attr(" label=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial Option Disabled(bool? value = true);
+    public partial Option Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>selected</c> attribute.</summary>
-    [Attr(" selected", "")]
-    public partial Option Selected(bool? value = true);
+    public partial Option Selected([Attr(" selected", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;textarea&gt;</c> element.</summary>
@@ -2898,56 +2423,43 @@ public sealed partial class Textarea : HtmlTag<Textarea>
     internal Textarea() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute")]
-    public partial Textarea Name(string? value);
+    public partial Textarea Name([Attr(" name=\"", "\"", Escape = "attribute")] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Textarea Form(string? value);
+    public partial Textarea Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>placeholder</c> attribute. Numbers and dates in it use the current culture, because it's meant for people to read.</summary>
-    [Attr(" placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)]
-    public partial Textarea Placeholder(string? value);
+    public partial Textarea Placeholder([Attr(" placeholder=\"", "\"", Escape = "attribute", Culture = ValueCulture.Current)] string? value);
 
     /// <summary>The <c>rows</c> attribute.</summary>
-    [Attr(" rows=\"", "\"", Escape = "attribute")]
-    public partial Textarea Rows(int? value);
+    public partial Textarea Rows([Attr(" rows=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>cols</c> attribute.</summary>
-    [Attr(" cols=\"", "\"", Escape = "attribute")]
-    public partial Textarea Cols(int? value);
+    public partial Textarea Cols([Attr(" cols=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>maxlength</c> attribute.</summary>
-    [Attr(" maxlength=\"", "\"", Escape = "attribute")]
-    public partial Textarea MaxLength(int? value);
+    public partial Textarea MaxLength([Attr(" maxlength=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>minlength</c> attribute.</summary>
-    [Attr(" minlength=\"", "\"", Escape = "attribute")]
-    public partial Textarea MinLength(int? value);
+    public partial Textarea MinLength([Attr(" minlength=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>wrap</c> attribute.</summary>
-    [Attr(" wrap=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Textarea Wrap(string? value);
+    public partial Textarea Wrap([Attr(" wrap=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>autocomplete</c> attribute.</summary>
-    [Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Textarea Autocomplete(string? value);
+    public partial Textarea Autocomplete([Attr(" autocomplete=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>dirname</c> attribute.</summary>
-    [Attr(" dirname=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Textarea DirName(string? value);
+    public partial Textarea DirName([Attr(" dirname=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial Textarea Disabled(bool? value = true);
+    public partial Textarea Disabled([Attr(" disabled", "")] bool? value = true);
 
     /// <summary>The <c>readonly</c> attribute.</summary>
-    [Attr(" readonly", "")]
-    public partial Textarea ReadOnly(bool? value = true);
+    public partial Textarea ReadOnly([Attr(" readonly", "")] bool? value = true);
 
     /// <summary>The <c>required</c> attribute.</summary>
-    [Attr(" required", "")]
-    public partial Textarea Required(bool? value = true);
+    public partial Textarea Required([Attr(" required", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;output&gt;</c> element.</summary>
@@ -2958,16 +2470,13 @@ public sealed partial class Output : HtmlTag<Output>
     internal Output() { }
 
     /// <summary>The <c>for</c> attribute.</summary>
-    [Attr(" for=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Output For(string? value);
+    public partial Output For([Attr(" for=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Output Form(string? value);
+    public partial Output Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Output Name(string? value);
+    public partial Output Name([Attr(" name=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 }
 
 /// <summary>The <c>&lt;progress&gt;</c> element.</summary>
@@ -2978,12 +2487,10 @@ public sealed partial class Progress : HtmlTag<Progress>
     internal Progress() { }
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute")]
-    public partial Progress Value(double? value);
+    public partial Progress Value([Attr(" value=\"", "\"", Escape = "attribute")] double? value);
 
     /// <summary>The <c>max</c> attribute.</summary>
-    [Attr(" max=\"", "\"", Escape = "attribute")]
-    public partial Progress Max(double? value);
+    public partial Progress Max([Attr(" max=\"", "\"", Escape = "attribute")] double? value);
 }
 
 /// <summary>The <c>&lt;meter&gt;</c> element.</summary>
@@ -2994,28 +2501,22 @@ public sealed partial class Meter : HtmlTag<Meter>
     internal Meter() { }
 
     /// <summary>The <c>value</c> attribute.</summary>
-    [Attr(" value=\"", "\"", Escape = "attribute")]
-    public partial Meter Value(double? value);
+    public partial Meter Value([Attr(" value=\"", "\"", Escape = "attribute")] double? value);
 
     /// <summary>The <c>min</c> attribute.</summary>
-    [Attr(" min=\"", "\"", Escape = "attribute")]
-    public partial Meter Min(double? value);
+    public partial Meter Min([Attr(" min=\"", "\"", Escape = "attribute")] double? value);
 
     /// <summary>The <c>max</c> attribute.</summary>
-    [Attr(" max=\"", "\"", Escape = "attribute")]
-    public partial Meter Max(double? value);
+    public partial Meter Max([Attr(" max=\"", "\"", Escape = "attribute")] double? value);
 
     /// <summary>The <c>low</c> attribute.</summary>
-    [Attr(" low=\"", "\"", Escape = "attribute")]
-    public partial Meter Low(double? value);
+    public partial Meter Low([Attr(" low=\"", "\"", Escape = "attribute")] double? value);
 
     /// <summary>The <c>high</c> attribute.</summary>
-    [Attr(" high=\"", "\"", Escape = "attribute")]
-    public partial Meter High(double? value);
+    public partial Meter High([Attr(" high=\"", "\"", Escape = "attribute")] double? value);
 
     /// <summary>The <c>optimum</c> attribute.</summary>
-    [Attr(" optimum=\"", "\"", Escape = "attribute")]
-    public partial Meter Optimum(double? value);
+    public partial Meter Optimum([Attr(" optimum=\"", "\"", Escape = "attribute")] double? value);
 }
 
 /// <summary>The <c>&lt;fieldset&gt;</c> element.</summary>
@@ -3026,16 +2527,13 @@ public sealed partial class Fieldset : HtmlTag<Fieldset>
     internal Fieldset() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Fieldset Name(string? value);
+    public partial Fieldset Name([Attr(" name=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>form</c> attribute.</summary>
-    [Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Fieldset Form(string? value);
+    public partial Fieldset Form([Attr(" form=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>disabled</c> attribute.</summary>
-    [Attr(" disabled", "")]
-    public partial Fieldset Disabled(bool? value = true);
+    public partial Fieldset Disabled([Attr(" disabled", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;legend&gt;</c> element.</summary>
@@ -3054,12 +2552,10 @@ public sealed partial class Details : HtmlTag<Details>
     internal Details() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Details Name(string? value);
+    public partial Details Name([Attr(" name=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>open</c> attribute.</summary>
-    [Attr(" open", "")]
-    public partial Details Open(bool? value = true);
+    public partial Details Open([Attr(" open", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;summary&gt;</c> element.</summary>
@@ -3078,8 +2574,7 @@ public sealed partial class Dialog : HtmlTag<Dialog>
     internal Dialog() { }
 
     /// <summary>The <c>open</c> attribute.</summary>
-    [Attr(" open", "")]
-    public partial Dialog Open(bool? value = true);
+    public partial Dialog Open([Attr(" open", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;script&gt;</c> element.</summary>
@@ -3090,36 +2585,28 @@ public sealed partial class Script : HtmlTag<Script>
     internal Script() { }
 
     /// <summary>The <c>src</c> attribute.</summary>
-    [Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Script Src(string? value);
+    public partial Script Src([Attr(" src=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>type</c> attribute.</summary>
-    [Attr(" type=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Script Type(string? value);
+    public partial Script Type([Attr(" type=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>crossorigin</c> attribute.</summary>
-    [Attr(" crossorigin=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Script CrossOrigin(string? value);
+    public partial Script CrossOrigin([Attr(" crossorigin=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>integrity</c> attribute.</summary>
-    [Attr(" integrity=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Script Integrity(string? value);
+    public partial Script Integrity([Attr(" integrity=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>referrerpolicy</c> attribute.</summary>
-    [Attr(" referrerpolicy=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Script ReferrerPolicy(string? value);
+    public partial Script ReferrerPolicy([Attr(" referrerpolicy=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
     /// <summary>The <c>async</c> attribute.</summary>
-    [Attr(" async", "")]
-    public partial Script Async(bool? value = true);
+    public partial Script Async([Attr(" async", "")] bool? value = true);
 
     /// <summary>The <c>defer</c> attribute.</summary>
-    [Attr(" defer", "")]
-    public partial Script Defer(bool? value = true);
+    public partial Script Defer([Attr(" defer", "")] bool? value = true);
 
     /// <summary>The <c>nomodule</c> attribute.</summary>
-    [Attr(" nomodule", "")]
-    public partial Script NoModule(bool? value = true);
+    public partial Script NoModule([Attr(" nomodule", "")] bool? value = true);
 }
 
 /// <summary>The <c>&lt;noscript&gt;</c> element.</summary>
@@ -3146,12 +2633,10 @@ public sealed partial class Canvas : HtmlTag<Canvas>
     internal Canvas() { }
 
     /// <summary>The <c>width</c> attribute.</summary>
-    [Attr(" width=\"", "\"", Escape = "attribute")]
-    public partial Canvas Width(int? value);
+    public partial Canvas Width([Attr(" width=\"", "\"", Escape = "attribute")] int? value);
 
     /// <summary>The <c>height</c> attribute.</summary>
-    [Attr(" height=\"", "\"", Escape = "attribute")]
-    public partial Canvas Height(int? value);
+    public partial Canvas Height([Attr(" height=\"", "\"", Escape = "attribute")] int? value);
 }
 
 /// <summary>The <c>&lt;slot&gt;</c> element.</summary>
@@ -3162,6 +2647,5 @@ public sealed partial class Slot : HtmlTag<Slot>
     internal Slot() { }
 
     /// <summary>The <c>name</c> attribute.</summary>
-    [Attr(" name=\"", "\"", Escape = "attribute", TextOnly = true)]
-    public partial Slot Name(string? value);
+    public partial Slot Name([Attr(" name=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 }

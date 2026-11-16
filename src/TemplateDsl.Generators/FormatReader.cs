@@ -24,7 +24,7 @@ internal enum AttributeKind
     Invalid,
 }
 
-/// <param name="Name">The name of the method, or of the attribute for one from the list.</param>
+/// <param name="Name">The name of the parameter that takes its value, or of the attribute for one from a list.</param>
 /// <param name="Prefix">Written before the value.</param>
 /// <param name="Suffix">Written after the value.</param>
 /// <param name="Escape">The escape context of the value, or null for none.</param>
@@ -45,6 +45,14 @@ internal sealed record AttributeInfo(
     bool IsAnyNumber = false,
     bool AlsoText = false,
     string? Format = null);
+
+/// <summary>
+/// A method that writes attributes, one for each of its parameters marked with <c>[Attr]</c>, in their order: a method
+/// of a node, such as <c>Id(string? value)</c>, or an extension method of a package, such as one for htmx.
+/// </summary>
+/// <param name="Name">The name of the method.</param>
+/// <param name="Attributes">The attributes its parameters write, in their order.</param>
+internal sealed record AttributeMethodInfo(string Name, EquatableArray<AttributeInfo> Attributes);
 
 /// <summary>A list of attributes without their own method, such as Attr or Data, called by its method's name.</summary>
 internal sealed record AttributeListInfo(
@@ -68,7 +76,7 @@ internal sealed record NodeInfo(
     string TextPrefix,
     string TextSuffix,
     string? Separator,
-    EquatableArray<AttributeInfo> Attributes,
+    EquatableArray<AttributeMethodInfo> Methods,
     EquatableArray<AttributeListInfo>? AttributeLists = null,
     bool IsVoid = false);
 
@@ -164,7 +172,7 @@ internal static class FormatReader
                     TextPrefix: "",
                     TextSuffix: "",
                     GetNamed(attribute, "Separator"),
-                    new EquatableArray<AttributeInfo>(ReadAttributes(type)),
+                    new EquatableArray<AttributeMethodInfo>(ReadAttributeMethods(type)),
                     ReadAttributeLists(type),
                     attribute.NamedArguments.Any(argument => argument.Key == "IsVoid" && Equals(argument.Value.Value, true)));
             }
@@ -178,7 +186,7 @@ internal static class FormatReader
                     GetNamed(attribute, "Prefix") ?? "",
                     GetNamed(attribute, "Suffix") ?? "",
                     Separator: null,
-                    new EquatableArray<AttributeInfo>([]));
+                    new EquatableArray<AttributeMethodInfo>([]));
             }
         }
 
@@ -276,27 +284,40 @@ internal static class FormatReader
         return result.ToString();
     }
 
-    private static AttributeInfo[] ReadAttributes(ITypeSymbol type) =>
-        AllMethods(type).Select(ReadAttribute).OfType<AttributeInfo>().ToArray();
+    private static AttributeMethodInfo[] ReadAttributeMethods(ITypeSymbol type) =>
+        AllMethods(type).Select(ReadAttributeMethod).OfType<AttributeMethodInfo>().ToArray();
 
-    /// <summary>The attribute that <paramref name="method"/> declares, if it is marked as one.</summary>
-    public static AttributeInfo? ReadAttribute(IMethodSymbol method)
+    /// <summary>
+    /// The attributes that <paramref name="method"/> writes, one for each parameter marked with <c>[Attr]</c>, or null if it
+    /// has none. The element an extension method is called on isn't one of them.
+    /// </summary>
+    public static AttributeMethodInfo? ReadAttributeMethod(IMethodSymbol method)
     {
-        var attribute = method.GetAttributes().FirstOrDefault(a => IsAttribute(a, "AttrAttribute"));
+        var attributes = ValueParameters(method).Select(ReadAttribute).OfType<AttributeInfo>().ToArray();
+
+        return attributes.Length == 0 ? null : new AttributeMethodInfo(method.Name, new EquatableArray<AttributeInfo>(attributes));
+    }
+
+    /// <summary>The parameters of a method that take values: all of them, except the element an extension method is called on.</summary>
+    public static IEnumerable<IParameterSymbol> ValueParameters(IMethodSymbol method) =>
+        method.IsExtensionMethod ? method.Parameters.Skip(1) : method.Parameters;
+
+    /// <summary>The attribute that <paramref name="parameter"/> writes, if it is marked as one.</summary>
+    public static AttributeInfo? ReadAttribute(IParameterSymbol parameter)
+    {
+        var attribute = parameter.GetAttributes().FirstOrDefault(a => IsAttribute(a, "AttrAttribute"));
 
         if (attribute is not { ConstructorArguments.Length: 2 })
         {
             return null;
         }
 
-        var kind = GetKind(method);
-
         return new AttributeInfo(
-            method.Name,
+            parameter.Name,
             (string)attribute.ConstructorArguments[0].Value!,
             (string)attribute.ConstructorArguments[1].Value!,
             GetNamed(attribute, "Escape"),
-            kind,
+            GetKind(parameter),
             attribute.NamedArguments.Any(argument => argument.Key == "Culture" && Equals(argument.Value.Value, 1)),
             IsSet(attribute, "TextOnly"),
             IsSet(attribute, "AnyNumber"),
@@ -304,16 +325,9 @@ internal static class FormatReader
             GetNamed(attribute, "Format"));
     }
 
-    /// <summary>What the single parameter of an attribute method takes.</summary>
-    private static AttributeKind GetKind(IMethodSymbol method)
+    /// <summary>What a parameter of an attribute method takes.</summary>
+    private static AttributeKind GetKind(IParameterSymbol parameter)
     {
-        if (method.Parameters.Length != 1 || method.IsGenericMethod)
-        {
-            return AttributeKind.Invalid;
-        }
-
-        var parameter = method.Parameters[0];
-
         if (parameter.Type.SpecialType == SpecialType.System_String)
         {
             return AttributeKind.Text;

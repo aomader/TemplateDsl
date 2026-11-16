@@ -147,6 +147,8 @@ internal readonly struct EquatableArray<TItem>(TItem[] items) : IEquatable<Equat
 
     public int Length => _items.Length;
 
+    public TItem this[int index] => _items[index];
+
     public bool Equals(EquatableArray<TItem> other) => _items.SequenceEqual(other._items);
 
     public override bool Equals(object? obj) => obj is EquatableArray<TItem> other && Equals(other);
