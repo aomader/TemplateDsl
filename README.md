@@ -577,6 +577,14 @@ whose argument is left out, so their parameters default to null. Escape every at
 be one of the app's own, which writes whatever it formats as. Attributes that several nodes share go in a base class
 that takes the node as a type parameter and returns it, as `HtmlTag<TElement>` does.
 
+A factory can take attributes too, which its parameters say the same way, such as the name of a JSON property:
+
+```csharp
+public static JsonProperty Prop([Attr("\"", "\":", Escape = "string")] string name) => new();
+```
+
+Every parameter of a factory is marked like that, except the text of a text node, as in `Text(string? value)`.
+
 ## Extending elements
 
 A package can add attributes to the elements of a format, such as one for a library like htmx, with extension methods

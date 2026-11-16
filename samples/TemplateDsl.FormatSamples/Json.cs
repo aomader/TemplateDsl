@@ -31,10 +31,7 @@ public sealed partial class JsonArray : JsonNode;
 
 /// <summary>A property of an object, whose value follows in brackets: <c>Json.Prop("name") [ "value" ]</c>.</summary>
 [Node]
-public sealed partial class JsonProperty : JsonNode
-{
-    public partial JsonProperty Name([Attr("\"", "\":", Escape = "string")] string? value);
-}
+public sealed partial class JsonProperty : JsonNode;
 
 [TemplateTags(typeof(JsonNode))]
 public static partial class Json
@@ -43,7 +40,8 @@ public static partial class Json
 
     public static JsonArray Arr => new();
 
-    public static JsonProperty Prop(string name) => new();
+    /// <summary>A property, whose name the parameter writes, quoted and followed by a colon.</summary>
+    public static JsonProperty Prop([Attr("\"", "\":", Escape = "string")] string name) => new();
 
     public static JsonString Str(string? value) => new();
 

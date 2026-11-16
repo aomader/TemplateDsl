@@ -213,7 +213,7 @@ public class ExtensionAttributeGeneratorTests
         {
             public static XItem Item => new();
 
-            public static XItem Make(string? pair) => new();
+            public static XItem Make([Attr(" c=", "", Escape = "t")] string? first = null, [Attr(" d=", "", Escape = "t")] string? second = null) => new();
         }
 
         """;
@@ -234,15 +234,43 @@ public class ExtensionAttributeGeneratorTests
     }
 
     [Fact]
-    public void A_parameter_of_a_factory_only_sets_a_method_that_writes_one_attribute()
+    public void The_parameters_of_a_factory_write_the_attributes_they_say()
     {
-        var (generator, _, _) = Run(Format + """
+        var (generator, errors, generated) = Run(Format + """
             public sealed partial class Page : ITemplate<XNode>
             {
-                public IEnumerable<XNode> Build() => [X.Make("1")];
+                public IEnumerable<XNode> Build() => [X.Make("1"), X.Make(second: "<"), X.Make("1", "2")];
             }
             """);
 
-        Assert.Contains(generator, diagnostic => diagnostic.Id == "TDSL004" && diagnostic.GetMessage(CultureInfo.InvariantCulture).Contains("'pair' is not an attribute of this node", StringComparison.Ordinal));
+        Assert.Empty(generator);
+        Assert.Empty(errors);
+        Assert.Contains("\"<x c=1></x><x d=&lt;></x><x c=1 d=2></x>\"", string.Concat(generated));
+    }
+
+    [Theory]
+    [InlineData("public static XItem Bad(string? plain) => new();", "must say which attribute each of its parameters writes, with [Attr]")]
+    [InlineData("""public static XItem Bad([Attr(" a=", "", Escape = "t")] object? value) => new();""", "must take a string, bool or value type")]
+    [InlineData("""public static XItem Bad([Attr(" a=", "", Escape = "t")] string? value = "x") => new();""", "can only default to null")]
+    [InlineData("""public static XItem Bad([Attr(" a=", "", Escape = "unknown")] string? value) => new();""", "uses the escape context 'unknown'")]
+    [InlineData("public static XText Bad(string? value, int extra) => new();", "creates a text node, so it takes one string, its text, which needs no [Attr]")]
+    [InlineData("public static XText Bad() => new();", "creates a text node, so it takes one string")]
+    [InlineData("public static XText Bad(int value) => new();", "creates a text node, so it takes one string")]
+    [InlineData("""public static XText Bad([Attr(" a=", "", Escape = "t")] string? value) => new();""", "creates a text node, so it takes one string")]
+    public void Factories_that_can_not_write_their_attributes_are_reported(string factory, string expected)
+    {
+        var (generator, _, _) = Run(Format.Replace("public static XItem Item => new();", "public static XItem Item => new();\n\n            " + factory, StringComparison.Ordinal));
+
+        var diagnostic = Assert.Single(generator);
+        Assert.Equal("TDSL006", diagnostic.Id);
+        Assert.Contains("X.Bad' " + expected, diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void A_method_of_the_class_of_tags_that_creates_no_node_is_no_factory()
+    {
+        var (generator, _, _) = Run(Format.Replace("public static XItem Item => new();", "public static XItem Item => new();\n\n            public static string Helper(int count) => \"\";", StringComparison.Ordinal));
+
+        Assert.Empty(generator);
     }
 }

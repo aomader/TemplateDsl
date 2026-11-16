@@ -42,7 +42,10 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
 - **Breaking:** `[Attr]` marks the parameter that takes the value of an attribute instead of the method, as in
   `public partial Item Id([Attr(" id=\"", "\"")] string? value);`, for custom formats. Moving it from the method to its
   parameter is all it takes. The duplicate check of attributes compares what they write, so an attribute written twice,
-  through its method and `.Attr`, is an error now.
+  through its method and `.Attr`, is an error now. The parameters of a factory are marked the same way, instead of
+  setting the attribute of the method with their name: `Prop([Attr("\"", "\":")] string name)`. A factory parameter
+  without `[Attr]` is an error, except the text of a text node, as in `Text(string? value)`, whose factory takes that
+  one string and nothing else.
 - **Breaking:** `.Attr` can no longer write an attribute whose method takes any string, which the message names: the
   ARIA attributes for text, such as `aria-label` with `.AriaLabel(...)`, and the attributes whose method takes a string
   next to its type, such as `role` with `.Role(...)`, `aria-checked` and the `step` of an input. A typed attribute keeps

@@ -231,8 +231,10 @@ public sealed class FormatGenerator : IIncrementalGenerator
     {
         var parameter = (IParameterSymbol)context.TargetSymbol;
 
+        // A factory has a body, and is checked with its class, also if none of its parameters is marked.
         if (parameter.ContainingSymbol is not IMethodSymbol method
             || context.TargetNode.Parent?.Parent is not MethodDeclarationSyntax syntax
+            || FormatReader.IsTags(method.ContainingType)
             || !SymbolEqualityComparer.Default.Equals(FormatReader.ValueParameters(method).FirstOrDefault(p => FormatReader.ReadAttribute(p) is not null), parameter))
         {
             return null;
@@ -313,7 +315,44 @@ public sealed class FormatGenerator : IIncrementalGenerator
             format?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
             CheckShape(context, symbol)
                 ?? (symbol.IsStatic ? null : Invalid(context, $"'{symbol.Name}' must be a static class"))
-                ?? (format is not null && FormatReader.IsFormat(format) ? null : Invalid(context, $"'{symbol.Name}' must name a class marked with [TemplateFormat]")));
+                ?? (format is not null && FormatReader.IsFormat(format) ? null : Invalid(context, $"'{symbol.Name}' must name a class marked with [TemplateFormat]"))
+                ?? CheckFactories(symbol, format!));
+    }
+
+    /// <summary>
+    /// The factories of a class of tags, whose parameters write attributes as those of an attribute method do: each says
+    /// which one with [Attr], and an argument that is left out writes nothing, so they can only default to null. The
+    /// first parameter of a factory of a text node, such as Text(value), is its text instead.
+    /// </summary>
+    private static DiagnosticInfo? CheckFactories(INamedTypeSymbol tags, ITypeSymbol format)
+    {
+        foreach (var method in tags.GetMembers().OfType<IMethodSymbol>().Where(method => method is { MethodKind: MethodKind.Ordinary, IsStatic: true }))
+        {
+            if (FormatReader.ReadNode(method.ReturnType) is not { } node)
+            {
+                continue;
+            }
+
+            var attributes = method.Parameters.Select(FormatReader.ReadAttribute).ToArray();
+
+            // A text node has no attributes. What its factory takes is its text, which the generator writes as it is.
+            var problem = node.IsText
+                ? method.Parameters.Length != 1 || method.Parameters[0].Type.SpecialType != SpecialType.System_String || attributes[0] is not null
+                    ? "creates a text node, so it takes one string, its text, which needs no [Attr]"
+                    : null
+                : attributes.Any(attribute => attribute is null) ? "must say which attribute each of its parameters writes, with [Attr]"
+                : attributes.Any(attribute => attribute!.Kind == AttributeKind.Invalid) ? "must take a string, bool or value type that can format itself, such as int?, for each attribute"
+                : method.Parameters.Any(p => p.HasExplicitDefaultValue && p.ExplicitDefaultValue is not null) ? "can only default to null, as an argument that is left out writes nothing"
+                : attributes.FirstOrDefault(attribute => attribute!.Escape is not null && !IsKnownEscape(format, attribute.Escape))?.Escape is { } unknown ? $"uses the escape context '{unknown}', which its format doesn't declare"
+                : null;
+
+            if (problem is not null)
+            {
+                return DiagnosticInfo.Create(Diagnostics.InvalidFormat, method.Locations[0], $"'{tags.Name}.{method.Name}' {problem}");
+            }
+        }
+
+        return null;
     }
 
     private static DiagnosticInfo? CheckShape(GeneratorAttributeSyntaxContext context, INamedTypeSymbol symbol)

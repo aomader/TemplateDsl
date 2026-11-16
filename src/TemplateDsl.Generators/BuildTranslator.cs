@@ -627,10 +627,10 @@ internal sealed class BuildTranslator(
         {
             var argument = chain.Arguments[i];
             var parameter = argument.NameColon is { } name
-                ? chain.Parameters.First(p => p.Name == name.Name.Identifier.ValueText)
-                : chain.Parameters[i];
+                ? chain.Parameters.FirstOrDefault(p => p.Name == name.Name.Identifier.ValueText)
+                : i < chain.Parameters.Length ? chain.Parameters[i] : null;
 
-            WriteFactoryArgument(node, parameter.Name, argument, written);
+            WriteFactoryArgument(parameter, argument, written);
         }
 
         foreach (var call in chain.Calls)
@@ -657,18 +657,19 @@ internal sealed class BuildTranslator(
         _literal.Append(node.End);
     }
 
-    private void WriteFactoryArgument(NodeInfo node, string name, ArgumentSyntax argument, HashSet<string> written)
+    /// <summary>An argument of a factory, which writes the attribute its parameter says, like one of an attribute method.</summary>
+    private void WriteFactoryArgument(IParameterSymbol? parameter, ArgumentSyntax argument, HashSet<string> written)
     {
-        // A parameter of the factory sets the attribute of the method of the same name, which writes only that one.
-        var attribute = FindMethod(node, name) is { Attributes.Length: 1 } method ? method.Attributes[0] : null;
+        // The format checks its factories, so a parameter without [Attr] is already an error there, TDSL006.
+        var attribute = parameter is null ? null : FormatReader.ReadAttribute(parameter);
 
         if (attribute is null)
         {
-            Report(argument.GetLocation(), $"'{name}' is not an attribute of this node");
+            Report(argument.GetLocation(), $"'{argument}' writes no attribute, because its parameter of the factory isn't marked with [Attr]");
         }
         else if (!written.Add(attribute.Prefix))
         {
-            Report(argument.GetLocation(), $"'{name}' appears more than once");
+            Report(argument.GetLocation(), $"'{attribute.Name}' appears more than once");
         }
         else
         {
