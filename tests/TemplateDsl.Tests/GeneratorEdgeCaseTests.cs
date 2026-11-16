@@ -68,9 +68,9 @@ public class GeneratorEdgeCaseTests
         [TemplateTags(typeof(XNode))]
         public static partial class X
         {
-            public static XItem Item(string id, string other) => new();
+            public static XItem Item([Attr(" id=\"", "\"", Escape = "t")] string id, string other) => new();
 
-            public static XItem Twice(string id, string ID) => new();
+            public static XItem Twice([Attr(" id=\"", "\"", Escape = "t")] string id, [Attr(" id=\"", "\"", Escape = "t")] string ID) => new();
         }
 
         [TemplateBase]
@@ -127,7 +127,7 @@ public class GeneratorEdgeCaseTests
     }
 
     [Theory]
-    [InlineData("X.Item(\"a\", \"b\")", "'other' is not an attribute of this node")]
+    [InlineData("X.Item(\"a\", \"b\")", "'\"b\"' writes no attribute, because its parameter of the factory isn't marked with [Attr]")]
     [InlineData("X.Twice(\"a\", \"b\")", "'ID' appears more than once")]
     public void Factory_parameters_must_be_attributes_and_set_each_once(string node, string message)
     {
