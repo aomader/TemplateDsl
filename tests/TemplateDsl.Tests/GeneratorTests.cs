@@ -469,13 +469,15 @@ public class GeneratorTests
         Assert.Contains("CS0103", errors);
     }
 
-    [Fact]
-    public void Children_cannot_be_inspected()
+    [Theory]
+    [InlineData("H.Div.Id(Children.Elements.Length.ToString())")]
+    [InlineData("H.Div.Class(\"a\", (Children.Elements.Length.ToString(), true))")]
+    public void Children_cannot_be_inspected(string element)
     {
-        var (generated, diagnostics, _) = Run("""
+        var (generated, diagnostics, _) = Run($$"""
             public sealed partial class T : IHtmlTemplate, IAcceptsChildren
             {
-                public IEnumerable<HtmlElement> Build() => [H.Div.Id(Children.Elements.Length.ToString())];
+                public IEnumerable<HtmlElement> Build() => [{{element}}];
             }
             """);
 

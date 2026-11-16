@@ -66,7 +66,8 @@ public class FormatDeclarationTests
     {
         var id = Attribute(Tag, "Id");
         var title = Attribute(Tag, "Title");
-        var @class = Attribute(Tag, "Class");
+        var @class = Tag.GetMethod("Class", [typeof(string)])!.GetParameters()[0].GetCustomAttribute<AttrAttribute>()!;
+        var names = Tag.GetMethod("Class", [typeof(AttributeToken[])])!.GetParameters()[0].GetCustomAttribute<AttrAttribute>()!;
         var min = Attribute(typeof(Nodes.NumberInput), "Min");
         var step = Attribute(typeof(Nodes.NumberInput), "Step");
         var month = Attribute(typeof(Nodes.MonthInput), "Min");
@@ -76,6 +77,7 @@ public class FormatDeclarationTests
         Assert.Equal(ValueCulture.Invariant, id.Culture);
         Assert.True(@class.TextOnly);
         Assert.False(id.TextOnly);
+        Assert.Equal((" class=\"", " "), (names.Prefix, names.Tokens));
         Assert.Equal((true, false), (min.AnyNumber, min.AlsoText));
         Assert.Equal((true, true), (step.AnyNumber, step.AlsoText));
         Assert.Equal("yyyy-MM", month.Format);

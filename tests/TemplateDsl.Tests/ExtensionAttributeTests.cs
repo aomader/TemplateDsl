@@ -257,6 +257,7 @@ public class ExtensionAttributeGeneratorTests
     [InlineData("public static XText Bad() => new();", "creates a text node, so it takes one string")]
     [InlineData("public static XText Bad(int value) => new();", "creates a text node, so it takes one string")]
     [InlineData("""public static XText Bad([Attr(" a=", "", Escape = "t")] string? value) => new();""", "creates a text node, so it takes one string")]
+    [InlineData("""public static XItem Bad([Attr(" a=", "", Tokens = " ")] params AttributeToken[] names) => new();""", "can't take a list of names")]
     public void Factories_that_can_not_write_their_attributes_are_reported(string factory, string expected)
     {
         var (generator, _, _) = Run(Format.Replace("public static XItem Item => new();", "public static XItem Item => new();\n\n            " + factory, StringComparison.Ordinal));
@@ -272,5 +273,18 @@ public class ExtensionAttributeGeneratorTests
         var (generator, _, _) = Run(Format.Replace("public static XItem Item => new();", "public static XItem Item => new();\n\n            public static string Helper(int count) => \"\";", StringComparison.Ordinal));
 
         Assert.Empty(generator);
+    }
+
+    [Fact]
+    public void A_list_of_names_is_the_only_attribute_of_its_method()
+    {
+        var (generator, _, _) = Run(Format.Replace(
+            "public partial XItem Pair(",
+            """public partial XItem Names([Attr(" a=", "")] string? first, [Attr(" b=", "", Tokens = " ")] params AttributeToken[] names); public partial XItem Pair(""",
+            StringComparison.Ordinal));
+
+        var diagnostic = Assert.Single(generator);
+        Assert.Equal("TDSL006", diagnostic.Id);
+        Assert.Contains("'XItem.Names' takes a list of names, so it can write no other attribute", diagnostic.GetMessage(CultureInfo.InvariantCulture), StringComparison.Ordinal);
     }
 }

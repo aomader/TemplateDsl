@@ -150,6 +150,34 @@ public sealed class AttrAttribute(string prefix, string suffix) : Attribute
 
     /// <summary>For a value type, the format its values are written in, such as <c>yyyy-MM</c> for a month.</summary>
     public string? Format { get; set; }
+
+    /// <summary>
+    /// For a parameter of type <c>params AttributeToken[]</c>: what goes between the names it writes, such as the space
+    /// between the names of a class. Each argument is a name, or a pair of a name and whether to write it:
+    /// <c>Class("todo", ("done", todo.Done))</c>. Null and empty names are left out, and so is the attribute, if no name is left.
+    /// </summary>
+    public string? Tokens { get; set; }
+}
+
+/// <summary>
+/// A name in an attribute that is a list of names, such as <c>class</c>: a string, which is written unless it is null or
+/// empty, or a pair of a string and whether to write it, as in <c>("done", todo.Done)</c>. Like everything in Build, it
+/// only lets C# check what is written, and is compiled by the source generator, so it never exists.
+/// </summary>
+[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1815", Justification = "It never exists, so it is never compared.")]
+public readonly struct AttributeToken
+{
+    /// <summary>A name, which is written unless it is null or empty.</summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2225", Justification = "It only exists for Build, which the generator compiles.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1065", Justification = "It never runs: Build is compiled by the generator.")]
+    public static implicit operator AttributeToken(string? name) => throw TemplateBuild.NotExecutable();
+
+    /// <summary>A name and whether to write it, as in <c>("done", todo.Done)</c>.</summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2225", Justification = "It only exists for Build, which the generator compiles.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1065", Justification = "It never runs: Build is compiled by the generator.")]
+    public static implicit operator AttributeToken((string? Name, bool Write) token) => throw TemplateBuild.NotExecutable();
 }
 
 /// <summary>

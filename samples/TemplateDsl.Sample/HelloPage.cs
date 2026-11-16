@@ -29,7 +29,7 @@ public sealed partial class HelloPage(string userName, bool isAdmin, int unreadM
         [
             Html [
                 Body [
-                    Div.Id($"user-{userName}").Class(unreadMessages > 0 ? "user has-unread" : "user") [
+                    Div.Id($"user-{userName}").Class("user", ("has-unread", unreadMessages > 0)) [
                         $"Hello {userName}! ",
                         unreadMessages > 0
                             ? Div.Class("unread") [ $"{unreadMessages} unread messages" ]

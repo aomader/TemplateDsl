@@ -15,6 +15,9 @@ public abstract partial class HtmlTag<TElement> : HtmlElement where TElement : H
     /// <summary>The <c>class</c> attribute.</summary>
     public partial TElement Class([Attr(" class=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 
+    /// <summary>The <c>class</c> attribute, of names that are left out if they are null or empty, or if their condition is false: <c>Class("todo", ("done", todo.Done))</c>.</summary>
+    public partial TElement Class([Attr(" class=\"", "\"", Escape = "attribute", Tokens = " ")] params AttributeToken[] names);
+
     /// <summary>The <c>style</c> attribute.</summary>
     public partial TElement Style([Attr(" style=\"", "\"", Escape = "attribute", TextOnly = true)] string? value);
 

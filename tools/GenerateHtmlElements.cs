@@ -123,6 +123,18 @@ static void EmitAttributes(StringBuilder source, string returnType, List<Attribu
 {
     foreach (var attribute in attributes)
     {
+        // A list of names, such as of a class: one string, as any other text, or names that are each written or not.
+        if (attribute.Type == "tokens")
+        {
+            var prefix = $"\" {attribute.Name}=\\\"\", \"\\\"\", Escape = \"attribute\"";
+
+            source.Append(CultureInfo.InvariantCulture, $"    /// <summary>The <c>{attribute.Name}</c> attribute.</summary>\n");
+            source.Append(CultureInfo.InvariantCulture, $"    public partial {returnType} {attribute.MethodName}([Attr({prefix}, TextOnly = true)] string? value);\n\n");
+            source.Append(CultureInfo.InvariantCulture, $"    /// <summary>The <c>{attribute.Name}</c> attribute, of names that are left out if they are null or empty, or if their condition is false: <c>{attribute.MethodName}(\"todo\", (\"done\", todo.Done))</c>.</summary>\n");
+            source.Append(CultureInfo.InvariantCulture, $"    public partial {returnType} {attribute.MethodName}([Attr({prefix}, Tokens = \" \")] params AttributeToken[] names);\n\n");
+            continue;
+        }
+
         // Every attribute with a value is escaped, also numbers and dates: a number can be of the app's own type,
         // which writes whatever its formatting says, and a value without special characters costs only a check.
         var (attr, parameter) = attribute switch

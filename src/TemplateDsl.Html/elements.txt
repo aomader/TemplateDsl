@@ -6,13 +6,14 @@
 #   name: attribute:int             takes only that type, also :double and an enum such as :InputType. :bool writes the word true or false
 #   name: attribute:Role|text       takes that type, or a string too, such as a role of another specification
 #   name: attribute:number          takes any number. :number|text takes strings too, and :date, :month, :time, :datetime those
+#   name: attribute:tokens          a list of names, such as class: a string, or names each written or not, as in ("done", isDone)
 #   name.variant!: attribute        a variant with a fixed type attribute, such as input.email, which becomes Elements.InputEmail
 #   name!: attribute                "!" marks a void element, which has no closing tag or children
 #
 # Attributes on the "global" lines go on every element. Event handlers such as onclick are left
 # out on purpose: running a dynamic value as code should never be one parameter away.
 
-global: id:any class style title~ lang dir role:Role|text slot nonce tabindex:int accesskey contenteditable:bool draggable:bool spellcheck:bool translate popover hidden? inert? autofocus?
+global: id:any class:tokens style title~ lang dir role:Role|text slot nonce tabindex:int accesskey contenteditable:bool draggable:bool spellcheck:bool translate popover hidden? inert? autofocus?
 
 # The states and properties of WAI-ARIA 1.2, without the deprecated aria-dropeffect and aria-grabbed. Booleans are the
 # words true and false, which mean something, unlike the presence of hidden, so they are :bool. aria-checked and
