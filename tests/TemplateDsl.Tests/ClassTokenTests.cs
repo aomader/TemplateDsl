@@ -19,6 +19,16 @@ public sealed partial class ClassPage(bool done, bool editing, string? extra, do
     ];
 }
 
+public sealed partial class TokenListPage(string? error, bool userContent, bool canSubmit) : IHtmlTemplate
+{
+    public IEnumerable<HtmlElement> Build() =>
+    [
+        Input.AriaDescribedBy("hint", ("error", error is not null)).AriaLabelledBy("label", "unit").AriaControls(("list", userContent)).AriaOwns(("popup", canSubmit)),
+        A.Href("/x").Rel("noopener", ("nofollow", userContent), ("ugc", userContent)),
+        Iframe.Sandbox("allow-scripts", ("allow-forms", canSubmit))
+    ];
+}
+
 /// <summary>
 /// A class is a list of names, each written unless it is null or empty, or its condition is false, with a space only
 /// between those written, and no attribute at all if none is.
@@ -44,6 +54,12 @@ public class ClassTokenTests
             CultureInfo.CurrentCulture = culture;
         }
     }
+
+    [Theory]
+    [InlineData("e", true, true, "<input aria-describedby=\"hint error\" aria-labelledby=\"label unit\" aria-controls=\"list\" aria-owns=\"popup\"><a href=\"/x\" rel=\"noopener nofollow ugc\"></a><iframe sandbox=\"allow-scripts allow-forms\"></iframe>")]
+    [InlineData(null, false, false, "<input aria-describedby=\"hint\" aria-labelledby=\"label unit\"><a href=\"/x\" rel=\"noopener\"></a><iframe sandbox=\"allow-scripts\"></iframe>")]
+    public void Other_lists_of_names_are_written_the_same_way(string? error, bool userContent, bool canSubmit, string expected) =>
+        Assert.Equal(expected, new TokenListPage(error, userContent, canSubmit).RenderToString());
 
     [Fact]
     public void Constant_names_are_written_while_compiling()

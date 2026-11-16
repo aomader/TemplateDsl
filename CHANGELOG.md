@@ -9,8 +9,9 @@ and versions follow [Semantic Versioning](https://semver.org/). Before 1.0, a mi
 
 - `.Class(...)` takes a list of names, each a string or a pair of a name and whether to write it:
   `Li.Class("todo", ("done", todo.Done), extraClass)`. Null and empty names are left out, spaces go only between those
-  written, and the attribute is left out if none is. Constant names are written while compiling. Custom formats declare
-  such an attribute with `[Attr(..., Tokens = " ")] params AttributeToken[] names`.
+  written, and the attribute is left out if none is. Constant names are written while compiling. `.Rel(...)`,
+  `.Sandbox(...)`, `.AriaDescribedBy(...)`, `.AriaLabelledBy(...)`, `.AriaControls(...)` and `.AriaOwns(...)` take names
+  the same way. Custom formats declare such an attribute with `[Attr(..., Tokens = " ")] params AttributeToken[] names`.
 - Templates can be created without `new`. The generator writes a factory for every template, named like it and with
   the parameters of its constructors, into the static class `Templates` in the root namespace of the project. With
   `using static App.Templates;`, a template is written `Card("Hello") [ ... ]`, and the type arguments of a generic
